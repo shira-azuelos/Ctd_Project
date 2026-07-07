@@ -1,0 +1,12 @@
+# קבצי הרצה וקימפול
+*.exe
+*.obj
+*.o
+*.out
+
+# תיקיות של VS Code
+.vscode/
+
+# קבצי מערכת של Windows
+Thumbs.db
+Desktop.ini
