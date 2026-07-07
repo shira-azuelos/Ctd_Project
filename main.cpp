@@ -1,82 +1,39 @@
-#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "classes/Board.h"
+#include <cctype>
+#include "Board.h" 
 
-namespace {
+// פונקציית עזר לניקוי רווחים
 std::string trim(const std::string& input) {
-    std::size_t start = 0;
-    while (start < input.size() && std::isspace(static_cast<unsigned char>(input[start]))) {
-        ++start;
-    }
-
-    std::size_t end = input.size();
-    while (end > start && std::isspace(static_cast<unsigned char>(input[end - 1]))) {
-        --end;
-    }
-
-    return input.substr(start, end - start);
-}
+    size_t first = input.find_first_not_of(" \t\n\r");
+    if (first == std::string::npos) return "";
+    size_t last = input.find_last_not_of(" \t\n\r");
+    return input.substr(first, (last - first + 1));
 }
 
 int main() {
     Board board;
     std::string line;
-    bool inBoard = false;
-    bool inCommands = false;
-    bool isBoardValid = false;
+    bool inBoard = false, inCommands = false;
 
     while (std::getline(std::cin, line)) {
         std::string trimmed = trim(line);
-
-        if (trimmed == "Board:") {
-            inBoard = true;
-            inCommands = false;
-            continue;
-        }
-
+        if (trimmed == "Board:") { inBoard = true; inCommands = false; continue; }
         if (trimmed == "Commands:") {
-            inBoard = false;
-            inCommands = true;
-
-            if (!board.validate()) {
-                std::cout << board.getError() << '\n';
-                return 0;
-            }
-
-            isBoardValid = true;
+            inBoard = false; inCommands = true;
+            if (!board.validate()) { std::cout << board.getError() << '\n'; return 0; }
             continue;
         }
 
-        if (inBoard && !trimmed.empty()) {
-            board.addRow(trimmed);
-            continue;
-        }
-
-        if (inCommands && isBoardValid) {
-            std::istringstream commandStream(trimmed);
-            std::string command;
-            commandStream >> command;
-
-            if (command == "print") {
-                std::string target;
-                commandStream >> target;
-                if (target == "board") {
-                    board.printCanonical(std::cout);
-                }
-            } else if (command == "click") {
-                int x = 0;
-                int y = 0;
-                commandStream >> x >> y;
-                board.click(x, y);
-            } else if (command == "wait") {
-                int ms = 0;
-                commandStream >> ms;
-                board.wait(ms);
-            }
+        if (inBoard && !trimmed.empty()) board.addRow(trimmed);
+        else if (inCommands) {
+            std::istringstream ss(trimmed);
+            std::string cmd; ss >> cmd;
+            if (cmd == "print") { std::string t; ss >> t; if(t == "board") board.printCanonical(std::cout); }
+            else if (cmd == "click") { int x, y; ss >> x >> y; board.click(x, y); }
+            else if (cmd == "wait") { int ms; ss >> ms; board.wait(ms); }
         }
     }
-
     return 0;
 }

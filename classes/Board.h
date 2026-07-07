@@ -1,29 +1,22 @@
 #pragma once
-
-#include <iostream>
-#include <string>
 #include <vector>
+#include <memory>
+#include <string>
+#include "Piece.h"
 
 class Board {
 public:
     Board();
-
     void addRow(const std::string& line);
     bool validate();
     void printCanonical(std::ostream& out) const;
-    std::string getError() const;
     void click(int x, int y);
     void wait(int ms);
-
+    const Piece* getPiece(int r, int c) const;
+    std::string getError() const;
 private:
-    static bool isValidToken(const std::string& token);
-    bool isMoveLegal(int startRow, int startCol, int endRow, int endCol) const;
-
-    std::vector<std::vector<std::string>> state_;
-    int rows_;
-    int cols_;
-    int selectedRow_;
-    int selectedCol_;
-    int gameTime_;
+    std::vector<std::vector<std::unique_ptr<Piece>>> state_;
+    int rows_ = 0, cols_ = 0;
+    int selectedRow_ = -1, selectedCol_ = -1;
     std::string error_;
 };
