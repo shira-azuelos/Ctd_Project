@@ -157,7 +157,8 @@ bool Board::isMoveLegal(int startRow, int startCol, int endRow, int endCol) cons
             int stepCol = (colDiff == 0) ? 0 : (colDiff > 0 ? 1 : -1);
             int steps = std::max(absRow, absCol);
             for (int i = 1; i < steps; ++i) {
-                if (state_[startRow + stepRow * i][startCol + stepCol * i] != ".") {
+                const std::string& intermediate = state_[startRow + stepRow * i][startCol + stepCol * i];
+                if (intermediate != ".") {
                     return false;
                 }
             }
@@ -170,7 +171,8 @@ bool Board::isMoveLegal(int startRow, int startCol, int endRow, int endCol) cons
             int stepCol = (colDiff == 0) ? 0 : (colDiff > 0 ? 1 : -1);
             int steps = std::max(absRow, absCol);
             for (int i = 1; i < steps; ++i) {
-                if (state_[startRow + stepRow * i][startCol + stepCol * i] != ".") {
+                const std::string& intermediate = state_[startRow + stepRow * i][startCol + stepCol * i];
+                if (intermediate != ".") {
                     return false;
                 }
             }
@@ -182,15 +184,18 @@ bool Board::isMoveLegal(int startRow, int startCol, int endRow, int endCol) cons
             int stepRow = (rowDiff > 0) ? 1 : -1;
             int stepCol = (colDiff > 0) ? 1 : -1;
             for (int i = 1; i < absRow; ++i) {
-                if (state_[startRow + stepRow * i][startCol + stepCol * i] != ".") {
+                const std::string& intermediate = state_[startRow + stepRow * i][startCol + stepCol * i];
+                if (intermediate != ".") {
                     return false;
                 }
             }
             return true;
         }
         return false;
-    case 'N':
-        return (absRow == 2 && absCol == 1) || (absRow == 1 && absCol == 2);
+    case 'N': {
+        const bool isKnightMove = (absRow == 2 && absCol == 1) || (absRow == 1 && absCol == 2);
+        return isKnightMove;
+    }
     default:
         return false;
     }
