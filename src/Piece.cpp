@@ -1,5 +1,5 @@
-#include "Piece.h"
-#include "Board.h"
+#include "../include/Piece.h"
+#include "../include/Board.h"
 #include <cmath>
 #include <algorithm>
 
@@ -37,5 +37,20 @@ bool Queen::isLegalMove(int sR, int sC, int eR, int eC, const Board& b) const {
 
 bool Pawn::isLegalMove(int sR, int sC, int eR, int eC, const Board& b) const {
     int dir = (color_ == COLOR_WHITE) ? -1 : 1;
-    return (eC == sC && eR == sR + dir && b.getPiece(eR, eC) == nullptr);
+
+    int startRow = (color_ == COLOR_WHITE) ? b.getRows() - 1 : 0;
+
+    if (eC == sC && eR == sR + dir) {
+        return b.getPiece(eR, eC) == nullptr;
+    }
+
+    if (eC == sC && eR == sR + 2 * dir && sR == startRow) {
+        return b.getPiece(sR + dir, sC) == nullptr && b.getPiece(eR, eC) == nullptr;
+    }
+
+    if (std::abs(eC - sC) == 1 && eR == sR + dir) {
+        return b.getPiece(eR, eC) != nullptr;
+    }
+
+    return false;
 }

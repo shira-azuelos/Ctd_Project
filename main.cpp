@@ -1,8 +1,10 @@
+//https://github.com/shira-azuelos/Ctd_Project/tree/main
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <cctype>
-#include "Board.h" 
+#include "./include/Board.h" 
 
 std::string trim(const std::string& input) {
     size_t first = input.find_first_not_of(" \t\n\r");
@@ -32,6 +34,7 @@ int main() {
             if (cmd == "print") { std::string t; ss >> t; if(t == "board") board.printCanonical(std::cout); }
             else if (cmd == "click") { int x, y; ss >> x >> y; board.click(x, y); }
             else if (cmd == "wait") { int ms; ss >> ms; board.wait(ms); }
+            else if (cmd == "jump") { int x, y; ss >> x >> y; board.jump(x, y); } 
         }
     }
     return 0;
