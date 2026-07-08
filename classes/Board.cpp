@@ -5,16 +5,19 @@ void Board::addRow(const std::string& line) {
     std::istringstream rowStream(line);
     std::vector<std::unique_ptr<Piece>> row;
     std::string token;
+    
+    std::string emptyCellStr(1, EMPTY_CELL_CHAR);
+
     while (rowStream >> token) {
-        if (token == ".") row.push_back(nullptr);
+        if (token == emptyCellStr) row.push_back(nullptr);
         else {
             char c = token[0], t = token[1];
-            if (t == 'K') row.push_back(std::make_unique<King>(c));
-            else if (t == 'Q') row.push_back(std::make_unique<Queen>(c));
-            else if (t == 'R') row.push_back(std::make_unique<Rook>(c));
-            else if (t == 'B') row.push_back(std::make_unique<Bishop>(c));
-            else if (t == 'N') row.push_back(std::make_unique<Knight>(c));
-            else if (t == 'P') row.push_back(std::make_unique<Pawn>(c));
+            if (t == TYPE_KING) row.push_back(std::make_unique<King>(c));
+            else if (t == TYPE_QUEEN) row.push_back(std::make_unique<Queen>(c));
+            else if (t == TYPE_ROOK) row.push_back(std::make_unique<Rook>(c));
+            else if (t == TYPE_BISHOP) row.push_back(std::make_unique<Bishop>(c));
+            else if (t == TYPE_KNIGHT) row.push_back(std::make_unique<Knight>(c));
+            else if (t == TYPE_PAWN) row.push_back(std::make_unique<Pawn>(c));
         }
     }
     state_.push_back(std::move(row));
@@ -45,7 +48,6 @@ void Board::click(int x, int y) {
                 state_[selectedRow_][selectedCol_] = nullptr;
             }
         }
-        
         selectedRow_ = -1;
         selectedCol_ = -1;
     }

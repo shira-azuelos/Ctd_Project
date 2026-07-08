@@ -36,6 +36,6 @@ bool Queen::isLegalMove(int sR, int sC, int eR, int eC, const Board& b) const {
 }
 
 bool Pawn::isLegalMove(int sR, int sC, int eR, int eC, const Board& b) const {
-    int dir = (color_ == 'w') ? -1 : 1;
+    int dir = (color_ == COLOR_WHITE) ? -1 : 1;
     return (eC == sC && eR == sR + dir && b.getPiece(eR, eC) == nullptr);
 }

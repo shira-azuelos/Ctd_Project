@@ -4,7 +4,6 @@
 #include <cctype>
 #include "Board.h" 
 
-// פונקציית עזר לניקוי רווחים
 std::string trim(const std::string& input) {
     size_t first = input.find_first_not_of(" \t\n\r");
     if (first == std::string::npos) return "";
