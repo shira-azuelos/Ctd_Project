@@ -1,4 +1,5 @@
 #include "../include/Board.h"
+#include "Constants.h"
 #include <sstream>
 
 Board::Board() : rows_(0), cols_(0), selectedRow_(-1), selectedCol_(-1) {}

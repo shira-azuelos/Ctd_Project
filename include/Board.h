@@ -4,6 +4,7 @@
 #include <string>
 #include "Piece.h"
 
+
 class Board {
 public:
     Board();
