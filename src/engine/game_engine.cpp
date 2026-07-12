@@ -11,20 +11,28 @@ void GameEngine::request_move(const model::Position& source, const model::Positi
     auto piece = board->get_piece_at(source);
     if (!piece) return;
 
-    if (!rules::PieceRules::is_valid_geometry(piece->kind, source, dest)) return;
-
-    if (!rules::PieceRules::is_path_clear(*board, source, dest)) return;
-
     auto target = board->get_piece_at(dest);
-    if (target) {
-        if (target->color == piece->color) return; 
+    bool is_capturing = (target != nullptr);
+
+    if (!rules::PieceRules::is_valid_geometry(piece->kind, piece->color, source, dest, is_capturing)) {
+        return; 
+    }
+
+    if (!rules::PieceRules::is_path_clear(*board, source, dest)) {
+        return;
+    }
+
+    if (is_capturing) {
+        if (target->color == piece->color) {
+            return;
+        }
     }
 
     int dist = std::max(std::abs(dest.row - source.row), std::abs(dest.col - source.col));
     arbiter.start_motion(piece, source, dest, dist * 1000);
 }
 
-void GameEngine::wait(int ms) {
+void engine::GameEngine::wait(int ms) {
     arbiter.advance_time(ms, board);
 }
 

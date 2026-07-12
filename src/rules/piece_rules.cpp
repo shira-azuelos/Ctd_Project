@@ -3,27 +3,31 @@
 
 namespace rules {
 
-bool PieceRules::is_valid_geometry(model::PieceKind kind, const model::Position& src, const model::Position& dest) {
-    if (src.row == dest.row && src.col == dest.col) {
-        return false;
-    }
-
-    int d_row = std::abs(dest.row - src.row);
+bool PieceRules::is_valid_geometry(model::PieceKind kind, model::PieceColor color, const model::Position& src, const model::Position& dest, bool is_capturing) {
+    int d_row = dest.row - src.row;
     int d_col = std::abs(dest.col - src.col);
+
+    if (kind == model::PieceKind::PAWN) {
+        int direction = (color == model::PieceColor::WHITE) ? 1 : -1;
+
+        if (is_capturing) {
+            return (d_row == direction) && (d_col == 1);
+        } else {
+            return (d_row == direction) && (d_col == 0);
+        }
+    }
 
     switch (kind) {
         case model::PieceKind::KING:
-            return d_row <= 1 && d_col <= 1;
+            return std::abs(d_row) <= 1 && d_col <= 1;
         case model::PieceKind::ROOK:
-            return d_row == 0 || d_col == 0;
+            return (d_row == 0) || (d_col == 0);
         case model::PieceKind::BISHOP:
-            return d_row == d_col;
+            return std::abs(d_row) == d_col;
         case model::PieceKind::QUEEN:
-            return (d_row == 0 || d_col == 0) || (d_row == d_col);
+            return (d_row == 0 || d_col == 0) || (std::abs(d_row) == d_col);
         case model::PieceKind::KNIGHT:
-            return (d_row == 2 && d_col == 1) || (d_row == 1 && d_col == 2);
-        case model::PieceKind::PAWN:
-            return (dest.row == src.row + 1) && (dest.col == src.col);
+            return (std::abs(d_row) == 2 && d_col == 1) || (std::abs(d_row) == 1 && d_col == 2);
         default:
             return false;
     }

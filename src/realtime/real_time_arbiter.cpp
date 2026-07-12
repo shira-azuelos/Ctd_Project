@@ -9,9 +9,10 @@ void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, const mo
 void realtime::RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
     if (active_motion) {
         active_motion->remaining_ms -= ms;
+        
         if (active_motion->remaining_ms <= 0) {
             board->move_piece(active_motion->source, active_motion->dest);
-            active_motion.reset();
+            active_motion.reset(); 
         }
     }
 }
