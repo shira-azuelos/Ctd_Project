@@ -1,29 +1,28 @@
 #pragma once
 #include <memory>
-#include "model/board.h"
-#include "model/position.h"
-#include "realtime/real_time_arbiter.h"
+#include "../include/model/game_state.h"
+#include "../include/realtime/real_time_arbiter.h"
 
 namespace engine {
 
 class GameEngine {
 private:
-    std::shared_ptr<model::Board> board;
+    std::shared_ptr<model::GameState> state;
     realtime::RealTimeArbiter arbiter;
-    bool game_over_flag = false; 
-
-    void update_game_state(); 
 
 public:
     static constexpr int BASE_MOVE_TIME_MS = 1000;
 
-    GameEngine(std::shared_ptr<model::Board> b) : board(b) {}
+    GameEngine(std::shared_ptr<model::Board> b) {
+        state = std::make_shared<model::GameState>(b);
+    }
 
+    std::shared_ptr<model::GameState> get_state() const { return state; }
     bool is_moving() const { return arbiter.is_moving(); }
-    bool is_game_over() const { return game_over_flag; } 
-
-    void request_move(const model::Position& source, const model::Position& dest);
+    
+    void request_move(const model::Position& src, const model::Position& dest);
+    void request_jump(const model::Position& pos);
     void wait(int ms);
 };
 
-} 
+}

@@ -2,11 +2,10 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "io/board_parser.h"
-#include "io/board_printer.h"
-#include "model/game_state.h"
-#include "input/controller.h"
-#include "engine/game_engine.h"
+#include "include/io/board_parser.h"
+#include "include/view/renderer.h"
+#include "include/input/controller.h"
+#include "include/engine/game_engine.h"
 
 int main() {
     std::vector<std::string> board_lines;
@@ -26,7 +25,6 @@ int main() {
             continue;
         }
 
-        // בזמן קריאת הלוח, בודקים אם הגענו לפקודה הראשונה
         if (reading_board) {
             if (line.rfind("click", 0) == 0 || line.rfind("wait", 0) == 0 || line.rfind("print board", 0) == 0) {
                 reading_board = false;
@@ -39,7 +37,6 @@ int main() {
             }
         }
 
-        // אם אנחנו בשלב הפקודות
         if (!reading_board && board) {
             if (line.rfind("click", 0) == 0) {
                 int x = 0, y = 0;
@@ -52,8 +49,7 @@ int main() {
                 game_engine->wait(ms);
             } 
             else if (line == "print board") {
-                auto state = std::make_shared<model::GameState>(board);
-                auto output_lines = io::BoardPrinter::print(state);
+                auto output_lines = view::Renderer::render_board(game_engine->get_state());
                 for (const auto& out_line : output_lines) {
                     std::cout << out_line << "\n";
                 }

@@ -1,15 +1,22 @@
 #pragma once
 #include <memory>
-#include "board.h"
+#include "../include/model/board.h"
 
 namespace model {
 
 class GameState {
-public:
+private:
     std::shared_ptr<Board> board;
-    bool game_over;
+    bool game_over_flag = false;
 
-    explicit GameState(std::shared_ptr<Board> b);
+public:
+    GameState(std::shared_ptr<Board> b) : board(b) {}
+    
+    std::shared_ptr<Board> get_board() const { return board; }
+    bool is_game_over() const { return game_over_flag; }
+    void set_game_over(bool state) { game_over_flag = state; }
+    
+    void check_game_status();
 };
 
-} 
+}

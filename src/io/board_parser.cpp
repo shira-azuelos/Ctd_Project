@@ -14,7 +14,6 @@ std::shared_ptr<model::Board> BoardParser::parse(const std::vector<std::string>&
     int width = -1;
     std::vector<std::vector<std::string>> parsed_tokens;
 
-    // פירוק השורות למילים (tokens) ובדיקת אורך עקבי
     for (const auto& line : lines) {
         std::istringstream iss(line);
         std::vector<std::string> tokens;
@@ -26,7 +25,7 @@ std::shared_ptr<model::Board> BoardParser::parse(const std::vector<std::string>&
         if (width == -1) {
             width = tokens.size();
         } else if (width != tokens.size()) {
-            throw std::invalid_argument("Inconsistent row length detected"); // דחיית אורך לא עקבי
+            throw std::invalid_argument("Inconsistent row length detected"); 
         }
         parsed_tokens.push_back(tokens);
     }
@@ -38,12 +37,12 @@ std::shared_ptr<model::Board> BoardParser::parse(const std::vector<std::string>&
         for (int col = 0; col < width; ++col) {
             std::string token = parsed_tokens[row][col];
             
-            if (token == ".") { // תא ריק
+            if (token == ".") { 
                 continue;
             }
 
             if (token.length() != 2) {
-                throw std::invalid_argument("Invalid piece token: " + token); // דחיית טוקן לא חוקי
+                throw std::invalid_argument("Invalid piece token: " + token); 
             }
 
             model::PieceColor color;
