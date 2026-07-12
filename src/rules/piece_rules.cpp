@@ -7,27 +7,37 @@ bool PieceRules::is_valid_geometry(model::PieceKind kind, model::PieceColor colo
     int d_row = dest.row - src.row;
     int d_col = std::abs(dest.col - src.col);
 
-    if (kind == model::PieceKind::PAWN) {
-        int direction = (color == model::PieceColor::WHITE) ? 1 : -1;
-
-        if (is_capturing) {
-            return (d_row == direction) && (d_col == 1);
-        } else {
-            return (d_row == direction) && (d_col == 0);
-        }
-    }
-
     switch (kind) {
         case model::PieceKind::KING:
             return std::abs(d_row) <= 1 && d_col <= 1;
+            
         case model::PieceKind::ROOK:
             return (d_row == 0) || (d_col == 0);
+            
         case model::PieceKind::BISHOP:
             return std::abs(d_row) == d_col;
+            
         case model::PieceKind::QUEEN:
             return (d_row == 0 || d_col == 0) || (std::abs(d_row) == d_col);
+            
         case model::PieceKind::KNIGHT:
             return (std::abs(d_row) == 2 && d_col == 1) || (std::abs(d_row) == 1 && d_col == 2);
+            
+        case model::PieceKind::PAWN: {
+            int forward_dir = (color == model::PieceColor::WHITE) ? 1 : -1;
+            int start_row = (color == model::PieceColor::WHITE) ? 1 : 6;
+
+            if (is_capturing) {
+                 return (d_row == forward_dir) && (d_col == 1);
+            } else {
+                if (d_col != 0) return false; 
+                if (d_row == forward_dir) return true;
+                if (src.row == start_row && (d_row == 2 * forward_dir)) return true; 
+
+                return false;
+            }
+        }
+        
         default:
             return false;
     }
