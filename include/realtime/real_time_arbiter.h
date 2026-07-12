@@ -21,6 +21,7 @@ private:
 public:
     void start_motion(std::shared_ptr<model::Piece> piece, const model::Position& src, const model::Position& dest, int ms);
     void advance_time(int ms, std::shared_ptr<model::Board> board);
+    bool is_moving() const { return active_motion.has_value(); }
 };
 
 } 
