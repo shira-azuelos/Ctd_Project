@@ -1,41 +1,65 @@
-//https://github.com/shira-azuelos/Ctd_Project/tree/main
-
 #include <iostream>
-#include <sstream>
+#include <vector>
 #include <string>
-#include <cctype>
-#include "./include/Board.h" 
-
-std::string trim(const std::string& input) {
-    size_t first = input.find_first_not_of(" \t\n\r");
-    if (first == std::string::npos) return "";
-    size_t last = input.find_last_not_of(" \t\n\r");
-    return input.substr(first, (last - first + 1));
-}
+#include <memory>
+#include "io/board_parser.h"
+#include "io/board_printer.h"
+#include "model/game_state.h"
+#include "input/controller.h"
+#include "engine/game_engine.h"
 
 int main() {
-    Board board;
+    std::vector<std::string> board_lines;
     std::string line;
-    bool inBoard = false, inCommands = false;
+    bool reading_board = false;
+    
+    std::shared_ptr<model::Board> board;
+    std::shared_ptr<engine::GameEngine> game_engine;
+    std::shared_ptr<input::Controller> controller;
 
     while (std::getline(std::cin, line)) {
-        std::string trimmed = trim(line);
-        if (trimmed == "Board:") { inBoard = true; inCommands = false; continue; }
-        if (trimmed == "Commands:") {
-            inBoard = false; inCommands = true;
-            if (!board.validate()) { std::cout << board.getError() << '\n'; return 0; }
+        if (line.empty()) continue;
+
+        if (line == "Board") {
+            reading_board = true;
+            board_lines.clear();
             continue;
         }
 
-        if (inBoard && !trimmed.empty()) board.addRow(trimmed);
-        else if (inCommands) {
-            std::istringstream ss(trimmed);
-            std::string cmd; ss >> cmd;
-            if (cmd == "print") { std::string t; ss >> t; if(t == "board") board.printCanonical(std::cout); }
-            else if (cmd == "click") { int x, y; ss >> x >> y; board.click(x, y); }
-            else if (cmd == "wait") { int ms; ss >> ms; board.wait(ms); }
-            else if (cmd == "jump") { int x, y; ss >> x >> y; board.jump(x, y); } 
+        // בזמן קריאת הלוח, בודקים אם הגענו לפקודה הראשונה
+        if (reading_board) {
+            if (line.rfind("click", 0) == 0 || line.rfind("wait", 0) == 0 || line.rfind("print board", 0) == 0) {
+                reading_board = false;
+                board = io::BoardParser::parse(board_lines);
+                game_engine = std::make_shared<engine::GameEngine>(board);
+                controller = std::make_shared<input::Controller>(game_engine, board);
+            } else {
+                board_lines.push_back(line);
+                continue;
+            }
+        }
+
+        // אם אנחנו בשלב הפקודות
+        if (!reading_board && board) {
+            if (line.rfind("click", 0) == 0) {
+                int x = 0, y = 0;
+                sscanf(line.c_str(), "click %d %d", &x, &y);
+                controller->click(x, y);
+            } 
+            else if (line.rfind("wait", 0) == 0) {
+                int ms = 0;
+                sscanf(line.c_str(), "wait %d", &ms);
+                game_engine->wait(ms);
+            } 
+            else if (line == "print board") {
+                auto state = std::make_shared<model::GameState>(board);
+                auto output_lines = io::BoardPrinter::print(state);
+                for (const auto& out_line : output_lines) {
+                    std::cout << out_line << "\n";
+                }
+            }
         }
     }
+
     return 0;
 }

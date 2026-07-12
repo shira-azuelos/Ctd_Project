@@ -1,0 +1,44 @@
+#include "io/board_printer.h"
+
+namespace io {
+
+std::vector<std::string> BoardPrinter::print(const std::shared_ptr<model::GameState>& state) {
+    if (!state || !state->board) {
+        return {};
+    }
+
+    auto board = state->board;
+    std::vector<std::string> output;
+
+    for (int row = 0; row < board->get_height(); ++row) {
+        std::string line = "";
+        for (int col = 0; col < board->get_width(); ++col) {
+            auto piece = board->get_piece_at(model::Position(row, col));
+            
+            if (!piece) {
+                line += ".";
+            } else {
+                if (piece->color == model::PieceColor::WHITE) line += "w";
+                else line += "b";
+
+                switch (piece->kind) {
+                    case model::PieceKind::KING:   line += "K"; break;
+                    case model::PieceKind::QUEEN:  line += "Q"; break;
+                    case model::PieceKind::ROOK:   line += "R"; break;
+                    case model::PieceKind::BISHOP: line += "B"; break;
+                    case model::PieceKind::KNIGHT: line += "N"; break;
+                    case model::PieceKind::PAWN:   line += "P"; break;
+                }
+            }
+            
+            if (col < board->get_width() - 1) {
+                line += " ";
+            }
+        }
+        output.push_back(line);
+    }
+
+    return output;
+}
+
+} // namespace io
