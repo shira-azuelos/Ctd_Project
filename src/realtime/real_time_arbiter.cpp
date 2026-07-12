@@ -6,7 +6,7 @@ void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, const mo
     active_motion = Motion{piece, src, dest, ms};
 }
 
-void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
+void realtime::RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
     if (active_motion) {
         active_motion->remaining_ms -= ms;
         if (active_motion->remaining_ms <= 0) {

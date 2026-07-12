@@ -1,4 +1,5 @@
 #include "engine/game_engine.h"
+#include "rules/piece_rules.h"
 #include <cmath>
 #include <algorithm>
 
@@ -10,12 +11,17 @@ void GameEngine::request_move(const model::Position& source, const model::Positi
     auto piece = board->get_piece_at(source);
     if (!piece) return;
 
-    int dist_row = std::abs(dest.row - source.row);
-    int dist_col = std::abs(dest.col - source.col);
-    int distance = std::max(dist_row, dist_col);
-    int duration = distance * 1000;
+    if (!rules::PieceRules::is_valid_geometry(piece->kind, source, dest)) return;
 
-    arbiter.start_motion(piece, source, dest, duration);
+    if (!rules::PieceRules::is_path_clear(*board, source, dest)) return;
+
+    auto target = board->get_piece_at(dest);
+    if (target) {
+        if (target->color == piece->color) return; 
+    }
+
+    int dist = std::max(std::abs(dest.row - source.row), std::abs(dest.col - source.col));
+    arbiter.start_motion(piece, source, dest, dist * 1000);
 }
 
 void GameEngine::wait(int ms) {
