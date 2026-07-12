@@ -1,7 +1,6 @@
-#include "io/board_parser.h"
+#include "../include/io/board_parser.h"
 #include <sstream>
 #include <stdexcept>
-#include <unordered_map>
 
 namespace io {
 
@@ -12,61 +11,52 @@ std::shared_ptr<model::Board> BoardParser::parse(const std::vector<std::string>&
 
     int height = lines.size();
     int width = -1;
-    std::vector<std::vector<std::string>> parsed_tokens;
+    std::vector<std::vector<std::string>> grid_tokens;
 
     for (const auto& line : lines) {
-        std::istringstream iss(line);
-        std::vector<std::string> tokens;
+        std::stringstream ss(line);
         std::string token;
-        while (iss >> token) {
-            tokens.push_back(token);
+        std::vector<std::string> row_tokens;
+        while (ss >> token) {
+            row_tokens.push_back(token);
         }
 
         if (width == -1) {
-            width = tokens.size();
-        } else if (width != tokens.size()) {
-            throw std::invalid_argument("Inconsistent row length detected"); 
+            width = row_tokens.size();
+        } else if (width != (int)row_tokens.size()) {
+            throw std::invalid_argument("ERROR ROW_WIDTH_MISMATCH"); 
         }
-        parsed_tokens.push_back(tokens);
+        grid_tokens.push_back(row_tokens);
     }
 
     auto board = std::make_shared<model::Board>(width, height);
-    int piece_counter = 1;
 
-    for (int row = 0; row < height; ++row) {
-        for (int col = 0; col < width; ++col) {
-            std::string token = parsed_tokens[row][col];
-            
-            if (token == ".") { 
-                continue;
-            }
+    for (int r = 0; r < height; ++r) {
+        for (int c = 0; c < width; ++c) {
+            std::string t = grid_tokens[r][c];
+            if (t == ".") continue;
 
-            if (token.length() != 2) {
-                throw std::invalid_argument("Invalid piece token: " + token); 
-            }
+            if (t.size() != 2) throw std::invalid_argument("ERROR UNKNOWN_TOKEN"); 
 
             model::PieceColor color;
-            if (token[0] == 'w') color = model::PieceColor::WHITE;
-            else if (token[0] == 'b') color = model::PieceColor::BLACK;
-            else throw std::invalid_argument("Invalid piece color in token: " + token);
+            if (t[0] == 'w') color = model::PieceColor::WHITE;
+            else if (t[0] == 'b') color = model::PieceColor::BLACK;
+            else throw std::invalid_argument("ERROR UNKNOWN_TOKEN"); 
 
             model::PieceKind kind;
-            char k = token[1];
-            if (k == 'K') kind = model::PieceKind::KING;
-            else if (k == 'Q') kind = model::PieceKind::QUEEN;
-            else if (k == 'R') kind = model::PieceKind::ROOK;
-            else if (k == 'B') kind = model::PieceKind::BISHOP;
-            else if (k == 'N') kind = model::PieceKind::KNIGHT;
-            else if (k == 'P') kind = model::PieceKind::PAWN;
-            else throw std::invalid_argument("Invalid piece kind in token: " + token);
+            if (t[1] == 'K') kind = model::PieceKind::KING;
+            else if (t[1] == 'Q') kind = model::PieceKind::QUEEN;
+            else if (t[1] == 'R') kind = model::PieceKind::ROOK;
+            else if (t[1] == 'B') kind = model::PieceKind::BISHOP;
+            else if (t[1] == 'N') kind = model::PieceKind::KNIGHT;
+            else if (t[1] == 'P') kind = model::PieceKind::PAWN;
+            else throw std::invalid_argument("ERROR UNKNOWN_TOKEN"); 
 
-            std::string id = "piece_" + std::to_string(piece_counter++);
-            auto piece = std::make_shared<model::Piece>(id, color, kind, model::Position(row, col));
+            auto piece = std::make_shared<model::Piece>(t, color, kind, model::Position(r, c));
             board->add_piece(piece);
         }
     }
-
     return board;
 }
 
-} // namespace io
+} 

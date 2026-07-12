@@ -11,7 +11,7 @@ bool RuleEngine::validate_move(const model::Board& board, const model::Position&
     if (target && target->color == piece->color) return false;
 
     bool is_capturing = (target != nullptr);
-    if (!PieceRules::is_valid_geometry(piece->kind, piece->color, src, dest, is_capturing)) {
+    if (!PieceRules::is_valid_geometry(board, piece->kind, piece->color, src, dest, is_capturing)) {
         return false;
     }
 

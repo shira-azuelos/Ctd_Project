@@ -28,6 +28,7 @@ void GameEngine::request_jump(const model::Position& pos) {
     arbiter.start_jump(piece, pos, 1000);
 }
 
+
 void GameEngine::wait(int ms) {
     arbiter.advance_time(ms, state->get_board());
     state->check_game_status();
