@@ -50,29 +50,16 @@ TEST_CASE("PieceRules: Knight movement") {
 TEST_CASE("PieceRules: Pawn movement") {
     Board board(8, 8);
 
-    // חייל לבן (מתחיל בשורה 6, נע למעלה - שורה קטנה יותר)
-    // צעד אחד תקין
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(6, 1), Position(5, 1), false));
-    // צעד כפול מעמדת התחלה תקין
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(6, 1), Position(4, 1), false));
-    // צעד כפול לא מעמדת התחלה לא תקין
     CHECK_FALSE(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(5, 1), Position(3, 1), false));
-    // תנועה לאחור לא תקינה
     CHECK_FALSE(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(6, 1), Position(7, 1), false));
-    // תפיסה באלכסון תקינה
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(6, 1), Position(5, 2), true));
-    // לא יכול לאכול ישר
     CHECK_FALSE(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::WHITE, Position(6, 1), Position(5, 1), true));
 
-    // חייל שחור (מתחיל בשורה 1, נע למטה - שורה גדולה יותר)
-    // צעד אחד תקין
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::BLACK, Position(1, 1), Position(2, 1), false));
-    // צעד כפול מעמדת התחלה תקין
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::BLACK, Position(1, 1), Position(3, 1), false));
-    // צעד כפול לא מעמדת התחלה לא תקין
     CHECK_FALSE(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::BLACK, Position(2, 1), Position(4, 1), false));
-    // תנועה לאחור לא תקינה
     CHECK_FALSE(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::BLACK, Position(1, 1), Position(0, 1), false));
-    // תפיסה באלכסון תקינה
     CHECK(PieceRules::is_valid_geometry(board, PieceKind::PAWN, PieceColor::BLACK, Position(1, 1), Position(2, 2), true));
 }

@@ -43,7 +43,7 @@ int main() {
                 controller = std::make_shared<input::Controller>(game_engine, board);
             } catch (const std::exception& e) {
                 std::cout << e.what() << "\n";
-                return 0; // עוצר את התוכנית מיד כפי שהטסט דורש במקרה של שגיאת לוח
+                return 0; 
             }
             continue;
         }
