@@ -13,15 +13,16 @@ private:
 
 public:
     void start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms);
+    
     void start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms);
+    
     void advance_time(int ms, std::shared_ptr<model::Board> board);
     
-    bool is_moving() const { return active_motion.has_value(); }
-    bool is_piece_moving(std::shared_ptr<model::Piece> piece) const {
-        return active_motion.has_value() && active_motion->piece == piece;
-    }
-    
-    void reset() { active_motion.reset(); active_jump.reset(); }
+    bool is_moving() const;
+   
+    bool is_piece_moving(std::shared_ptr<model::Piece> piece) const;
+   
+    void reset();
 };
 
 } 

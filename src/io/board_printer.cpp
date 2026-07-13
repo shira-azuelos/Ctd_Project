@@ -3,11 +3,11 @@
 namespace io {
 
 std::vector<std::string> BoardPrinter::print(const std::shared_ptr<model::GameState>& state) {
-    if (!state || !state->board) {
+    if (!state || !state->get_board()) {
         return {};
     }
 
-    auto board = state->board;
+    auto board = state->get_board();
     std::vector<std::string> output;
 
     for (int row = 0; row < board->get_height(); ++row) {
@@ -21,14 +21,7 @@ std::vector<std::string> BoardPrinter::print(const std::shared_ptr<model::GameSt
                 if (piece->color == model::PieceColor::WHITE) line += "w";
                 else line += "b";
 
-                switch (piece->kind) {
-                    case model::PieceKind::KING:   line += "K"; break;
-                    case model::PieceKind::QUEEN:  line += "Q"; break;
-                    case model::PieceKind::ROOK:   line += "R"; break;
-                    case model::PieceKind::BISHOP: line += "B"; break;
-                    case model::PieceKind::KNIGHT: line += "N"; break;
-                    case model::PieceKind::PAWN:   line += "P"; break;
-                }
+                line += model::KIND_TO_CHAR.at(piece->kind);
             }
             
             if (col < board->get_width() - 1) {
@@ -41,4 +34,4 @@ std::vector<std::string> BoardPrinter::print(const std::shared_ptr<model::GameSt
     return output;
 }
 
-} // namespace io
+} 

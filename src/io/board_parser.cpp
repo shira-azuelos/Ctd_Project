@@ -43,14 +43,11 @@ std::shared_ptr<model::Board> BoardParser::parse(const std::vector<std::string>&
             else if (t[0] == 'b') color = model::PieceColor::BLACK;
             else throw std::invalid_argument("ERROR UNKNOWN_TOKEN"); 
 
-            model::PieceKind kind;
-            if (t[1] == 'K') kind = model::PieceKind::KING;
-            else if (t[1] == 'Q') kind = model::PieceKind::QUEEN;
-            else if (t[1] == 'R') kind = model::PieceKind::ROOK;
-            else if (t[1] == 'B') kind = model::PieceKind::BISHOP;
-            else if (t[1] == 'N') kind = model::PieceKind::KNIGHT;
-            else if (t[1] == 'P') kind = model::PieceKind::PAWN;
-            else throw std::invalid_argument("ERROR UNKNOWN_TOKEN"); 
+            auto it = model::CHAR_TO_KIND.find(t[1]);
+            if (it == model::CHAR_TO_KIND.end()) {
+                throw std::invalid_argument("ERROR UNKNOWN_TOKEN");
+            }
+            model::PieceKind kind = it->second; 
 
             auto piece = std::make_shared<model::Piece>(t, color, kind, model::Position(r, c));
             board->add_piece(piece);

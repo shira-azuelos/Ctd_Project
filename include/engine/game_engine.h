@@ -13,15 +13,16 @@ private:
 public:
     static constexpr int BASE_MOVE_TIME_MS = 1000;
 
-    GameEngine(std::shared_ptr<model::Board> b) {
-        state = std::make_shared<model::GameState>(b);
-    }
+    GameEngine(std::shared_ptr<model::Board> b);
 
-    std::shared_ptr<model::GameState> get_state() const { return state; }
-    bool is_moving() const { return arbiter.is_moving(); }
+    std::shared_ptr<model::GameState> get_state() const;
+
+    bool is_moving() const;
     
     void request_move(const model::Position& src, const model::Position& dest);
+
     void request_jump(const model::Position& pos);
+    
     void wait(int ms);
 };
 

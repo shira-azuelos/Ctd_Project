@@ -5,6 +5,18 @@
 
 namespace engine {
 
+GameEngine::GameEngine(std::shared_ptr<model::Board> b) {
+    state = std::make_shared<model::GameState>(b);
+}
+
+std::shared_ptr<model::GameState> GameEngine::get_state() const {
+    return state;
+}
+
+bool GameEngine::is_moving() const {
+    return arbiter.is_moving();
+}
+
 void GameEngine::request_move(const model::Position& src, const model::Position& dest) {
     if (state->is_game_over()) return;
     if (arbiter.is_moving()) return;

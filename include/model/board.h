@@ -9,7 +9,7 @@ class Board {
 private:
     int width;
     int height;
-    std::vector<std::vector<std::shared_ptr<Piece>>> grid;
+    std::vector<std::shared_ptr<Piece>> grid;
 
 public:
     Board(int w, int h);
