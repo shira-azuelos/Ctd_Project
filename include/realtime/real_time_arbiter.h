@@ -22,6 +22,8 @@ public:
    
     bool is_piece_moving(std::shared_ptr<model::Piece> piece) const;
    
+    std::optional<Motion> get_active_motion() const;
+
     void reset();
 };
 

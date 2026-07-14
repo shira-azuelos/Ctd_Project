@@ -10,7 +10,6 @@ int main() {
     try {
         std::cout << "Preparing assets in C++..." << std::endl;
         
-        // 1. Generate a mathematically perfect 800x800 chessboard with premium colors
         cv::Mat board(800, 800, CV_8UC3);
         cv::Vec3b color_light(255, 255, 255); // White (BGR)
         cv::Vec3b color_dark(0, 0, 0);       // Black (BGR)
@@ -23,10 +22,9 @@ int main() {
             }
         }
         
-        // Save the perfect board to disk
         cv::imwrite("assets/board.png", board);
         std::cout << "Generated perfect 800x800 chessboard image." << std::endl;
-                  
+                       
         std::string pieces_dir = "assets/pieces";
         if (!fs::exists(pieces_dir)) {
             std::cerr << "Error: assets/pieces directory not found!" << std::endl;
@@ -46,17 +44,14 @@ int main() {
                 continue;
             }
             
-            // Resize to 100x100
             cv::resize(sprite, sprite, cv::Size(100, 100), 0, 0, cv::INTER_AREA);
             
-            // Split sprite channels
             std::vector<cv::Mat> src_channels;
             cv::split(sprite, src_channels);
             
             cv::Mat alpha;
             src_channels[3].convertTo(alpha, CV_32F, 1.0 / 255.0);
             
-            // Blended BGR images
             cv::Mat blended_light(100, 100, CV_8UC3, cv::Scalar(color_light[0], color_light[1], color_light[2]));
             cv::Mat blended_dark(100, 100, CV_8UC3, cv::Scalar(color_dark[0], color_dark[1], color_dark[2]));
             
@@ -84,6 +79,20 @@ int main() {
             
             cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_light.png", blended_light);
             cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_dark.png", blended_dark);
+            
+            cv::Mat selected_light = blended_light.clone();
+            cv::Mat selected_dark = blended_dark.clone();
+            cv::rectangle(selected_light, cv::Point(0,0), cv::Point(99,99), cv::Scalar(0, 255, 255), 4); 
+            cv::rectangle(selected_dark, cv::Point(0,0), cv::Point(99,99), cv::Scalar(0, 255, 255), 4); 
+            cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_light_selected.png", selected_light);
+            cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_dark_selected.png", selected_dark);
+            
+            cv::Mat attack_light = blended_light.clone();
+            cv::Mat attack_dark = blended_dark.clone();
+            cv::rectangle(attack_light, cv::Point(0,0), cv::Point(99,99), cv::Scalar(0, 0, 255), 4); 
+            cv::rectangle(attack_dark, cv::Point(0,0), cv::Point(99,99), cv::Scalar(0, 0, 255), 4);  
+            cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_light_attack.png", attack_light);
+            cv::imwrite(pieces_dir + "/" + folder + "/states/idle/sprites/1_dark_attack.png", attack_dark);
             
             std::cout << "Generated blended sprites for " << folder << std::endl;
         }

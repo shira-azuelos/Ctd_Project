@@ -46,4 +46,8 @@ void GameEngine::wait(int ms) {
     state->check_game_status();
 }
 
+std::optional<realtime::Motion> GameEngine::get_active_motion() const {
+    return arbiter.get_active_motion();
+}
+
 } 

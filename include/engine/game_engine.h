@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <optional>
 #include "../include/model/game_state.h"
 #include "../include/realtime/real_time_arbiter.h"
 
@@ -19,6 +20,8 @@ public:
 
     bool is_moving() const;
     
+    std::optional<realtime::Motion> get_active_motion() const;
+
     void request_move(const model::Position& src, const model::Position& dest);
 
     void request_jump(const model::Position& pos);

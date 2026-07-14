@@ -67,4 +67,8 @@ void RealTimeArbiter::reset() {
     active_jump.reset();
 }
 
+std::optional<Motion> RealTimeArbiter::get_active_motion() const {
+    return active_motion;
+}
+
 } 

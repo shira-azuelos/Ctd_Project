@@ -3,7 +3,6 @@
 #include <stdexcept>
 
 Img::Img() {
-    // Constructor - img is automatically initialized as empty
 }
 
 Img& Img::read(const std::string& path,
@@ -15,7 +14,7 @@ Img& Img::read(const std::string& path,
         throw std::runtime_error("Cannot load image: " + path);
     }
 
-    if (size.first != 0 && size.second != 0) {  // Check if size is not empty
+    if (size.first != 0 && size.second != 0) { 
         int target_w = size.first;
         int target_h = size.second;
         int h = img.rows;
@@ -40,7 +39,6 @@ void Img::draw_on(Img& other_img, int x, int y) {
         throw std::runtime_error("Both images must be loaded before drawing.");
     }
 
-    // Handle different channel counts
     cv::Mat source_img = img;
     cv::Mat target_img = other_img.img;
     
@@ -64,7 +62,6 @@ void Img::draw_on(Img& other_img, int x, int y) {
     cv::Mat roi = target_img(cv::Rect(x, y, w, h));
 
     if (source_img.channels() == 4) {
-        // Handle alpha blending for BGRA images
         std::vector<cv::Mat> channels;
         cv::split(source_img, channels);
         cv::Mat alpha = channels[3] / 255.0;
@@ -73,7 +70,6 @@ void Img::draw_on(Img& other_img, int x, int y) {
             roi.col(c) = (1.0 - alpha) * roi.col(c) + alpha * channels[c];
         }
     } else {
-        // Direct copy for BGR images
         source_img.copyTo(roi);
     }
 }
@@ -87,6 +83,20 @@ void Img::put_text(const std::string& txt, int x, int y, double font_size,
     cv::putText(img, txt, cv::Point(x, y),
                 cv::FONT_HERSHEY_SIMPLEX, font_size,
                 color, thickness, cv::LINE_AA);
+}
+
+void Img::draw_rect(int x, int y, int w, int h, const cv::Scalar& color, int thickness, double alpha) {
+    if (img.empty()) {
+        throw std::runtime_error("Image not loaded.");
+    }
+    if (alpha >= 1.0) {
+        cv::rectangle(img, cv::Rect(x, y, w, h), color, thickness);
+    } else {
+        cv::Mat roi = img(cv::Rect(x, y, w, h));
+        cv::Mat overlay = roi.clone();
+        cv::rectangle(overlay, cv::Rect(0, 0, w, h), color, thickness);
+        cv::addWeighted(overlay, alpha, roi, 1.0 - alpha, 0, roi);
+    }
 }
 
 void Img::show() {

@@ -22,7 +22,7 @@ std::string trim(const std::string& str) {
 
 std::shared_ptr<model::Board> create_default_board() {
     auto board = std::make_shared<model::Board>(8, 8);
-    // Row 0: Black pieces
+
     board->add_piece(std::make_shared<model::Piece>("bR1", model::PieceColor::BLACK, model::PieceKind::ROOK, model::Position(0, 0)));
     board->add_piece(std::make_shared<model::Piece>("bN1", model::PieceColor::BLACK, model::PieceKind::KNIGHT, model::Position(0, 1)));
     board->add_piece(std::make_shared<model::Piece>("bB1", model::PieceColor::BLACK, model::PieceKind::BISHOP, model::Position(0, 2)));
@@ -32,17 +32,14 @@ std::shared_ptr<model::Board> create_default_board() {
     board->add_piece(std::make_shared<model::Piece>("bN2", model::PieceColor::BLACK, model::PieceKind::KNIGHT, model::Position(0, 6)));
     board->add_piece(std::make_shared<model::Piece>("bR2", model::PieceColor::BLACK, model::PieceKind::ROOK, model::Position(0, 7)));
     
-    // Row 1: Black pawns
     for (int col = 0; col < 8; ++col) {
         board->add_piece(std::make_shared<model::Piece>("bP" + std::to_string(col), model::PieceColor::BLACK, model::PieceKind::PAWN, model::Position(1, col)));
     }
 
-    // Row 6: White pawns
     for (int col = 0; col < 8; ++col) {
         board->add_piece(std::make_shared<model::Piece>("wP" + std::to_string(col), model::PieceColor::WHITE, model::PieceKind::PAWN, model::Position(6, col)));
     }
 
-    // Row 7: White pieces
     board->add_piece(std::make_shared<model::Piece>("wR1", model::PieceColor::WHITE, model::PieceKind::ROOK, model::Position(7, 0)));
     board->add_piece(std::make_shared<model::Piece>("wN1", model::PieceColor::WHITE, model::PieceKind::KNIGHT, model::Position(7, 1)));
     board->add_piece(std::make_shared<model::Piece>("wB1", model::PieceColor::WHITE, model::PieceKind::BISHOP, model::Position(7, 2)));
@@ -55,21 +52,56 @@ std::shared_ptr<model::Board> create_default_board() {
     return board;
 }
 
+struct GuiState {
+    std::shared_ptr<engine::GameEngine> game_engine;
+    std::shared_ptr<model::Board> board;
+    std::optional<model::Position> selected_cell;
+};
+
 void on_mouse(int event, int x, int y, int flags, void* userdata) {
     if (event == cv::EVENT_LBUTTONDOWN) {
-        auto* ctrl = static_cast<input::Controller*>(userdata);
-        ctrl->click(x, y);
+        auto* g_state = static_cast<GuiState*>(userdata);
+        if (g_state->game_engine->get_state()->is_game_over()) {
+            return;
+        }
+        auto cell_opt = input::BoardMapper::pixel_to_cell(x, y, g_state->board->get_width(), g_state->board->get_height());
+        
+        if (!cell_opt) {
+            g_state->selected_cell.reset();
+            return;
+        }
+
+        model::Position cell = *cell_opt;
+        auto clicked_piece = g_state->board->get_piece_at(cell);
+
+        if (!g_state->selected_cell) {
+            if (clicked_piece) {
+                g_state->selected_cell = cell;
+                std::cout << "[UI] Selected piece: " << clicked_piece->id << " at (" << cell.row << ", " << cell.col << ")" << std::endl;
+            }
+        } else {
+            auto selected_piece = g_state->board->get_piece_at(*g_state->selected_cell);
+            if (clicked_piece && clicked_piece->color == selected_piece->color) {
+                g_state->selected_cell = cell;
+                std::cout << "[UI] Changed selection to: " << clicked_piece->id << " at (" << cell.row << ", " << cell.col << ")" << std::endl;
+            } else {
+                std::cout << "[UI] Requesting move from (" << g_state->selected_cell->row << ", " << g_state->selected_cell->col << ") to (" << cell.row << ", " << cell.col << ")" << std::endl;
+                g_state->game_engine->request_move(*g_state->selected_cell, cell);
+                g_state->selected_cell.reset();
+            }
+        }
     }
 }
 
 void run_gui_mode() {
     auto board = create_default_board();
     auto game_engine = std::make_shared<engine::GameEngine>(board);
-    auto controller = std::make_shared<input::Controller>(game_engine, board);
     view::Renderer renderer;
 
+    GuiState gui_state{game_engine, board, std::nullopt};
+
     cv::namedWindow("KungFu Chess", cv::WINDOW_AUTOSIZE);
-    cv::setMouseCallback("KungFu Chess", on_mouse, controller.get());
+    cv::setMouseCallback("KungFu Chess", on_mouse, &gui_state);
 
     std::cout << "Starting KungFu Chess GUI. Click on pieces to move them." << std::endl;
     std::cout << "Press ESC on the game window to exit." << std::endl;
@@ -79,7 +111,7 @@ void run_gui_mode() {
 
         Img canvas;
         canvas.read("assets/board.png", {800, 800}, false);
-        renderer.draw(canvas, game_engine->get_state());
+        renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, game_engine->get_active_motion());
 
         cv::imshow("KungFu Chess", canvas.get_mat());
 
@@ -92,7 +124,6 @@ void run_gui_mode() {
 }
 
 int main() {
-    // If standard input is interactive (a TTY), run in visual GUI mode!
     if (_isatty(0)) {
         try {
             run_gui_mode();
@@ -103,7 +134,6 @@ int main() {
         return 0;
     }
 
-    // Otherwise, run in CLI redirection mode (for automated integration tests)
     std::vector<std::string> board_lines;
     std::string line;
     bool reading_board = false;

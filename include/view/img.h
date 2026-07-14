@@ -46,6 +46,11 @@ public:
                   int thickness = 1);
     
     /**
+     * Draw a filled or outlined rectangle on this image
+     */
+    void draw_rect(int x, int y, int w, int h, const cv::Scalar& color, int thickness = -1, double alpha = 1.0);
+
+    /**
      * Display the image in a window
      */
     void show();
