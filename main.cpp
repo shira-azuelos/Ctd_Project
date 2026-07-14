@@ -3,11 +3,15 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <io.h>
+#include <stdio.h>
+#include <opencv2/opencv.hpp>
 #include "include/io/board_parser.h"
 #include "include/view/renderer.h"
 #include "include/input/controller.h"
 #include "include/input/board_mapper.h"
 #include "include/engine/game_engine.h"
+#include "include/view/img.h"
 
 std::string trim(const std::string& str) {
     size_t first = str.find_first_not_of(" \t\r\n");
@@ -16,7 +20,90 @@ std::string trim(const std::string& str) {
     return str.substr(first, (last - first + 1));
 }
 
+std::shared_ptr<model::Board> create_default_board() {
+    auto board = std::make_shared<model::Board>(8, 8);
+    // Row 0: Black pieces
+    board->add_piece(std::make_shared<model::Piece>("bR1", model::PieceColor::BLACK, model::PieceKind::ROOK, model::Position(0, 0)));
+    board->add_piece(std::make_shared<model::Piece>("bN1", model::PieceColor::BLACK, model::PieceKind::KNIGHT, model::Position(0, 1)));
+    board->add_piece(std::make_shared<model::Piece>("bB1", model::PieceColor::BLACK, model::PieceKind::BISHOP, model::Position(0, 2)));
+    board->add_piece(std::make_shared<model::Piece>("bQ", model::PieceColor::BLACK, model::PieceKind::QUEEN, model::Position(0, 3)));
+    board->add_piece(std::make_shared<model::Piece>("bK", model::PieceColor::BLACK, model::PieceKind::KING, model::Position(0, 4)));
+    board->add_piece(std::make_shared<model::Piece>("bB2", model::PieceColor::BLACK, model::PieceKind::BISHOP, model::Position(0, 5)));
+    board->add_piece(std::make_shared<model::Piece>("bN2", model::PieceColor::BLACK, model::PieceKind::KNIGHT, model::Position(0, 6)));
+    board->add_piece(std::make_shared<model::Piece>("bR2", model::PieceColor::BLACK, model::PieceKind::ROOK, model::Position(0, 7)));
+    
+    // Row 1: Black pawns
+    for (int col = 0; col < 8; ++col) {
+        board->add_piece(std::make_shared<model::Piece>("bP" + std::to_string(col), model::PieceColor::BLACK, model::PieceKind::PAWN, model::Position(1, col)));
+    }
+
+    // Row 6: White pawns
+    for (int col = 0; col < 8; ++col) {
+        board->add_piece(std::make_shared<model::Piece>("wP" + std::to_string(col), model::PieceColor::WHITE, model::PieceKind::PAWN, model::Position(6, col)));
+    }
+
+    // Row 7: White pieces
+    board->add_piece(std::make_shared<model::Piece>("wR1", model::PieceColor::WHITE, model::PieceKind::ROOK, model::Position(7, 0)));
+    board->add_piece(std::make_shared<model::Piece>("wN1", model::PieceColor::WHITE, model::PieceKind::KNIGHT, model::Position(7, 1)));
+    board->add_piece(std::make_shared<model::Piece>("wB1", model::PieceColor::WHITE, model::PieceKind::BISHOP, model::Position(7, 2)));
+    board->add_piece(std::make_shared<model::Piece>("wQ", model::PieceColor::WHITE, model::PieceKind::QUEEN, model::Position(7, 3)));
+    board->add_piece(std::make_shared<model::Piece>("wK", model::PieceColor::WHITE, model::PieceKind::KING, model::Position(7, 4)));
+    board->add_piece(std::make_shared<model::Piece>("wB2", model::PieceColor::WHITE, model::PieceKind::BISHOP, model::Position(7, 5)));
+    board->add_piece(std::make_shared<model::Piece>("wN2", model::PieceColor::WHITE, model::PieceKind::KNIGHT, model::Position(7, 6)));
+    board->add_piece(std::make_shared<model::Piece>("wR2", model::PieceColor::WHITE, model::PieceKind::ROOK, model::Position(7, 7)));
+
+    return board;
+}
+
+void on_mouse(int event, int x, int y, int flags, void* userdata) {
+    if (event == cv::EVENT_LBUTTONDOWN) {
+        auto* ctrl = static_cast<input::Controller*>(userdata);
+        ctrl->click(x, y);
+    }
+}
+
+void run_gui_mode() {
+    auto board = create_default_board();
+    auto game_engine = std::make_shared<engine::GameEngine>(board);
+    auto controller = std::make_shared<input::Controller>(game_engine, board);
+    view::Renderer renderer;
+
+    cv::namedWindow("KungFu Chess", cv::WINDOW_AUTOSIZE);
+    cv::setMouseCallback("KungFu Chess", on_mouse, controller.get());
+
+    std::cout << "Starting KungFu Chess GUI. Click on pieces to move them." << std::endl;
+    std::cout << "Press ESC on the game window to exit." << std::endl;
+
+    while (true) {
+        game_engine->wait(30);
+
+        Img canvas;
+        canvas.read("assets/board.png", {800, 800}, false);
+        renderer.draw(canvas, game_engine->get_state());
+
+        cv::imshow("KungFu Chess", canvas.get_mat());
+
+        int key = cv::waitKey(30);
+        if (key == 27) { // ESC key
+            break;
+        }
+    }
+    cv::destroyAllWindows();
+}
+
 int main() {
+    // If standard input is interactive (a TTY), run in visual GUI mode!
+    if (_isatty(0)) {
+        try {
+            run_gui_mode();
+        } catch (const std::exception& e) {
+            std::cerr << "GUI Error: " << e.what() << std::endl;
+            return 1;
+        }
+        return 0;
+    }
+
+    // Otherwise, run in CLI redirection mode (for automated integration tests)
     std::vector<std::string> board_lines;
     std::string line;
     bool reading_board = false;
