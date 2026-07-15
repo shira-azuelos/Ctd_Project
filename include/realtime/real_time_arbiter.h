@@ -11,6 +11,7 @@ struct Cooldown {
     std::shared_ptr<model::Piece> piece;
     int remaining_ms;
     int total_ms;
+    bool is_long_rest = false;
 };
 
 class RealTimeArbiter {
@@ -32,7 +33,11 @@ public:
    
     std::optional<Motion> get_active_motion() const;
 
+    std::optional<Jump> get_active_jump() const;
+
     bool is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const;
+    
+    bool is_piece_on_long_rest(std::shared_ptr<model::Piece> piece) const;
 
     int get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const;
     

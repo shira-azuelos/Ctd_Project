@@ -111,7 +111,7 @@ void run_gui_mode() {
 
         Img canvas;
         canvas.read("assets/board.png", {800, 800}, false);
-        renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, game_engine->get_active_motion(), &game_engine->get_arbiter());
+        renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, game_engine->get_active_motion(), game_engine->get_active_jump(), &game_engine->get_arbiter());
 
         cv::imshow("KungFu Chess", canvas.get_mat());
 

@@ -10,6 +10,8 @@
 
 namespace realtime {
 class RealTimeArbiter;
+struct Motion;
+struct Jump;
 }
 
 namespace view {
@@ -25,6 +27,7 @@ public:
     void draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
               const std::optional<model::Position>& selected_cell = std::nullopt,
               const std::optional<realtime::Motion>& active_motion = std::nullopt,
+              const std::optional<realtime::Jump>& active_jump = std::nullopt,
               const realtime::RealTimeArbiter* arbiter = nullptr);
 };
 

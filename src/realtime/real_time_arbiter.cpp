@@ -9,7 +9,7 @@ void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, model::P
 
 void RealTimeArbiter::start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms) {
     if (piece) piece->state = model::PieceState::MOVING;
-    active_jump = Jump{piece, pos, total_ms};
+    active_jump = Jump{piece, pos, total_ms, total_ms};
 }
 
 void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
@@ -46,7 +46,7 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
                 board->move_piece(src, dest);
                 if (moving_piece) {
                     moving_piece->state = model::PieceState::IDLE;
-                    active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000});
+                    active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                 }
                 if (moving_piece && moving_piece->kind == model::PieceKind::PAWN) {
                     if (moving_piece->color == model::PieceColor::WHITE && dest.row == 0) {
@@ -63,7 +63,7 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
     if (active_jump.has_value() && active_jump->remaining_ms <= 0) {
         if (active_jump->piece) {
             active_jump->piece->state = model::PieceState::IDLE;
-            active_cooldowns.push_back(Cooldown{active_jump->piece, 3000, 3000});
+            active_cooldowns.push_back(Cooldown{active_jump->piece, 3000, 3000, true});
         }
         active_jump.reset();
     }
@@ -80,6 +80,13 @@ bool RealTimeArbiter::is_piece_moving(std::shared_ptr<model::Piece> piece) const
 bool RealTimeArbiter::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
     for (const auto& cd : active_cooldowns) {
         if (cd.piece == piece) return true;
+    }
+    return false;
+}
+
+bool RealTimeArbiter::is_piece_on_long_rest(std::shared_ptr<model::Piece> piece) const {
+    for (const auto& cd : active_cooldowns) {
+        if (cd.piece == piece) return cd.is_long_rest;
     }
     return false;
 }
@@ -106,6 +113,10 @@ void RealTimeArbiter::reset() {
 
 std::optional<Motion> RealTimeArbiter::get_active_motion() const {
     return active_motion;
+}
+
+std::optional<Jump> RealTimeArbiter::get_active_jump() const {
+    return active_jump;
 }
 
 } 

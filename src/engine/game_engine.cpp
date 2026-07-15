@@ -54,8 +54,16 @@ std::optional<realtime::Motion> GameEngine::get_active_motion() const {
     return arbiter.get_active_motion();
 }
 
+std::optional<realtime::Jump> GameEngine::get_active_jump() const {
+    return arbiter.get_active_jump();
+}
+
 bool GameEngine::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
     return arbiter.is_piece_cooling_down(piece);
+}
+
+bool GameEngine::is_piece_on_long_rest(std::shared_ptr<model::Piece> piece) const {
+    return arbiter.is_piece_on_long_rest(piece);
 }
 
 int GameEngine::get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const {

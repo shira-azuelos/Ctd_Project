@@ -42,12 +42,8 @@ void Img::draw_on(Img& other_img, int x, int y) {
     cv::Mat source_img = img;
     cv::Mat target_img = other_img.img;
     
-    if (source_img.channels() != target_img.channels()) {
-        if (source_img.channels() == 3 && target_img.channels() == 4) {
-            cv::cvtColor(source_img, source_img, cv::COLOR_BGR2BGRA);
-        } else if (source_img.channels() == 4 && target_img.channels() == 3) {
-            cv::cvtColor(source_img, source_img, cv::COLOR_BGRA2BGR);
-        }
+    if (source_img.channels() == 3 && target_img.channels() == 4) {
+        cv::cvtColor(source_img, source_img, cv::COLOR_BGR2BGRA);
     }
 
     int h = source_img.rows;
@@ -62,13 +58,25 @@ void Img::draw_on(Img& other_img, int x, int y) {
     cv::Mat roi = target_img(cv::Rect(x, y, w, h));
 
     if (source_img.channels() == 4) {
-        std::vector<cv::Mat> channels;
-        cv::split(source_img, channels);
-        cv::Mat alpha = channels[3] / 255.0;
+        std::vector<cv::Mat> src_channels;
+        cv::split(source_img, src_channels);
+        
+        cv::Mat alpha;
+        src_channels[3].convertTo(alpha, CV_32F, 1.0 / 255.0);
+        
+        std::vector<cv::Mat> dst_channels;
+        cv::split(roi, dst_channels);
         
         for (int c = 0; c < 3; ++c) {
-            roi.col(c) = (1.0 - alpha) * roi.col(c) + alpha * channels[c];
+            cv::Mat src_c, dst_c;
+            src_channels[c].convertTo(src_c, CV_32F);
+            dst_channels[c].convertTo(dst_c, CV_32F);
+            
+            cv::Mat blended_c = dst_c.mul(1.0 - alpha) + src_c.mul(alpha);
+            blended_c.convertTo(dst_channels[c], CV_8U);
         }
+        
+        cv::merge(dst_channels, roi);
     } else {
         source_img.copyTo(roi);
     }

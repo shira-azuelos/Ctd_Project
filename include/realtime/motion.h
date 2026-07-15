@@ -17,6 +17,7 @@ struct Jump {
     std::shared_ptr<model::Piece> piece;
     model::Position pos;
     int remaining_ms;
+    int total_ms;
 };
 
 class MotionState {
