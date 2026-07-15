@@ -59,19 +59,22 @@ struct GuiState {
 };
 
 void on_mouse(int event, int x, int y, int flags, void* userdata) {
-    if (event == cv::EVENT_LBUTTONDOWN) {
-        auto* g_state = static_cast<GuiState*>(userdata);
-        if (g_state->game_engine->get_state()->is_game_over()) {
-            return;
-        }
-        auto cell_opt = input::BoardMapper::pixel_to_cell(x, y, g_state->board->get_width(), g_state->board->get_height());
-        
-        if (!cell_opt) {
+    auto* g_state = static_cast<GuiState*>(userdata);
+    if (g_state->game_engine->get_state()->is_game_over()) {
+        return;
+    }
+    
+    auto cell_opt = input::BoardMapper::pixel_to_cell(x, y, g_state->board->get_width(), g_state->board->get_height());
+    if (!cell_opt) {
+        if (event == cv::EVENT_LBUTTONDOWN) {
             g_state->selected_cell.reset();
-            return;
         }
+        return;
+    }
 
-        model::Position cell = *cell_opt;
+    model::Position cell = *cell_opt;
+
+    if (event == cv::EVENT_LBUTTONDOWN) {
         auto clicked_piece = g_state->board->get_piece_at(cell);
 
         if (!g_state->selected_cell) {
@@ -89,6 +92,14 @@ void on_mouse(int event, int x, int y, int flags, void* userdata) {
                 g_state->game_engine->request_move(*g_state->selected_cell, cell);
                 g_state->selected_cell.reset();
             }
+        }
+    }
+    else if (event == cv::EVENT_RBUTTONDOWN) {
+        auto clicked_piece = g_state->board->get_piece_at(cell);
+        if (clicked_piece) {
+            std::cout << "[UI] Right-clicked: Requesting jump for " << clicked_piece->id << " at (" << cell.row << ", " << cell.col << ")" << std::endl;
+            g_state->game_engine->request_jump(cell);
+            g_state->selected_cell.reset();
         }
     }
 }
