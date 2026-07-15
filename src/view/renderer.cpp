@@ -144,11 +144,6 @@ void view::Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& 
         int current_y = start_y + static_cast<int>(progress * (end_y - start_y));
         
         piece_images[key].draw_on(canvas, current_x, current_y);
-        
-        int fill_height = static_cast<int>(progress * 100);
-        if (fill_height > 0) {
-            canvas.draw_rect(current_x, current_y + 100 - fill_height, 100, fill_height, cv::Scalar(0, 255, 255), -1, 0.45);
-        }
     }
 
     if (active_jump && active_jump->piece) {
