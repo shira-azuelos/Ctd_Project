@@ -1,11 +1,13 @@
 #pragma once
 #include "view/img.h"
+#include "view/board_renderer.h"
+#include "view/piece_renderer.h"
+#include "view/overlay_renderer.h"
 #include "model/game_state.h"
 #include "realtime/motion.h"
 #include <memory>
 #include <vector>
 #include <string>
-#include <map>
 #include <optional>
 
 namespace realtime {
@@ -18,8 +20,9 @@ namespace view {
 
 class Renderer {
 private:
-    Img board_img;
-    std::map<std::string, Img> piece_images;
+    BoardRenderer board_renderer;
+    PieceRenderer piece_renderer;
+    OverlayRenderer overlay_renderer;
 
 public:
     Renderer();
