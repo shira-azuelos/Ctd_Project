@@ -1,6 +1,7 @@
 #include "view/renderer.h"
 #include "io/board_printer.h"
 #include "rules/rule_engine.h"
+#include "realtime/real_time_arbiter.h"
 #include <optional>
 
 namespace view {
@@ -13,7 +14,10 @@ std::vector<std::string> Renderer::render_board(std::shared_ptr<model::GameState
     return io::BoardPrinter::print(state);
 }
 
-void view::Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state, const std::optional<model::Position>& selected_cell, const std::optional<realtime::Motion>& active_motion) {
+void view::Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
+                          const std::optional<model::Position>& selected_cell,
+                          const std::optional<realtime::Motion>& active_motion,
+                          const realtime::RealTimeArbiter* arbiter) {
     if (!state) return;
     
     board_img.draw_on(canvas, 0, 0);
@@ -73,6 +77,21 @@ void view::Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& 
                     int fill_height = static_cast<int>(progress * 100);
                     if (fill_height > 0) {
                         canvas.draw_rect(col * 100, row * 100 + 100 - fill_height, 100, fill_height, cv::Scalar(0, 255, 255), -1, 0.45);
+                    }
+                }
+
+                if (arbiter && arbiter->is_piece_cooling_down(piece)) {
+                    int remaining = arbiter->get_piece_cooldown_remaining_ms(piece);
+                    int total = arbiter->get_piece_cooldown_total_ms(piece);
+                    if (total > 0 && remaining > 0) {
+                        double cooldown_progress = (double)remaining / total;
+                        if (cooldown_progress < 0.0) cooldown_progress = 0.0;
+                        if (cooldown_progress > 1.0) cooldown_progress = 1.0;
+                        
+                        int cd_height = static_cast<int>(cooldown_progress * 100);
+                        if (cd_height > 0) {
+                            canvas.draw_rect(col * 100, row * 100 + 100 - cd_height, 100, cd_height, cv::Scalar(255, 0, 0), -1, 0.4);
+                        }
                     }
                 }
             } else if (is_valid_move) {

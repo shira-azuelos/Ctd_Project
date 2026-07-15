@@ -22,6 +22,14 @@ public:
     
     std::optional<realtime::Motion> get_active_motion() const;
 
+    const realtime::RealTimeArbiter& get_arbiter() const;
+
+    bool is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const;
+
+    int get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const;
+    
+    int get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> piece) const;
+
     void request_move(const model::Position& src, const model::Position& dest);
 
     void request_jump(const model::Position& pos);

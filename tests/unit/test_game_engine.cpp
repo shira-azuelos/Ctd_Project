@@ -25,6 +25,8 @@ TEST_CASE("Movement blocking and immediate re-move") {
 
     engine->wait(1000);
     
+    engine->wait(3000);
+    
     engine->request_move(model::Position(0, 1), model::Position(0, 2));
     engine->wait(1000);
 

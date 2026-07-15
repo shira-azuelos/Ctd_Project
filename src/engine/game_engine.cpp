@@ -22,11 +22,15 @@ void GameEngine::request_move(const model::Position& src, const model::Position&
     if (arbiter.is_moving()) return;
 
     auto board = state->get_board();
+    auto piece = board->get_piece_at(src);
+    if (!piece || arbiter.is_piece_cooling_down(piece)) {
+        return;
+    }
+
     if (!rules::RuleEngine::validate_move(*board, src, dest)) {
         return;
     }
 
-    auto piece = board->get_piece_at(src);
     int dist = std::max(std::abs(dest.row - src.row), std::abs(dest.col - src.col));
     arbiter.start_motion(piece, src, dest, dist * BASE_MOVE_TIME_MS);
 }
@@ -35,7 +39,7 @@ void GameEngine::request_jump(const model::Position& pos) {
     if (state->is_game_over()) return;
 
     auto piece = state->get_board()->get_piece_at(pos);
-    if (!piece || arbiter.is_piece_moving(piece)) return;
+    if (!piece || arbiter.is_piece_moving(piece) || arbiter.is_piece_cooling_down(piece)) return;
 
     arbiter.start_jump(piece, pos, 1000);
 }
@@ -48,6 +52,22 @@ void GameEngine::wait(int ms) {
 
 std::optional<realtime::Motion> GameEngine::get_active_motion() const {
     return arbiter.get_active_motion();
+}
+
+bool GameEngine::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
+    return arbiter.is_piece_cooling_down(piece);
+}
+
+int GameEngine::get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const {
+    return arbiter.get_piece_cooldown_remaining_ms(piece);
+}
+
+int GameEngine::get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> piece) const {
+    return arbiter.get_piece_cooldown_total_ms(piece);
+}
+
+const realtime::RealTimeArbiter& GameEngine::get_arbiter() const {
+    return arbiter;
 }
 
 } 

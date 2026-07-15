@@ -13,6 +13,15 @@ void RealTimeArbiter::start_jump(std::shared_ptr<model::Piece> piece, model::Pos
 }
 
 void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
+    for (auto it = active_cooldowns.begin(); it != active_cooldowns.end(); ) {
+        it->remaining_ms -= ms;
+        if (it->remaining_ms <= 0) {
+            it = active_cooldowns.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     if (active_jump.has_value()) {
         active_jump->remaining_ms -= ms;
     }
@@ -35,7 +44,10 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
             
             if (!captured_in_air) {
                 board->move_piece(src, dest);
-                if (moving_piece) moving_piece->state = model::PieceState::IDLE;
+                if (moving_piece) {
+                    moving_piece->state = model::PieceState::IDLE;
+                    active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000});
+                }
                 if (moving_piece && moving_piece->kind == model::PieceKind::PAWN) {
                     if (moving_piece->color == model::PieceColor::WHITE && dest.row == 0) {
                         moving_piece->kind = model::PieceKind::QUEEN;
@@ -49,7 +61,10 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
     }
     
     if (active_jump.has_value() && active_jump->remaining_ms <= 0) {
-        if (active_jump->piece) active_jump->piece->state = model::PieceState::IDLE;
+        if (active_jump->piece) {
+            active_jump->piece->state = model::PieceState::IDLE;
+            active_cooldowns.push_back(Cooldown{active_jump->piece, 3000, 3000});
+        }
         active_jump.reset();
     }
 }
@@ -62,9 +77,31 @@ bool RealTimeArbiter::is_piece_moving(std::shared_ptr<model::Piece> piece) const
     return active_motion.has_value() && active_motion->piece == piece;
 }
 
+bool RealTimeArbiter::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
+    for (const auto& cd : active_cooldowns) {
+        if (cd.piece == piece) return true;
+    }
+    return false;
+}
+
+int RealTimeArbiter::get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const {
+    for (const auto& cd : active_cooldowns) {
+        if (cd.piece == piece) return cd.remaining_ms;
+    }
+    return 0;
+}
+
+int RealTimeArbiter::get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> piece) const {
+    for (const auto& cd : active_cooldowns) {
+        if (cd.piece == piece) return cd.total_ms;
+    }
+    return 0;
+}
+
 void RealTimeArbiter::reset() {
     active_motion.reset();
     active_jump.reset();
+    active_cooldowns.clear();
 }
 
 std::optional<Motion> RealTimeArbiter::get_active_motion() const {
