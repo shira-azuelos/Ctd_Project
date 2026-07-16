@@ -43,6 +43,8 @@ public:
 
     std::vector<Jump> get_active_jumps() const;
 
+    std::vector<Cooldown> get_active_cooldowns() const;
+
     bool is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const;
     
     bool is_piece_on_long_rest(std::shared_ptr<model::Piece> piece) const;

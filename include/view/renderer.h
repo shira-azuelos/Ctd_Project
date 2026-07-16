@@ -17,6 +17,7 @@ struct Jump;
 }
 
 #include "view/score_renderer.h"
+#include "view/process_renderer.h"
 
 namespace view {
 
@@ -26,6 +27,7 @@ private:
     PieceRenderer piece_renderer;
     OverlayRenderer overlay_renderer;
     ScoreRenderer score_renderer;
+    ProcessRenderer process_renderer;
 
 public:
     Renderer();

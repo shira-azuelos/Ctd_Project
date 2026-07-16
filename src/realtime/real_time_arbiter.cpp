@@ -107,7 +107,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Friendly block mid-air. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
                     } else {
-                        // Enemy jumping piece captures the moving piece in mid-air!
                         board->remove_piece(src); 
                         std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
                         if (state) {
@@ -243,6 +242,10 @@ std::vector<Motion> RealTimeArbiter::get_active_motions() const {
 
 std::vector<Jump> RealTimeArbiter::get_active_jumps() const {
     return active_jumps;
+}
+
+std::vector<Cooldown> RealTimeArbiter::get_active_cooldowns() const {
+    return active_cooldowns;
 }
 
 } 
