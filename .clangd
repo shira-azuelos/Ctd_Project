@@ -1,0 +1,7 @@
+CompileFlags:
+  Add: [
+    -Iinclude,
+    -Iinclude/view,
+    -IC:/Users/shira/Downloads/opencv/build/include,
+    -std=c++17
+  ]

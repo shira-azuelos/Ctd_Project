@@ -6,10 +6,19 @@
 
 namespace view {
 
-struct ProcessItem {
-    std::string text;
-    cv::Scalar color;
-};
+void ProcessRenderer::draw_process_list(Img& canvas, const std::vector<ProcessItem>& processes, int x_offset) {
+    if (processes.empty()) return;
+    
+    int y = 490;
+    canvas.put_text("ACTIVE", x_offset + 22, y, 0.4, cv::Scalar(120, 120, 120), 1);
+    y += 25;
+    
+    for (const auto& proc : processes) {
+        if (y > 780) break;
+        canvas.put_text(proc.text, x_offset + 15, y, 0.45, proc.color, 1);
+        y += 25;
+    }
+}
 
 void ProcessRenderer::draw(Img& canvas, const realtime::RealTimeArbiter* arbiter) {
     if (!arbiter) return;
@@ -19,8 +28,8 @@ void ProcessRenderer::draw(Img& canvas, const realtime::RealTimeArbiter* arbiter
 
     for (const auto& motion : arbiter->get_active_motions()) {
         if (!motion.piece) continue;
-        std::string name = motion.piece->id.substr(1); 
-        ProcessItem item{ name + ": MOVE", cv::Scalar(130, 180, 80) }; 
+        std::string name = motion.piece->id.substr(1);
+        ProcessItem item{ name + ": MOVE", cv::Scalar(130, 180, 80) };
         if (motion.piece->color == model::PieceColor::BLACK) {
             black_processes.push_back(item);
         } else {
@@ -46,7 +55,7 @@ void ProcessRenderer::draw(Img& canvas, const realtime::RealTimeArbiter* arbiter
         char buf[32];
         std::snprintf(buf, sizeof(buf), "%.1fs", (double)cooldown.remaining_ms / 1000.0);
         
-        ProcessItem item{ name + ": " + buf, cv::Scalar(80, 175, 205) }; 
+        ProcessItem item{ name + ": " + buf, cv::Scalar(80, 175, 205) };
         if (cooldown.piece->color == model::PieceColor::BLACK) {
             black_processes.push_back(item);
         } else {
@@ -54,27 +63,8 @@ void ProcessRenderer::draw(Img& canvas, const realtime::RealTimeArbiter* arbiter
         }
     }
 
-    int b_y = 490;
-    if (!black_processes.empty()) {
-        canvas.put_text("ACTIVE", 22, b_y, 0.4, cv::Scalar(120, 120, 120), 1);
-        b_y += 25;
-        for (const auto& proc : black_processes) {
-            if (b_y > 780) break; 
-            canvas.put_text(proc.text, 15, b_y, 0.45, proc.color, 1);
-            b_y += 25;
-        }
-    }
-
-    int w_y = 490;
-    if (!white_processes.empty()) {
-        canvas.put_text("ACTIVE", 922, w_y, 0.4, cv::Scalar(120, 120, 120), 1);
-        w_y += 25;
-        for (const auto& proc : white_processes) {
-            if (w_y > 780) break;
-            canvas.put_text(proc.text, 915, w_y, 0.45, proc.color, 1);
-            w_y += 25;
-        }
-    }
+    draw_process_list(canvas, black_processes, 0);
+    draw_process_list(canvas, white_processes, 900);
 }
 
 }

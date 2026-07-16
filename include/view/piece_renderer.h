@@ -24,6 +24,7 @@ struct DragInfo {
 class PieceRenderer {
 private:
     std::map<std::string, Img> piece_images;
+    Img& get_piece_image(std::shared_ptr<model::Piece> piece, const std::string& state, int frame);
 
 public:
     void draw_pieces(Img& canvas,
