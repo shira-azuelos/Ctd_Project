@@ -45,7 +45,7 @@ void GameEngine::request_jump(const model::Position& pos) {
 
 
 void GameEngine::wait(int ms) {
-    arbiter.advance_time(ms, state->get_board());
+    arbiter.advance_time(ms, state->get_board(), state);
     state->check_game_status();
 }
 

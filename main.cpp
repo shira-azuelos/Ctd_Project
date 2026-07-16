@@ -70,8 +70,10 @@ void on_mouse(int event, int x, int y, int flags, void* userdata) {
         return;
     }
 
+    int board_x = x - 100;
+
     if (event == cv::EVENT_MOUSEMOVE) {
-        auto hover_opt = input::BoardMapper::pixel_to_cell(x, y, g_state->board->get_width(), g_state->board->get_height());
+        auto hover_opt = input::BoardMapper::pixel_to_cell(board_x, y, g_state->board->get_width(), g_state->board->get_height());
         if (hover_opt) {
             g_state->hovered_cell = *hover_opt;
         } else {
@@ -84,7 +86,7 @@ void on_mouse(int event, int x, int y, int flags, void* userdata) {
         }
     }
     
-    auto cell_opt = input::BoardMapper::pixel_to_cell(x, y, g_state->board->get_width(), g_state->board->get_height());
+    auto cell_opt = input::BoardMapper::pixel_to_cell(board_x, y, g_state->board->get_width(), g_state->board->get_height());
     if (!cell_opt) {
         if (event == cv::EVENT_LBUTTONDOWN) {
             g_state->selected_cell.reset();
@@ -163,7 +165,7 @@ void run_gui_mode() {
         game_engine->wait(30);
 
         Img canvas;
-        canvas.read("assets/board.png", {800, 800}, false);
+        canvas.create(1000, 800, cv::Scalar(15, 15, 15));
         renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, gui_state.hovered_cell, game_engine->get_active_motions(), game_engine->get_active_jumps(), &game_engine->get_arbiter(), view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
 
         cv::imshow("KungFu Chess", canvas.get_mat());

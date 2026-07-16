@@ -16,6 +16,8 @@ struct Motion;
 struct Jump;
 }
 
+#include "view/score_renderer.h"
+
 namespace view {
 
 class Renderer {
@@ -23,6 +25,7 @@ private:
     BoardRenderer board_renderer;
     PieceRenderer piece_renderer;
     OverlayRenderer overlay_renderer;
+    ScoreRenderer score_renderer;
 
 public:
     Renderer();

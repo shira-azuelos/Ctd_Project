@@ -60,14 +60,15 @@ void PieceRenderer::draw_pieces(Img& canvas,
                     
                     if (piece_images.find(key) == piece_images.end()) {
                         std::string path = "assets/pieces/" + folder + "/states/" + rest_state + "/sprites/" + std::to_string(frame) + ".png";
-                        piece_images[key].read(path, {100, 100}, false);
+                    piece_images[key].read(path, {100, 100}, false);
                     }
                     
-                    piece_images[key].draw_on(canvas, col * 100, row * 100);
+                    int draw_x = col * 100 + 100;
+                    piece_images[key].draw_on(canvas, draw_x, row * 100);
 
                     int cd_height = static_cast<int>(cooldown_progress * 100);
                     if (cd_height > 0) {
-                        canvas.draw_rect(col * 100, row * 100 + 100 - cd_height, 100, cd_height, cv::Scalar(80, 175, 205), -1, 0.4);
+                        canvas.draw_rect(draw_x, row * 100 + 100 - cd_height, 100, cd_height, cv::Scalar(80, 175, 205), -1, 0.4);
                     }
                 } else {
                     int idle_frame = AnimationManager::get_idle_frame();
@@ -78,7 +79,8 @@ void PieceRenderer::draw_pieces(Img& canvas,
                         piece_images[key].read(path, {100, 100}, false);
                     }
                     
-                    piece_images[key].draw_on(canvas, col * 100, row * 100);
+                    int draw_x = col * 100 + 100;
+                    piece_images[key].draw_on(canvas, draw_x, row * 100);
                 }
             }
         }
@@ -103,9 +105,9 @@ void PieceRenderer::draw_pieces(Img& canvas,
             piece_images[key].read(path, {100, 100}, false);
         }
         
-        int start_x = motion.source.col * 100;
+        int start_x = motion.source.col * 100 + 100;
         int start_y = motion.source.row * 100;
-        int end_x = motion.dest.col * 100;
+        int end_x = motion.dest.col * 100 + 100;
         int end_y = motion.dest.row * 100;
         
         int current_x = start_x + static_cast<int>(progress * (end_x - start_x));
@@ -135,7 +137,7 @@ void PieceRenderer::draw_pieces(Img& canvas,
             piece_images[key].read(path, {100, 100}, false);
         }
         
-        piece_images[key].draw_on(canvas, jump.pos.col * 100, jump.pos.row * 100);
+        piece_images[key].draw_on(canvas, jump.pos.col * 100 + 100, jump.pos.row * 100);
     }
 
     if (drag_info.piece) {

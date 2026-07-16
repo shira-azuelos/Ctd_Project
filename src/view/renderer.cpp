@@ -3,7 +3,7 @@
 
 namespace view {
 
-Renderer::Renderer() : board_renderer(), piece_renderer(), overlay_renderer() {}
+Renderer::Renderer() : board_renderer(), piece_renderer(), overlay_renderer(), score_renderer() {}
 
 std::vector<std::string> Renderer::render_board(std::shared_ptr<model::GameState> state) {
     return io::BoardPrinter::print(state);
@@ -22,6 +22,7 @@ void Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
     board_renderer.draw_highlights(canvas, state, selected_cell, hovered_cell, arbiter);
     piece_renderer.draw_pieces(canvas, state, active_motions, active_jumps, arbiter, drag_info);
     overlay_renderer.draw_overlays(canvas, state);
+    score_renderer.draw(canvas, state);
 }
 
 }

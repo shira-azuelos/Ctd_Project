@@ -5,6 +5,10 @@
 #include "../include/model/board.h"
 #include "../include/realtime/motion.h"
 
+namespace model {
+class GameState;
+}
+
 namespace realtime {
 
 struct Cooldown {
@@ -25,7 +29,7 @@ public:
     
     void start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms);
     
-    void advance_time(int ms, std::shared_ptr<model::Board> board);
+    void advance_time(int ms, std::shared_ptr<model::Board> board, std::shared_ptr<model::GameState> state = nullptr);
     
     bool is_moving() const;
    

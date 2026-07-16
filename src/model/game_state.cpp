@@ -46,4 +46,20 @@ void GameState::check_game_status() {
     }
 }
 
+int GameState::get_white_score() const {
+    return white_score;
+}
+
+int GameState::get_black_score() const {
+    return black_score;
+}
+
+void GameState::add_to_white_score(int pts) {
+    white_score += pts;
+}
+
+void GameState::add_to_black_score(int pts) {
+    black_score += pts;
+}
+
 } 

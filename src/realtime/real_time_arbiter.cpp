@@ -1,4 +1,5 @@
 #include "../include/realtime/real_time_arbiter.h"
+#include "../include/model/game_state.h"
 #include <algorithm>
 #include <iostream>
 
@@ -14,7 +15,19 @@ void RealTimeArbiter::start_jump(std::shared_ptr<model::Piece> piece, model::Pos
     active_jumps.push_back(Jump{piece, pos, total_ms, total_ms});
 }
 
-void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
+static int get_piece_value(model::PieceKind kind) {
+    switch (kind) {
+        case model::PieceKind::PAWN: return 1;
+        case model::PieceKind::KNIGHT: return 3;
+        case model::PieceKind::BISHOP: return 3;
+        case model::PieceKind::ROOK: return 5;
+        case model::PieceKind::QUEEN: return 9;
+        case model::PieceKind::KING: return 10;
+        default: return 0;
+    }
+}
+
+void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, std::shared_ptr<model::GameState> state) {
     for (auto it = active_cooldowns.begin(); it != active_cooldowns.end(); ) {
         it->remaining_ms -= ms;
         if (it->remaining_ms <= 0) {
@@ -97,6 +110,14 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
                         // Enemy jumping piece captures the moving piece in mid-air!
                         board->remove_piece(src); 
                         std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                        if (state) {
+                            int pts = get_piece_value(moving_piece->kind);
+                            if (jumping_piece_at_dest->color == model::PieceColor::WHITE) {
+                                state->add_to_white_score(pts);
+                            } else {
+                                state->add_to_black_score(pts);
+                            }
+                        }
                     }
                 }
                 else if (piece_at_dest) {
@@ -109,6 +130,14 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                        if (state) {
+                            int pts = get_piece_value(piece_at_dest->kind);
+                            if (moving_piece->color == model::PieceColor::WHITE) {
+                                state->add_to_white_score(pts);
+                            } else {
+                                state->add_to_black_score(pts);
+                            }
+                        }
                         
                         if (moving_piece->kind == model::PieceKind::PAWN) {
                             if ((moving_piece->color == model::PieceColor::WHITE && dest.row == 0) ||

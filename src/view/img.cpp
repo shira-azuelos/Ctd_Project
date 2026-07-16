@@ -5,6 +5,10 @@
 Img::Img() {
 }
 
+void Img::create(int w, int h, const cv::Scalar& color) {
+    img = cv::Mat(h, w, CV_8UC3, color);
+}
+
 Img& Img::read(const std::string& path,
                const std::pair<int, int>& size,
                bool keep_aspect,

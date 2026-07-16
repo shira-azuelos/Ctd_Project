@@ -9,7 +9,7 @@ BoardRenderer::BoardRenderer() {
 }
 
 void BoardRenderer::draw_background(Img& canvas) {
-    board_img.draw_on(canvas, 0, 0);
+    board_img.draw_on(canvas, 100, 0);
 }
 
 void BoardRenderer::draw_highlights(Img& canvas,
@@ -41,22 +41,24 @@ void BoardRenderer::draw_highlights(Img& canvas,
                 }
             }
 
+            int draw_x = col * 100 + 100;
+
             if (is_selected) {
-                canvas.draw_rect(col * 100, row * 100, 100, 100, cv::Scalar(64, 140, 164), 4);
+                canvas.draw_rect(draw_x, row * 100, 100, 100, cv::Scalar(64, 140, 164), 4);
             }
             else if (is_valid_attack) {
-                canvas.draw_rect(col * 100, row * 100, 100, 100, cv::Scalar(0, 0, 255), 4);
+                canvas.draw_rect(draw_x, row * 100, 100, 100, cv::Scalar(0, 0, 255), 4);
             }
             else if (is_valid_move) {
                 if ((row + col) % 2 == 0) { 
-                    canvas.draw_rect(col * 100, row * 100, 100, 100, cv::Scalar(80, 180, 130), -1, 0.45);
+                    canvas.draw_rect(draw_x, row * 100, 100, 100, cv::Scalar(80, 180, 130), -1, 0.45);
                 } else { 
-                    canvas.draw_rect(col * 100, row * 100, 100, 100, cv::Scalar(120, 210, 160), -1, 0.45);
+                    canvas.draw_rect(draw_x, row * 100, 100, 100, cv::Scalar(120, 210, 160), -1, 0.45);
                 }
             }
 
             if (is_hovered) {
-                canvas.draw_rect(col * 100, row * 100, 100, 100, cv::Scalar(255, 255, 255), -1, 0.15);
+                canvas.draw_rect(draw_x, row * 100, 100, 100, cv::Scalar(255, 255, 255), -1, 0.15);
             }
         }
     }

@@ -23,6 +23,11 @@ public:
               int interpolation = cv::INTER_AREA);
     
     /**
+     * Create a blank image of size (w, h) with background color.
+     */
+    void create(int w, int h, const cv::Scalar& color = cv::Scalar(0, 0, 0));
+    
+    /**
      * Draw this image onto another image at position (x, y)
      * 
      * @param other_img The target image to draw on
