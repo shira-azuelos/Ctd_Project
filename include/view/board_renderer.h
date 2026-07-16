@@ -20,7 +20,8 @@ public:
     void draw_highlights(Img& canvas,
                          const std::shared_ptr<model::GameState>& state,
                          const std::optional<model::Position>& selected_cell,
-                         const realtime::RealTimeArbiter* arbiter);
+                         const std::optional<model::Position>& hovered_cell = std::nullopt,
+                         const realtime::RealTimeArbiter* arbiter = nullptr);
 };
 
 }

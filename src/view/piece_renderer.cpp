@@ -8,7 +8,8 @@ void PieceRenderer::draw_pieces(Img& canvas,
                                  const std::shared_ptr<model::GameState>& state,
                                  const std::vector<realtime::Motion>& active_motions,
                                  const std::vector<realtime::Jump>& active_jumps,
-                                 const realtime::RealTimeArbiter* arbiter) {
+                                 const realtime::RealTimeArbiter* arbiter,
+                                 const DragInfo& drag_info) {
     auto board = state->get_board();
     if (!board) return;
 
@@ -17,6 +18,10 @@ void PieceRenderer::draw_pieces(Img& canvas,
             model::Position cell_pos(row, col);
             auto piece = board->get_piece_at(cell_pos);
             if (piece) {
+                if (drag_info.piece == piece) {
+                    continue;
+                }
+
                 bool is_piece_moving = false;
                 for (const auto& m : active_motions) {
                     if (m.piece == piece) {
@@ -131,6 +136,23 @@ void PieceRenderer::draw_pieces(Img& canvas,
         }
         
         piece_images[key].draw_on(canvas, jump.pos.col * 100, jump.pos.row * 100);
+    }
+
+    if (drag_info.piece) {
+        auto piece = drag_info.piece;
+        char k_char = model::KIND_TO_CHAR.at(piece->kind);
+        char c_char = (piece->color == model::PieceColor::WHITE) ? 'W' : 'B';
+        std::string folder = std::string(1, k_char) + std::string(1, c_char);
+
+        int idle_frame = AnimationManager::get_idle_frame();
+        std::string key = folder + "_idle_" + std::to_string(idle_frame);
+        
+        if (piece_images.find(key) == piece_images.end()) {
+            std::string path = "assets/pieces/" + folder + "/states/idle/sprites/" + std::to_string(idle_frame) + ".png";
+            piece_images[key].read(path, {100, 100}, false);
+        }
+        
+        piece_images[key].draw_on(canvas, drag_info.x - 50, drag_info.y - 50);
     }
 }
 

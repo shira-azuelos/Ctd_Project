@@ -51,8 +51,8 @@ void Img::draw_on(Img& other_img, int x, int y) {
     int H = target_img.rows;
     int W = target_img.cols;
 
-    if (y + h > H || x + w > W) {
-        throw std::runtime_error("Image does not fit at the specified position.");
+    if (x < 0 || y < 0 || y + h > H || x + w > W) {
+        return;
     }
 
     cv::Mat roi = target_img(cv::Rect(x, y, w, h));
