@@ -6,8 +6,8 @@ namespace view {
 
 void PieceRenderer::draw_pieces(Img& canvas,
                                  const std::shared_ptr<model::GameState>& state,
-                                 const std::optional<realtime::Motion>& active_motion,
-                                 const std::optional<realtime::Jump>& active_jump,
+                                 const std::vector<realtime::Motion>& active_motions,
+                                 const std::vector<realtime::Jump>& active_jumps,
                                  const realtime::RealTimeArbiter* arbiter) {
     auto board = state->get_board();
     if (!board) return;
@@ -17,12 +17,23 @@ void PieceRenderer::draw_pieces(Img& canvas,
             model::Position cell_pos(row, col);
             auto piece = board->get_piece_at(cell_pos);
             if (piece) {
-                if (active_motion && active_motion->piece == piece) {
-                    continue; 
+                bool is_piece_moving = false;
+                for (const auto& m : active_motions) {
+                    if (m.piece == piece) {
+                        is_piece_moving = true;
+                        break;
+                    }
                 }
-                if (active_jump && active_jump->piece == piece) {
-                    continue;
+                if (is_piece_moving) continue;
+
+                bool is_piece_jumping = false;
+                for (const auto& j : active_jumps) {
+                    if (j.piece == piece) {
+                        is_piece_jumping = true;
+                        break;
+                    }
                 }
+                if (is_piece_jumping) continue;
 
                 char k_char = model::KIND_TO_CHAR.at(piece->kind);
                 char c_char = (piece->color == model::PieceColor::WHITE) ? 'W' : 'B';
@@ -68,13 +79,14 @@ void PieceRenderer::draw_pieces(Img& canvas,
         }
     }
 
-    if (active_motion && active_motion->piece) {
-        auto piece = active_motion->piece;
+    for (const auto& motion : active_motions) {
+        if (!motion.piece) continue;
+        auto piece = motion.piece;
         char k_char = model::KIND_TO_CHAR.at(piece->kind);
         char c_char = (piece->color == model::PieceColor::WHITE) ? 'W' : 'B';
         std::string folder = std::string(1, k_char) + std::string(1, c_char);
         
-        double progress = (double)(active_motion->total_ms - active_motion->remaining_ms) / active_motion->total_ms;
+        double progress = (double)(motion.total_ms - motion.remaining_ms) / motion.total_ms;
         if (progress < 0.0) progress = 0.0;
         if (progress > 1.0) progress = 1.0;
         
@@ -86,10 +98,10 @@ void PieceRenderer::draw_pieces(Img& canvas,
             piece_images[key].read(path, {100, 100}, false);
         }
         
-        int start_x = active_motion->source.col * 100;
-        int start_y = active_motion->source.row * 100;
-        int end_x = active_motion->dest.col * 100;
-        int end_y = active_motion->dest.row * 100;
+        int start_x = motion.source.col * 100;
+        int start_y = motion.source.row * 100;
+        int end_x = motion.dest.col * 100;
+        int end_y = motion.dest.row * 100;
         
         int current_x = start_x + static_cast<int>(progress * (end_x - start_x));
         int current_y = start_y + static_cast<int>(progress * (end_y - start_y));
@@ -97,14 +109,15 @@ void PieceRenderer::draw_pieces(Img& canvas,
         piece_images[key].draw_on(canvas, current_x, current_y);
     }
 
-    if (active_jump && active_jump->piece) {
-        auto piece = active_jump->piece;
+    for (const auto& jump : active_jumps) {
+        if (!jump.piece) continue;
+        auto piece = jump.piece;
         char k_char = model::KIND_TO_CHAR.at(piece->kind);
         char c_char = (piece->color == model::PieceColor::WHITE) ? 'W' : 'B';
         std::string folder = std::string(1, k_char) + std::string(1, c_char);
         
-        int total = active_jump->total_ms;
-        int remaining = active_jump->remaining_ms;
+        int total = jump.total_ms;
+        int remaining = jump.remaining_ms;
         double progress = (total > 0) ? (double)(total - remaining) / total : 0.0;
         if (progress < 0.0) progress = 0.0;
         if (progress > 1.0) progress = 1.0;
@@ -117,7 +130,7 @@ void PieceRenderer::draw_pieces(Img& canvas,
             piece_images[key].read(path, {100, 100}, false);
         }
         
-        piece_images[key].draw_on(canvas, active_jump->pos.col * 100, active_jump->pos.row * 100);
+        piece_images[key].draw_on(canvas, jump.pos.col * 100, jump.pos.row * 100);
     }
 }
 

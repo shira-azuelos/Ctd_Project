@@ -5,7 +5,7 @@
 #include <memory>
 #include <map>
 #include <string>
-#include <optional>
+#include <vector>
 
 namespace realtime {
 class RealTimeArbiter;
@@ -22,8 +22,8 @@ private:
 public:
     void draw_pieces(Img& canvas,
                      const std::shared_ptr<model::GameState>& state,
-                     const std::optional<realtime::Motion>& active_motion,
-                     const std::optional<realtime::Jump>& active_jump,
+                     const std::vector<realtime::Motion>& active_motions,
+                     const std::vector<realtime::Jump>& active_jumps,
                      const realtime::RealTimeArbiter* arbiter);
 };
 

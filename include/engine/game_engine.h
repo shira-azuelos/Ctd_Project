@@ -24,6 +24,10 @@ public:
 
     std::optional<realtime::Jump> get_active_jump() const;
 
+    std::vector<realtime::Motion> get_active_motions() const;
+
+    std::vector<realtime::Jump> get_active_jumps() const;
+
     const realtime::RealTimeArbiter& get_arbiter() const;
 
     bool is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const;

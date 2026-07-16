@@ -1,15 +1,17 @@
 #include "../include/realtime/real_time_arbiter.h"
+#include <algorithm>
+#include <iostream>
 
 namespace realtime {
 
 void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms) {
     if (piece) piece->state = model::PieceState::MOVING;
-    active_motion = Motion{piece, src, dst, total_ms, total_ms};
+    active_motions.push_back(Motion{piece, src, dst, total_ms, total_ms});
 }
 
 void RealTimeArbiter::start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms) {
     if (piece) piece->state = model::PieceState::MOVING;
-    active_jump = Jump{piece, pos, total_ms, total_ms};
+    active_jumps.push_back(Jump{piece, pos, total_ms, total_ms});
 }
 
 void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) {
@@ -22,59 +24,144 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board) 
         }
     }
 
-    if (active_jump.has_value()) {
-        active_jump->remaining_ms -= ms;
+    struct Event {
+        enum class Type { MOTION, JUMP };
+        Type type;
+        size_t index_in_vec;
+        int arrival_time; 
+    };
+
+    std::vector<Event> events;
+    for (size_t i = 0; i < active_motions.size(); ++i) {
+        if (active_motions[i].remaining_ms <= ms) {
+            events.push_back(Event{Event::Type::MOTION, i, active_motions[i].remaining_ms});
+        }
+    }
+    for (size_t i = 0; i < active_jumps.size(); ++i) {
+        if (active_jumps[i].remaining_ms <= ms) {
+            events.push_back(Event{Event::Type::JUMP, i, active_jumps[i].remaining_ms});
+        }
     }
 
-    if (active_motion.has_value()) {
-        active_motion->remaining_ms -= ms;
-        
-        if (active_motion->remaining_ms <= 0) {
-            auto dest = active_motion->dest;
-            auto src = active_motion->source;
-            auto moving_piece = active_motion->piece;
-            bool captured_in_air = false;
-            
-            if (active_jump.has_value() && active_jump->pos == dest && active_jump->remaining_ms >= 0) {
-                if (active_jump->piece->color != moving_piece->color) {
-                    board->remove_piece(src); 
-                    captured_in_air = true;
+    std::sort(events.begin(), events.end(), [](const Event& a, const Event& b) {
+        return a.arrival_time < b.arrival_time;
+    });
+
+    std::vector<bool> handled_motions(active_motions.size(), false);
+    std::vector<bool> handled_jumps(active_jumps.size(), false);
+
+    for (const auto& ev : events) {
+        if (ev.type == Event::Type::JUMP) {
+            handled_jumps[ev.index_in_vec] = true;
+            auto& jump = active_jumps[ev.index_in_vec];
+            if (jump.piece) {
+                auto current_piece = board->get_piece_at(jump.pos);
+                if (current_piece == jump.piece) {
+                    jump.piece->state = model::PieceState::IDLE;
+                    active_cooldowns.push_back(Cooldown{jump.piece, 3000, 3000, true});
                 }
             }
-            
-            if (!captured_in_air) {
-                board->move_piece(src, dest);
-                if (moving_piece) {
+        } 
+        else if (ev.type == Event::Type::MOTION) {
+            handled_motions[ev.index_in_vec] = true;
+            auto& motion = active_motions[ev.index_in_vec];
+            auto dest = motion.dest;
+            auto src = motion.source;
+            auto moving_piece = motion.piece;
+
+            auto current_piece_at_src = board->get_piece_at(src);
+            if (current_piece_at_src == moving_piece && moving_piece) {
+                auto piece_at_dest = board->get_piece_at(dest);
+                std::shared_ptr<model::Piece> jumping_piece_at_dest = nullptr;
+                for (size_t j = 0; j < active_jumps.size(); ++j) {
+                    if (active_jumps[j].pos == dest) {
+                        bool j_completed_earlier = false;
+                        if (active_jumps[j].remaining_ms <= ms) {
+                            if (active_jumps[j].remaining_ms < ev.arrival_time) {
+                                j_completed_earlier = true;
+                            }
+                        }
+                        if (!j_completed_earlier) {
+                            jumping_piece_at_dest = active_jumps[j].piece;
+                            break;
+                        }
+                    }
+                }
+
+                if (jumping_piece_at_dest) {
+                    if (jumping_piece_at_dest->color == moving_piece->color) {
+                        moving_piece->state = model::PieceState::IDLE;
+                        active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
+                        std::cout << "[Arbiter] Friendly block mid-air. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
+                    } else {
+                        // Enemy jumping piece captures the moving piece in mid-air!
+                        board->remove_piece(src); 
+                        std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                    }
+                }
+                else if (piece_at_dest) {
+                    if (piece_at_dest->color == moving_piece->color) {
+                        moving_piece->state = model::PieceState::IDLE;
+                        active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
+                        std::cout << "[Arbiter] Friendly block. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
+                    } else {
+                        board->move_piece(src, dest);
+                        moving_piece->state = model::PieceState::IDLE;
+                        active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
+                        std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                        
+                        if (moving_piece->kind == model::PieceKind::PAWN) {
+                            if ((moving_piece->color == model::PieceColor::WHITE && dest.row == 0) ||
+                                (moving_piece->color == model::PieceColor::BLACK && dest.row == board->get_height() - 1)) {
+                                moving_piece->kind = model::PieceKind::QUEEN;
+                            }
+                        }
+                    }
+                } 
+                else {
+                    board->move_piece(src, dest);
                     moving_piece->state = model::PieceState::IDLE;
                     active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
-                }
-                if (moving_piece && moving_piece->kind == model::PieceKind::PAWN) {
-                    if (moving_piece->color == model::PieceColor::WHITE && dest.row == 0) {
-                        moving_piece->kind = model::PieceKind::QUEEN;
-                    } else if (moving_piece->color == model::PieceColor::BLACK && dest.row == board->get_height() - 1) {
-                        moving_piece->kind = model::PieceKind::QUEEN;
+
+                    if (moving_piece->kind == model::PieceKind::PAWN) {
+                        if ((moving_piece->color == model::PieceColor::WHITE && dest.row == 0) ||
+                            (moving_piece->color == model::PieceColor::BLACK && dest.row == board->get_height() - 1)) {
+                            moving_piece->kind = model::PieceKind::QUEEN;
+                        }
                     }
                 }
             }
-            active_motion.reset();
         }
     }
-    
-    if (active_jump.has_value() && active_jump->remaining_ms <= 0) {
-        if (active_jump->piece) {
-            active_jump->piece->state = model::PieceState::IDLE;
-            active_cooldowns.push_back(Cooldown{active_jump->piece, 3000, 3000, true});
+
+    std::vector<Motion> remaining_motions;
+    for (size_t i = 0; i < active_motions.size(); ++i) {
+        if (!handled_motions[i]) {
+            active_motions[i].remaining_ms -= ms;
+            remaining_motions.push_back(active_motions[i]);
         }
-        active_jump.reset();
     }
+    active_motions = remaining_motions;
+
+    std::vector<Jump> remaining_jumps;
+    for (size_t i = 0; i < active_jumps.size(); ++i) {
+        if (!handled_jumps[i]) {
+            active_jumps[i].remaining_ms -= ms;
+            remaining_jumps.push_back(active_jumps[i]);
+        }
+    }
+    active_jumps = remaining_jumps;
 }
 
 bool RealTimeArbiter::is_moving() const {
-    return active_motion.has_value();
+    return !active_motions.empty();
 }
 
 bool RealTimeArbiter::is_piece_moving(std::shared_ptr<model::Piece> piece) const {
-    return active_motion.has_value() && active_motion->piece == piece;
+    for (const auto& m : active_motions) {
+        if (m.piece == piece) return true;
+    }
+    return false;
 }
 
 bool RealTimeArbiter::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
@@ -106,17 +193,27 @@ int RealTimeArbiter::get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> p
 }
 
 void RealTimeArbiter::reset() {
-    active_motion.reset();
-    active_jump.reset();
+    active_motions.clear();
+    active_jumps.clear();
     active_cooldowns.clear();
 }
 
 std::optional<Motion> RealTimeArbiter::get_active_motion() const {
-    return active_motion;
+    if (active_motions.empty()) return std::nullopt;
+    return active_motions.front();
 }
 
 std::optional<Jump> RealTimeArbiter::get_active_jump() const {
-    return active_jump;
+    if (active_jumps.empty()) return std::nullopt;
+    return active_jumps.front();
+}
+
+std::vector<Motion> RealTimeArbiter::get_active_motions() const {
+    return active_motions;
+}
+
+std::vector<Jump> RealTimeArbiter::get_active_jumps() const {
+    return active_jumps;
 }
 
 } 

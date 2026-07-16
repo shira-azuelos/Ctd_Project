@@ -19,11 +19,10 @@ bool GameEngine::is_moving() const {
 
 void GameEngine::request_move(const model::Position& src, const model::Position& dest) {
     if (state->is_game_over()) return;
-    if (arbiter.is_moving()) return;
 
     auto board = state->get_board();
     auto piece = board->get_piece_at(src);
-    if (!piece || arbiter.is_piece_cooling_down(piece)) {
+    if (!piece || arbiter.is_piece_moving(piece) || arbiter.is_piece_cooling_down(piece)) {
         return;
     }
 
@@ -56,6 +55,14 @@ std::optional<realtime::Motion> GameEngine::get_active_motion() const {
 
 std::optional<realtime::Jump> GameEngine::get_active_jump() const {
     return arbiter.get_active_jump();
+}
+
+std::vector<realtime::Motion> GameEngine::get_active_motions() const {
+    return arbiter.get_active_motions();
+}
+
+std::vector<realtime::Jump> GameEngine::get_active_jumps() const {
+    return arbiter.get_active_jumps();
 }
 
 bool GameEngine::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {

@@ -16,8 +16,8 @@ struct Cooldown {
 
 class RealTimeArbiter {
 private:
-    std::optional<Motion> active_motion;
-    std::optional<Jump> active_jump;
+    std::vector<Motion> active_motions;
+    std::vector<Jump> active_jumps;
     std::vector<Cooldown> active_cooldowns;
 
 public:
@@ -34,6 +34,10 @@ public:
     std::optional<Motion> get_active_motion() const;
 
     std::optional<Jump> get_active_jump() const;
+
+    std::vector<Motion> get_active_motions() const;
+
+    std::vector<Jump> get_active_jumps() const;
 
     bool is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const;
     

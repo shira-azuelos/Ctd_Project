@@ -11,14 +11,14 @@ std::vector<std::string> Renderer::render_board(std::shared_ptr<model::GameState
 
 void Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
                     const std::optional<model::Position>& selected_cell,
-                    const std::optional<realtime::Motion>& active_motion,
-                    const std::optional<realtime::Jump>& active_jump,
+                    const std::vector<realtime::Motion>& active_motions,
+                    const std::vector<realtime::Jump>& active_jumps,
                     const realtime::RealTimeArbiter* arbiter) {
     if (!state) return;
     
     board_renderer.draw_background(canvas);
     board_renderer.draw_highlights(canvas, state, selected_cell, arbiter);
-    piece_renderer.draw_pieces(canvas, state, active_motion, active_jump, arbiter);
+    piece_renderer.draw_pieces(canvas, state, active_motions, active_jumps, arbiter);
     overlay_renderer.draw_overlays(canvas, state);
 }
 
