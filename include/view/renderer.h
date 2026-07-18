@@ -34,7 +34,6 @@ public:
     static std::vector<std::string> render_board(std::shared_ptr<model::GameState> state);
     void draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
               const std::optional<model::Position>& selected_cell = std::nullopt,
-              const std::optional<model::Position>& hovered_cell = std::nullopt,
               const std::vector<realtime::Motion>& active_motions = {},
               const std::vector<realtime::Jump>& active_jumps = {},
               const realtime::RealTimeArbiter* arbiter = nullptr,

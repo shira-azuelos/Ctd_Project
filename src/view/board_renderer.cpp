@@ -15,7 +15,6 @@ void BoardRenderer::draw_background(Img& canvas) {
 void BoardRenderer::draw_highlights(Img& canvas,
                                      const std::shared_ptr<model::GameState>& state,
                                      const std::optional<model::Position>& selected_cell,
-                                     const std::optional<model::Position>& hovered_cell,
                                      const realtime::RealTimeArbiter* arbiter) {
     auto board = state->get_board();
     if (!board) return;
@@ -26,7 +25,6 @@ void BoardRenderer::draw_highlights(Img& canvas,
             model::Position cell_pos(row, col);
             
             bool is_selected = !game_over && selected_cell && (*selected_cell == cell_pos);
-            bool is_hovered = !game_over && hovered_cell && (*hovered_cell == cell_pos);
             bool is_valid_move = false;
             bool is_valid_attack = false;
             
@@ -56,10 +54,6 @@ void BoardRenderer::draw_highlights(Img& canvas,
                 } else { 
                     canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(120, 210, 160), -1, 0.45);
                 }
-            }
-
-            if (is_hovered) {
-                canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(255, 255, 255), -1, 0.15);
             }
         }
     }

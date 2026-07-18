@@ -47,7 +47,6 @@ struct GuiState {
     std::shared_ptr<engine::GameEngine> game_engine;
     std::shared_ptr<model::Board> board;
     std::optional<model::Position> selected_cell;
-    std::optional<model::Position> hovered_cell;
     std::shared_ptr<model::Piece> dragged_piece = nullptr;
     int drag_x = 0;
     int drag_y = 0;
@@ -56,7 +55,6 @@ struct GuiState {
 static void on_mouse(int event, int x, int y, int flags, void* userdata) {
     auto* g_state = static_cast<GuiState*>(userdata);
     if (g_state->game_engine->get_state()->is_game_over()) {
-        g_state->hovered_cell.reset();
         g_state->dragged_piece = nullptr;
         return;
     }
@@ -64,7 +62,6 @@ static void on_mouse(int event, int x, int y, int flags, void* userdata) {
     int board_x = x - 100;
 
     if (event == cv::EVENT_MOUSEMOVE) {
-        g_state->hovered_cell = input::BoardMapper::pixel_to_cell(board_x, y, g_state->board->get_width(), g_state->board->get_height());
         if (g_state->dragged_piece) {
             g_state->drag_x = x;
             g_state->drag_y = y;
@@ -137,15 +134,15 @@ void AppRunner::run_gui_mode() {
         game_engine->wait(30);
 
         canvas.create(1000, 800, cv::Scalar(15, 15, 15));
-        renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, gui_state.hovered_cell, game_engine->get_active_motions(), game_engine->get_active_jumps(), &game_engine->get_arbiter(), view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
+        renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, game_engine->get_active_motions(), game_engine->get_active_jumps(), &game_engine->get_arbiter(), view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
 
         cv::imshow("KungFu Chess", canvas.get_mat());
 
         int key = cv::waitKey(30);
-        if (key == 27) { // ESC key
+        if (key == 27) { // ESC 
             break;
         }
-    }
+    };
     cv::destroyAllWindows();
 }
 
