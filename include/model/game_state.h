@@ -25,9 +25,11 @@ public:
     void check_game_status();
 
     int get_white_score() const;
+
     int get_black_score() const;
+    
     void add_to_white_score(int pts);
     void add_to_black_score(int pts);
 };
 
-} 
+}

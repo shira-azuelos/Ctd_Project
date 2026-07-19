@@ -1,5 +1,6 @@
 #include "../include/realtime/real_time_arbiter.h"
 #include "../include/model/game_state.h"
+#include "pubsub/message_bus.h"
 #include <algorithm>
 #include <iostream>
 
@@ -8,11 +9,21 @@ namespace realtime {
 void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms) {
     if (piece) piece->state = model::PieceState::MOVING;
     active_motions.push_back(Motion{piece, src, dst, total_ms, total_ms});
+    
+    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+        pubsub::EventType::PLAY_SOUND,
+        pubsub::SoundPayload{"move"}
+    });
 }
 
 void RealTimeArbiter::start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms) {
     if (piece) piece->state = model::PieceState::MOVING;
     active_jumps.push_back(Jump{piece, pos, total_ms, total_ms});
+    
+    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+        pubsub::EventType::PLAY_SOUND,
+        pubsub::SoundPayload{"jump"}
+    });
 }
 
 static int get_piece_value(model::PieceKind kind) {
@@ -72,6 +83,12 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                 if (current_piece == jump.piece) {
                     jump.piece->state = model::PieceState::IDLE;
                     active_cooldowns.push_back(Cooldown{jump.piece, 3000, 3000, true});
+                    
+                    std::string log_msg = jump.piece->id + " landed at (" + std::to_string(jump.pos.row) + "," + std::to_string(jump.pos.col) + ")";
+                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                        pubsub::EventType::MOVE_LOGGED,
+                        log_msg
+                    });
                 }
             }
         } 
@@ -106,9 +123,30 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Friendly block mid-air. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
+                        
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::PLAY_SOUND,
+                            pubsub::SoundPayload{"block"}
+                        });
+                        std::string log_msg = "Friendly block mid-air. " + moving_piece->id + " stuck at (" + std::to_string(src.row) + "," + std::to_string(src.col) + ")";
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::MOVE_LOGGED,
+                            log_msg
+                        });
                     } else {
                         board->remove_piece(src); 
                         std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                        
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::PLAY_SOUND,
+                            pubsub::SoundPayload{"capture"}
+                        });
+                        std::string log_msg = "Mid-air capture. Jumping " + jumping_piece_at_dest->id + " captured " + moving_piece->id + " at (" + std::to_string(dest.row) + "," + std::to_string(dest.col) + ")";
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::MOVE_LOGGED,
+                            log_msg
+                        });
+                        
                         if (state) {
                             int pts = get_piece_value(moving_piece->kind);
                             if (jumping_piece_at_dest->color == model::PieceColor::WHITE) {
@@ -124,11 +162,32 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Friendly block. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
+                        
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::PLAY_SOUND,
+                            pubsub::SoundPayload{"block"}
+                        });
+                        std::string log_msg = "Friendly block. " + moving_piece->id + " stuck at (" + std::to_string(src.row) + "," + std::to_string(src.col) + ")";
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::MOVE_LOGGED,
+                            log_msg
+                        });
                     } else {
                         board->move_piece(src, dest);
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
+                        
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::PLAY_SOUND,
+                            pubsub::SoundPayload{"capture"}
+                        });
+                        std::string log_msg = moving_piece->id + " captured " + piece_at_dest->id + " at (" + std::to_string(dest.row) + "," + std::to_string(dest.col) + ")";
+                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                            pubsub::EventType::MOVE_LOGGED,
+                            log_msg
+                        });
+                        
                         if (state) {
                             int pts = get_piece_value(piece_at_dest->kind);
                             if (moving_piece->color == model::PieceColor::WHITE) {
@@ -150,6 +209,12 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                     board->move_piece(src, dest);
                     moving_piece->state = model::PieceState::IDLE;
                     active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
+                    
+                    std::string log_msg = moving_piece->id + " moved to (" + std::to_string(dest.row) + "," + std::to_string(dest.col) + ")";
+                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                        pubsub::EventType::MOVE_LOGGED,
+                        log_msg
+                    });
 
                     if (moving_piece->kind == model::PieceKind::PAWN) {
                         if ((moving_piece->color == model::PieceColor::WHITE && dest.row == 0) ||

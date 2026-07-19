@@ -1,4 +1,5 @@
 #include "../include/model/game_state.h"
+#include "pubsub/message_bus.h"
 
 namespace model {
 
@@ -43,6 +44,14 @@ void GameState::check_game_status() {
     }
     if ((initial_w_kings > 0 && w_kings == 0) || (initial_b_kings > 0 && b_kings == 0)) {
         game_over_flag = true;
+        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+            pubsub::EventType::GAME_STATUS,
+            std::string("game_over")
+        });
+        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+            pubsub::EventType::PLAY_SOUND,
+            pubsub::SoundPayload{"game_over"}
+        });
     }
 }
 
@@ -56,10 +65,18 @@ int GameState::get_black_score() const {
 
 void GameState::add_to_white_score(int pts) {
     white_score += pts;
+    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+        pubsub::EventType::SCORE_CHANGED,
+        pubsub::ScorePayload{"WHITE", white_score}
+    });
 }
 
 void GameState::add_to_black_score(int pts) {
     black_score += pts;
+    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+        pubsub::EventType::SCORE_CHANGED,
+        pubsub::ScorePayload{"BLACK", black_score}
+    });
 }
 
 } 
