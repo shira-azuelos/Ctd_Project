@@ -6,9 +6,19 @@
 
 namespace realtime {
 
-void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms) {
+void RealTimeArbiter::start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms, std::shared_ptr<model::Board> board) {
     if (piece) piece->state = model::PieceState::MOVING;
-    active_motions.push_back(Motion{piece, src, dst, total_ms, total_ms});
+    
+    std::shared_ptr<model::Piece> victim = nullptr;
+    if (board) {
+        victim = board->get_piece_at(dst);
+        if (victim && piece && victim->color == piece->color) {
+            victim = nullptr;
+        }
+        board->clear_cell(src);
+    }
+    
+    active_motions.push_back(Motion{piece, src, dst, total_ms, total_ms, victim});
     
     pubsub::MessageBus::get_instance().publish(pubsub::Event{
         pubsub::EventType::PLAY_SOUND,
@@ -99,9 +109,21 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
             auto src = motion.source;
             auto moving_piece = motion.piece;
 
-            auto current_piece_at_src = board->get_piece_at(src);
-            if (current_piece_at_src == moving_piece && moving_piece) {
+            if (moving_piece && moving_piece->state != model::PieceState::CAPTURED) {
                 auto piece_at_dest = board->get_piece_at(dest);
+                if (piece_at_dest) {
+                    bool is_escaping = false;
+                    for (size_t i = 0; i < active_motions.size(); ++i) {
+                        if (!handled_motions[i] && active_motions[i].piece && active_motions[i].piece->id == piece_at_dest->id) {
+                            is_escaping = true;
+                            break;
+                        }
+                    }
+                    if (is_escaping) {
+                        piece_at_dest = nullptr;
+                    }
+                }
+
                 std::shared_ptr<model::Piece> jumping_piece_at_dest = nullptr;
                 for (size_t j = 0; j < active_jumps.size(); ++j) {
                     if (active_jumps[j].pos == dest) {
@@ -120,6 +142,8 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
 
                 if (jumping_piece_at_dest) {
                     if (jumping_piece_at_dest->color == moving_piece->color) {
+                        moving_piece->cell = src;
+                        board->add_piece(moving_piece);
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Friendly block mid-air. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
@@ -134,7 +158,7 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                             log_msg
                         });
                     } else {
-                        board->remove_piece(src); 
+                        moving_piece->state = model::PieceState::CAPTURED;
                         std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
                         
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{
@@ -159,6 +183,8 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                 }
                 else if (piece_at_dest) {
                     if (piece_at_dest->color == moving_piece->color) {
+                        moving_piece->cell = src;
+                        board->add_piece(moving_piece);
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Friendly block. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
@@ -173,7 +199,10 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                             log_msg
                         });
                     } else {
-                        board->move_piece(src, dest);
+                        board->remove_piece(dest);
+                        moving_piece->cell = dest;
+                        board->add_piece(moving_piece);
+
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
@@ -206,7 +235,9 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                     }
                 } 
                 else {
-                    board->move_piece(src, dest);
+                    moving_piece->cell = dest;
+                    board->add_piece(moving_piece);
+
                     moving_piece->state = model::PieceState::IDLE;
                     active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                     
@@ -251,36 +282,41 @@ bool RealTimeArbiter::is_moving() const {
 }
 
 bool RealTimeArbiter::is_piece_moving(std::shared_ptr<model::Piece> piece) const {
+    if (!piece) return false;
     for (const auto& m : active_motions) {
-        if (m.piece == piece) return true;
+        if (m.piece && m.piece->id == piece->id) return true;
     }
     return false;
 }
 
 bool RealTimeArbiter::is_piece_cooling_down(std::shared_ptr<model::Piece> piece) const {
+    if (!piece) return false;
     for (const auto& cd : active_cooldowns) {
-        if (cd.piece == piece) return true;
+        if (cd.piece && cd.piece->id == piece->id) return true;
     }
     return false;
 }
 
 bool RealTimeArbiter::is_piece_on_long_rest(std::shared_ptr<model::Piece> piece) const {
+    if (!piece) return false;
     for (const auto& cd : active_cooldowns) {
-        if (cd.piece == piece) return cd.is_long_rest;
+        if (cd.piece && cd.piece->id == piece->id) return cd.is_long_rest;
     }
     return false;
 }
 
 int RealTimeArbiter::get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const {
+    if (!piece) return 0;
     for (const auto& cd : active_cooldowns) {
-        if (cd.piece == piece) return cd.remaining_ms;
+        if (cd.piece && cd.piece->id == piece->id) return cd.remaining_ms;
     }
     return 0;
 }
 
 int RealTimeArbiter::get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> piece) const {
+    if (!piece) return 0;
     for (const auto& cd : active_cooldowns) {
-        if (cd.piece == piece) return cd.total_ms;
+        if (cd.piece && cd.piece->id == piece->id) return cd.total_ms;
     }
     return 0;
 }
@@ -289,16 +325,6 @@ void RealTimeArbiter::reset() {
     active_motions.clear();
     active_jumps.clear();
     active_cooldowns.clear();
-}
-
-std::optional<Motion> RealTimeArbiter::get_active_motion() const {
-    if (active_motions.empty()) return std::nullopt;
-    return active_motions.front();
-}
-
-std::optional<Jump> RealTimeArbiter::get_active_jump() const {
-    if (active_jumps.empty()) return std::nullopt;
-    return active_jumps.front();
 }
 
 std::vector<Motion> RealTimeArbiter::get_active_motions() const {
@@ -311,6 +337,18 @@ std::vector<Jump> RealTimeArbiter::get_active_jumps() const {
 
 std::vector<Cooldown> RealTimeArbiter::get_active_cooldowns() const {
     return active_cooldowns;
+}
+
+void RealTimeArbiter::set_active_cooldowns(const std::vector<Cooldown>& cds) {
+    active_cooldowns = cds;
+}
+
+void RealTimeArbiter::set_active_motions(const std::vector<Motion>& motions) {
+    active_motions = motions;
+}
+
+void RealTimeArbiter::set_active_jumps(const std::vector<Jump>& jumps) {
+    active_jumps = jumps;
 }
 
 } 

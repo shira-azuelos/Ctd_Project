@@ -31,19 +31,38 @@ void PieceRenderer::draw_pieces(Img& canvas,
             model::Position cell_pos(row, col);
             auto piece = board->get_piece_at(cell_pos);
             if (piece) {
-                if (drag_info.piece == piece) continue;
+                if (drag_info.piece && drag_info.piece->id == piece->id) continue;
 
                 bool is_piece_moving = false;
                 for (const auto& m : active_motions) {
-                    if (m.piece == piece) { is_piece_moving = true; break; }
+                    if (m.piece && m.piece->id == piece->id) { is_piece_moving = true; break; }
                 }
                 if (is_piece_moving) continue;
 
                 bool is_piece_jumping = false;
                 for (const auto& j : active_jumps) {
-                    if (j.piece == piece) { is_piece_jumping = true; break; }
+                    if (j.piece && j.piece->id == piece->id) { is_piece_jumping = true; break; }
                 }
                 if (is_piece_jumping) continue;
+
+                bool is_victim = false;
+                for (const auto& m : active_motions) {
+                    if (m.captured_piece && m.captured_piece->id == piece->id) {
+                        bool victim_escaping = false;
+                        for (const auto& m2 : active_motions) {
+                            if (m2.piece && m2.piece->id == piece->id) {
+                                victim_escaping = true;
+                                break;
+                            }
+                        }
+                        bool has_escaped = (piece->cell != m.dest);
+                        if (!victim_escaping && !has_escaped) {
+                            is_victim = true;
+                            break;
+                        }
+                    }
+                }
+                if (is_victim) continue;
                 
                 bool on_cooldown = arbiter && arbiter->is_piece_cooling_down(piece);
                 int draw_x = col * 100 + 100;
@@ -73,6 +92,40 @@ void PieceRenderer::draw_pieces(Img& canvas,
 
     for (const auto& motion : active_motions) {
         if (!motion.piece) continue;
+        
+        if (motion.captured_piece && motion.remaining_ms > 0) {
+            bool victim_escaping = false;
+            for (const auto& m2 : active_motions) {
+                if (m2.piece && m2.piece->id == motion.captured_piece->id) {
+                    victim_escaping = true;
+                    break;
+                }
+            }
+            std::shared_ptr<model::Piece> current_victim_in_board = nullptr;
+            if (board) {
+                for (int r = 0; r < board->get_height(); ++r) {
+                    for (int c = 0; c < board->get_width(); ++c) {
+                        auto p = board->get_piece_at(model::Position(r, c));
+                        if (p && p->id == motion.captured_piece->id) {
+                            current_victim_in_board = p;
+                            break;
+                        }
+                    }
+                    if (current_victim_in_board) break;
+                }
+            }
+            bool has_escaped = false;
+            if (current_victim_in_board && current_victim_in_board->cell != motion.dest) {
+                has_escaped = true;
+            }
+            if (!victim_escaping && !has_escaped) {
+                int victim_x = motion.dest.col * 100 + 100;
+                int victim_y = motion.dest.row * 100;
+                int idle_frame = AnimationManager::get_idle_frame();
+                get_piece_image(motion.captured_piece, "idle", idle_frame).draw_on(canvas, victim_x, victim_y);
+            }
+        }
+
         double progress = (double)(motion.total_ms - motion.remaining_ms) / motion.total_ms;
         progress = std::max(0.0, std::min(1.0, progress));
         

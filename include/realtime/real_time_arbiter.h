@@ -25,20 +25,14 @@ private:
     std::vector<Cooldown> active_cooldowns;
 
 public:
-    void start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms);
+    void start_motion(std::shared_ptr<model::Piece> piece, model::Position src, model::Position dst, int total_ms, std::shared_ptr<model::Board> board = nullptr);
     
     void start_jump(std::shared_ptr<model::Piece> piece, model::Position pos, int total_ms);
     
     void advance_time(int ms, std::shared_ptr<model::Board> board, std::shared_ptr<model::GameState> state = nullptr);
-    
     bool is_moving() const;
-   
     bool is_piece_moving(std::shared_ptr<model::Piece> piece) const;
    
-    std::optional<Motion> get_active_motion() const;
-
-    std::optional<Jump> get_active_jump() const;
-
     std::vector<Motion> get_active_motions() const;
 
     std::vector<Jump> get_active_jumps() const;
@@ -52,6 +46,10 @@ public:
     int get_piece_cooldown_remaining_ms(std::shared_ptr<model::Piece> piece) const;
     
     int get_piece_cooldown_total_ms(std::shared_ptr<model::Piece> piece) const;
+
+    void set_active_cooldowns(const std::vector<Cooldown>& cds);
+    void set_active_motions(const std::vector<Motion>& motions);
+    void set_active_jumps(const std::vector<Jump>& jumps);
 
     void reset();
 };

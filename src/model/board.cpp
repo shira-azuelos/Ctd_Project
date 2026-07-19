@@ -55,4 +55,10 @@ void Board::move_piece(const Position& source, const Position& dest) {
     grid[dest.row * width + dest.col] = moving_piece;
 }
 
+void Board::clear_cell(const Position& pos) {
+    if (is_in_bounds(pos)) {
+        grid[pos.row * width + pos.col] = nullptr;
+    }
+}
+
 } 

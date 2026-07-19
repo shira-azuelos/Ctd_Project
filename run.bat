@@ -12,7 +12,7 @@ if %errorlevel% neq 0 (
 :skip_vcvars
 
 echo Compiling game app...
-cl.exe /EHsc /std:c++17 /Iinclude /Iinclude/view /I"C:\Users\shira\Downloads\opencv\build\include" main.cpp src\pubsub\*.cpp src\model\*.cpp src\rules\*.cpp src\realtime\*.cpp src\engine\*.cpp src\input\*.cpp src\io\*.cpp src\view\*.cpp /Fe:app.exe /link /LIBPATH:"C:\Users\shira\Downloads\opencv\build\x64\vc16\lib" opencv_world4120.lib
+cl.exe /EHsc /std:c++17 /DASIO_STANDALONE /DASIO_ENABLE_OLD_SERVICES /DBOOST_ASIO_ENABLE_OLD_SERVICES /D_WEBSOCKETPP_CPP11_STL_ /Ithirdparty/asio /Ithirdparty/websocketpp /Iinclude /Iinclude/view /I"C:\Users\shira\Downloads\opencv\build\include" main.cpp src\pubsub\*.cpp src\network\*.cpp src\model\*.cpp src\rules\*.cpp src\realtime\*.cpp src\engine\*.cpp src\input\*.cpp src\io\*.cpp src\view\*.cpp /Fe:app.exe /link /LIBPATH:"C:\Users\shira\Downloads\opencv\build\x64\vc16\lib" opencv_world4120.lib ws2_32.lib
 
 if %errorlevel% equ 0 (
     echo Compilation successful! Running KungFu Chess...

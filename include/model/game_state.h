@@ -2,6 +2,10 @@
 #include <memory>
 #include "../model/board.h"
 
+namespace realtime {
+class RealTimeArbiter;
+}
+
 namespace model {
 
 class GameState {
@@ -22,7 +26,7 @@ public:
     
     void set_game_over(bool state);
     
-    void check_game_status();
+    void check_game_status(const realtime::RealTimeArbiter& arbiter);
 
     int get_white_score() const;
 
@@ -30,6 +34,8 @@ public:
     
     void add_to_white_score(int pts);
     void add_to_black_score(int pts);
+    void set_white_score(int score);
+    void set_black_score(int score);
 };
 
 }

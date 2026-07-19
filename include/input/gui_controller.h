@@ -6,10 +6,15 @@
 #include "model/position.h"
 #include "engine/game_engine.h"
 
+namespace network {
+class SocketClient;
+}
+
 namespace input {
 
 struct GuiState {
-    std::shared_ptr<engine::GameEngine> game_engine;
+    std::shared_ptr<engine::GameEngine> game_engine = nullptr;
+    std::shared_ptr<network::SocketClient> socket_client = nullptr;
     std::shared_ptr<model::Board> board;
     std::optional<model::Position> selected_cell;
     std::shared_ptr<model::Piece> dragged_piece = nullptr;

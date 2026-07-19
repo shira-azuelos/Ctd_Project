@@ -16,7 +16,7 @@ TEST_CASE("Piece movement happens over time") {
     engine->request_move(model::Position(0, 0), model::Position(0, 1));
     
     engine->wait(500);
-    CHECK(board->get_piece_at(model::Position(0, 0)).get() != nullptr);
+    CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(0, 1)).get() == nullptr);
     
     engine->wait(500);
@@ -34,7 +34,7 @@ TEST_CASE("Airborne mechanics: Mid-air capture") {
     board->add_piece(white_piece);
     board->add_piece(black_piece);
 
-    arbiter->start_motion(black_piece, model::Position(0, 1), model::Position(0, 0), 1000);
+    arbiter->start_motion(black_piece, model::Position(0, 1), model::Position(0, 0), 1000, board);
 
     arbiter->advance_time(500, board);
     arbiter->start_jump(white_piece, model::Position(0, 0), 1000);
@@ -144,4 +144,56 @@ TEST_CASE("Collision - Same color (late arrival gets blocked and stuck)") {
     CHECK(board->get_piece_at(model::Position(0, 2)).get() == rook2.get());
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == rook1.get());
     CHECK(board->get_piece_at(model::Position(0, 3)).get() == nullptr);
+}
+
+TEST_CASE("Escaping piece survives and attacker lands on empty cell") {
+    auto board = std::make_shared<model::Board>(8, 8);
+    auto white_knight = std::make_shared<model::Piece>("wN", model::PieceColor::WHITE, model::PieceKind::KNIGHT, model::Position(4, 5));
+    auto black_pawn = std::make_shared<model::Piece>("bP", model::PieceColor::BLACK, model::PieceKind::PAWN, model::Position(6, 4));
+    
+    board->add_piece(white_knight);
+    board->add_piece(black_pawn);
+    
+    auto engine = std::make_shared<engine::GameEngine>(board);
+    
+    engine->request_move(model::Position(4, 5), model::Position(6, 4));
+    
+    engine->wait(500);
+    
+    engine->request_move(model::Position(6, 4), model::Position(7, 4));
+    
+    engine->request_move(model::Position(6, 4), model::Position(7, 4));
+    
+    engine->wait(1000);
+    
+    CHECK(board->get_piece_at(model::Position(7, 4)).get() == black_pawn.get());
+    CHECK(board->get_piece_at(model::Position(6, 4)).get() == nullptr);
+    
+    engine->wait(500);
+    
+    CHECK(board->get_piece_at(model::Position(6, 4)).get() == white_knight.get());
+    CHECK(board->get_piece_at(model::Position(7, 4)).get() == black_pawn.get());
+}
+
+TEST_CASE("Game Over is not triggered prematurely when King is under threat by a moving piece") {
+    auto board = std::make_shared<model::Board>(8, 8);
+    auto white_pawn = std::make_shared<model::Piece>("wP", model::PieceColor::WHITE, model::PieceKind::PAWN, model::Position(1, 1));
+    auto black_king = std::make_shared<model::Piece>("bK", model::PieceColor::BLACK, model::PieceKind::KING, model::Position(0, 2));
+    auto white_king = std::make_shared<model::Piece>("wK", model::PieceColor::WHITE, model::PieceKind::KING, model::Position(7, 7));
+    
+    board->add_piece(white_pawn);
+    board->add_piece(black_king);
+    board->add_piece(white_king);
+    
+    auto engine = std::make_shared<engine::GameEngine>(board);
+    
+    engine->request_move(model::Position(1, 1), model::Position(0, 2));
+    
+    CHECK(engine->get_state()->is_game_over() == false);
+    
+    engine->wait(500);
+    CHECK(engine->get_state()->is_game_over() == false);
+    
+    engine->wait(500);
+    CHECK(engine->get_state()->is_game_over() == true);
 }

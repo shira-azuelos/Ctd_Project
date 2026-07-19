@@ -26,6 +26,8 @@ public:
     void remove_piece(const Position& pos);
 
     void move_piece(const Position& source, const Position& dest);
+
+    void clear_cell(const Position& pos);
 };
 
 } 

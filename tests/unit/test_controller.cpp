@@ -16,7 +16,7 @@ TEST_CASE("Controller & Engine: Movement takes correct amount of time") {
     controller.click(50, 50);
     
     controller.click(50, 150);
-    CHECK(board->get_piece_at(model::Position(0, 0)).get() != nullptr);
+    CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(1, 0)).get() == nullptr);
 
     engine->wait(1000);

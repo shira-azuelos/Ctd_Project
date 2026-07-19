@@ -19,10 +19,6 @@ public:
     std::shared_ptr<model::GameState> get_state() const;
 
     bool is_moving() const;
-    
-    std::optional<realtime::Motion> get_active_motion() const;
-
-    std::optional<realtime::Jump> get_active_jump() const;
 
     std::vector<realtime::Motion> get_active_motions() const;
 

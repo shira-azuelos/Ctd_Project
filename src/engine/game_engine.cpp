@@ -31,7 +31,7 @@ void GameEngine::request_move(const model::Position& src, const model::Position&
     }
 
     int dist = std::max(std::abs(dest.row - src.row), std::abs(dest.col - src.col));
-    arbiter.start_motion(piece, src, dest, dist * BASE_MOVE_TIME_MS);
+    arbiter.start_motion(piece, src, dest, dist * BASE_MOVE_TIME_MS, board);
 }
 
 void GameEngine::request_jump(const model::Position& pos) {
@@ -46,15 +46,7 @@ void GameEngine::request_jump(const model::Position& pos) {
 
 void GameEngine::wait(int ms) {
     arbiter.advance_time(ms, state->get_board(), state);
-    state->check_game_status();
-}
-
-std::optional<realtime::Motion> GameEngine::get_active_motion() const {
-    return arbiter.get_active_motion();
-}
-
-std::optional<realtime::Jump> GameEngine::get_active_jump() const {
-    return arbiter.get_active_jump();
+    state->check_game_status(arbiter);
 }
 
 std::vector<realtime::Motion> GameEngine::get_active_motions() const {

@@ -11,6 +11,7 @@ struct Motion {
     model::Position dest;
     int remaining_ms;
     int total_ms;
+    std::shared_ptr<model::Piece> captured_piece = nullptr;
 };
 
 struct Jump {
