@@ -207,10 +207,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
                         std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
                         
-                        pubsub::MessageBus::get_instance().publish(pubsub::Event{
-                            pubsub::EventType::PLAY_SOUND,
-                            pubsub::SoundPayload{"capture"}
-                        });
                         std::string log_msg = moving_piece->id + " captured " + piece_at_dest->id + " at (" + std::to_string(dest.row) + "," + std::to_string(dest.col) + ")";
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{
                             pubsub::EventType::MOVE_LOGGED,

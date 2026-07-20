@@ -123,6 +123,7 @@ void PieceRenderer::draw_pieces(Img& canvas,
                 int victim_y = motion.dest.row * 100;
                 int idle_frame = AnimationManager::get_idle_frame();
                 get_piece_image(motion.captured_piece, "idle", idle_frame).draw_on(canvas, victim_x, victim_y);
+                canvas.draw_rect(victim_x, victim_y, 100, 100, cv::Scalar(0, 0, 255), 4);
             }
         }
 
