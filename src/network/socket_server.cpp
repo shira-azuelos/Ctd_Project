@@ -1,11 +1,14 @@
 #include "network/socket_server.h"
 #include "model/board_factory.h"
 #include "pubsub/message_bus.h"
+#include "io/user_manager.h"
 #include <iostream>
 #include <sstream>
 #include <chrono>
 
 namespace network {
+
+static bool g_elo_updated_for_game = false;
 
 bool SocketServer::is_same_connection(websocketpp::connection_hdl h1, websocketpp::connection_hdl h2) {
     return !h1.owner_before(h2) && !h2.owner_before(h1);
@@ -126,7 +129,30 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
         }
     }
 
-    if (cmd == "MOVE") {
+    if (cmd == "LOGIN") {
+        std::string user_name, pass_word;
+        ss >> user_name >> pass_word;
+        io::User authenticated_user;
+        bool ok = io::UserManager::get_instance().authenticate_or_register(user_name, pass_word, authenticated_user);
+        
+        std::string reply;
+        if (ok) {
+            std::lock_guard<std::mutex> lock(m_clients_mutex);
+            for (auto& client : m_clients) {
+                if (is_same_connection(client->hdl, hdl)) {
+                    client->username = authenticated_user.username;
+                    client->elo = authenticated_user.elo;
+                    reply = "AUTH_OK " + client->color + " " + client->username + " " + std::to_string(client->elo);
+                    break;
+                }
+            }
+        } else {
+            reply = "AUTH_FAIL Incorrect_Password";
+        }
+        websocketpp::lib::error_code ec;
+        m_server.send(hdl, reply, websocketpp::frame::opcode::text, ec);
+    }
+    else if (cmd == "MOVE") {
         int sr, sc, dr, dc;
         ss >> sr >> sc >> dr >> dc;
         
@@ -157,6 +183,28 @@ void SocketServer::game_loop() {
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
         if (m_game_engine) {
             m_game_engine->wait(30);
+            auto state = m_game_engine->get_state();
+            if (state && state->is_game_over() && !g_elo_updated_for_game) {
+                g_elo_updated_for_game = true;
+                std::shared_ptr<ClientInfo> white_c, black_c;
+                {
+                    std::lock_guard<std::mutex> lock(m_clients_mutex);
+                    for (const auto& c : m_clients) {
+                        if (c->color == "WHITE") white_c = c;
+                        if (c->color == "BLACK") black_c = c;
+                    }
+                }
+                if (white_c && black_c) {
+                    bool white_won = (state->get_white_score() >= state->get_black_score());
+                    if (white_won) {
+                        io::UserManager::get_instance().update_elo_after_game(white_c->username, black_c->username, false);
+                    } else {
+                        io::UserManager::get_instance().update_elo_after_game(black_c->username, white_c->username, false);
+                    }
+                    white_c->elo = io::UserManager::get_instance().get_user(white_c->username).elo;
+                    black_c->elo = io::UserManager::get_instance().get_user(black_c->username).elo;
+                }
+            }
             broadcast_state();
         }
     }
@@ -179,6 +227,20 @@ std::string SocketServer::serialize_game_state() {
     ss << "\"game_over\":" << (state->is_game_over() ? "true" : "false") << ",";
     ss << "\"white_score\":" << state->get_white_score() << ",";
     ss << "\"black_score\":" << state->get_black_score() << ",";
+
+    std::string w_user = "White", b_user = "Black";
+    int w_elo = 1200, b_elo = 1200;
+    {
+        std::lock_guard<std::mutex> lock(m_clients_mutex);
+        for (const auto& c : m_clients) {
+            if (c->color == "WHITE") { w_user = c->username; w_elo = c->elo; }
+            if (c->color == "BLACK") { b_user = c->username; b_elo = c->elo; }
+        }
+    }
+    ss << "\"white_user\":\"" << w_user << "\",";
+    ss << "\"white_elo\":" << w_elo << ",";
+    ss << "\"black_user\":\"" << b_user << "\",";
+    ss << "\"black_elo\":" << b_elo << ",";
 
     std::vector<std::string> sounds_to_send;
     {

@@ -98,13 +98,64 @@ void SocketClient::disconnect() {
 
 void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg) {
     std::string payload = msg->get_payload();
-    if (payload.rfind("COLOR ", 0) == 0) {
+    if (payload.rfind("AUTH_OK ", 0) == 0) {
+        std::stringstream ss(payload.substr(8));
+        std::string color, uname;
+        int elo;
+        ss >> color >> uname >> elo;
+        {
+            std::lock_guard<std::mutex> lock(state_mutex);
+            assigned_color = color;
+            m_username = uname;
+            m_elo = elo;
+            m_logged_in = true;
+        }
+        std::cout << "[Client] Login successful! Color: " << color << " | User: " << uname << " | ELO: " << elo << std::endl;
+    } else if (payload.rfind("AUTH_FAIL", 0) == 0) {
+        std::cout << "[Client] Login failed! " << payload << std::endl;
+    } else if (payload.rfind("COLOR ", 0) == 0) {
         std::lock_guard<std::mutex> lock(state_mutex);
         assigned_color = payload.substr(6);
         std::cout << "[Client] My assigned color is: " << assigned_color << std::endl;
     } else {
         parse_and_update_state(payload);
     }
+}
+
+void SocketClient::send_login(const std::string& username, const std::string& password) {
+    m_username = username;
+    std::stringstream ss;
+    ss << "LOGIN " << username << " " << password;
+    websocketpp::lib::error_code ec;
+    m_client.send(m_hdl, ss.str(), websocketpp::frame::opcode::text, ec);
+}
+
+std::string SocketClient::get_username() const {
+    return m_username;
+}
+
+int SocketClient::get_elo() const {
+    return m_elo;
+}
+
+bool SocketClient::is_logged_in() const {
+    return m_logged_in;
+}
+
+std::string SocketClient::get_white_username() const {
+    return m_white_user;
+}
+
+int SocketClient::get_white_elo() const {
+    return m_white_elo;
+}
+
+std::string SocketClient::get_black_username() const {
+    return m_black_user;
+}
+
+int SocketClient::get_black_elo() const {
+    return m_black_elo;
 }
 
 void SocketClient::send_move(int sr, int sc, int dr, int dc) {
@@ -131,6 +182,16 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     bool game_over = extract_bool(json_str, "game_over");
     int white_score = extract_int(json_str, "white_score");
     int black_score = extract_int(json_str, "black_score");
+
+    std::string w_user = extract_string(json_str, "white_user");
+    int w_elo = extract_int(json_str, "white_elo");
+    std::string b_user = extract_string(json_str, "black_user");
+    int b_elo = extract_int(json_str, "black_elo");
+
+    if (!w_user.empty()) m_white_user = w_user;
+    if (w_elo > 0) m_white_elo = w_elo;
+    if (!b_user.empty()) m_black_user = b_user;
+    if (b_elo > 0) m_black_elo = b_elo;
 
     size_t sounds_start = json_str.find("\"sounds\":[");
     if (sounds_start != std::string::npos) {

@@ -187,7 +187,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         board->add_piece(moving_piece);
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
-                        std::cout << "[Arbiter] Friendly block. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
                         
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{
                             pubsub::EventType::PLAY_SOUND,
@@ -205,7 +204,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
 
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
-                        std::cout << "[Arbiter] Late capture on board. " << moving_piece->id << " captured " << piece_at_dest->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
                         
                         std::string log_msg = moving_piece->id + " captured " + piece_at_dest->id + " at (" + std::to_string(dest.row) + "," + std::to_string(dest.col) + ")";
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{

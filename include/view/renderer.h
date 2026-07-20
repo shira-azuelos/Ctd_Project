@@ -37,7 +37,9 @@ public:
               const std::vector<realtime::Motion>& active_motions = {},
               const std::vector<realtime::Jump>& active_jumps = {},
               const realtime::RealTimeArbiter* arbiter = nullptr,
-              const DragInfo& drag_info = {});
+              const DragInfo& drag_info = {},
+              const std::string& white_user = "WHITE", int white_elo = 1200,
+              const std::string& black_user = "BLACK", int black_elo = 1200);
 };
 
 }

@@ -14,14 +14,16 @@ void Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
                     const std::vector<realtime::Motion>& active_motions,
                     const std::vector<realtime::Jump>& active_jumps,
                     const realtime::RealTimeArbiter* arbiter,
-                    const DragInfo& drag_info) {
+                    const DragInfo& drag_info,
+                    const std::string& white_user, int white_elo,
+                    const std::string& black_user, int black_elo) {
     if (!state) return;
     
     board_renderer.draw_background(canvas);
     board_renderer.draw_highlights(canvas, state, selected_cell, arbiter);
     piece_renderer.draw_pieces(canvas, state, active_motions, active_jumps, arbiter, drag_info);
     overlay_renderer.draw_overlays(canvas, state);
-    score_renderer.draw(canvas, state);
+    score_renderer.draw(canvas, state, white_user, white_elo, black_user, black_elo);
     process_renderer.draw(canvas, arbiter);
 }
 

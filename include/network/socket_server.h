@@ -15,6 +15,8 @@ typedef websocketpp::server<websocketpp::config::asio> ws_server_t;
 struct ClientInfo {
     websocketpp::connection_hdl hdl;
     std::string color;
+    std::string username = "Guest";
+    int elo = 1200;
 };
 
 class SocketServer {

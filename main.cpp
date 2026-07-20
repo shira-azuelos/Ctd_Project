@@ -46,10 +46,27 @@ int main(int argc, char* argv[]) {
     }
     else if (mode == "client") {
         try {
+            std::cout << "==========================================" << std::endl;
+            std::cout << "   KungFu Chess Client Login (CLI)       " << std::endl;
+            std::cout << "==========================================" << std::endl;
+            std::string username, password;
+            std::cout << "Enter Username: ";
+            std::cin >> username;
+            std::cout << "Enter Password: ";
+            std::cin >> password;
+
             auto client = std::make_shared<network::SocketClient>(ip, port);
             if (!client->connect_to_server()) {
                 std::cerr << "Failed to connect to server at " << ip << ":" << port << std::endl;
                 return 1;
+            }
+
+            client->send_login(username, password);
+
+            int wait_count = 0;
+            while (!client->is_logged_in() && wait_count < 20) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                wait_count++;
             }
 
             view::Renderer renderer;
@@ -57,27 +74,17 @@ int main(int argc, char* argv[]) {
             gui_state.socket_client = client;
             gui_state.board = client->get_board();
 
-            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::SCORE_CHANGED, [](const pubsub::Event& ev) {
-                auto payload = std::any_cast<pubsub::ScorePayload>(ev.payload);
-                std::cout << "[Score HUD] " << payload.color << " score updated to " << payload.new_score << std::endl;
-            });
+            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::SCORE_CHANGED, [](const pubsub::Event& ev) {});
 
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::PLAY_SOUND, [](const pubsub::Event& ev) {
                 auto payload = std::any_cast<pubsub::SoundPayload>(ev.payload);
-                std::cout << "[Sound Engine] Playing sound: " << payload.sound_name << std::endl;
                 io::SoundPlayer::play(payload.sound_name);
             });
 
-            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {
-                auto log_msg = std::any_cast<std::string>(ev.payload);
-                std::cout << "[Move Log] " << log_msg << std::endl;
-            });
+            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {});
 
             cv::namedWindow("KungFu Chess", cv::WINDOW_AUTOSIZE);
             cv::setMouseCallback("KungFu Chess", input::GuiController::on_mouse, &gui_state);
-
-            std::cout << "Starting KungFu Chess GUI Client. Click on pieces to move them." << std::endl;
-            std::cout << "Press ESC on the game window to exit." << std::endl;
 
             Img canvas;
             while (true) {
@@ -89,7 +96,9 @@ int main(int argc, char* argv[]) {
                 renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
                               client->get_active_motions(), client->get_active_jumps(), 
                               client->get_arbiter(), 
-                              view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
+                              view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y},
+                              client->get_white_username(), client->get_white_elo(),
+                              client->get_black_username(), client->get_black_elo());
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
 
@@ -113,26 +122,16 @@ int main(int argc, char* argv[]) {
 
             input::GuiState gui_state{game_engine, nullptr, board, std::nullopt};
 
-            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::SCORE_CHANGED, [](const pubsub::Event& ev) {
-                auto payload = std::any_cast<pubsub::ScorePayload>(ev.payload);
-                std::cout << "[Score HUD] " << payload.color << " score updated to " << payload.new_score << std::endl;
-            });
+            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::SCORE_CHANGED, [](const pubsub::Event& ev) {});
 
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::PLAY_SOUND, [](const pubsub::Event& ev) {
                 auto payload = std::any_cast<pubsub::SoundPayload>(ev.payload);
-                std::cout << "[Sound Engine] Playing sound: " << payload.sound_name << std::endl;
                 io::SoundPlayer::play(payload.sound_name);
             });
 
-            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {
-                auto log_msg = std::any_cast<std::string>(ev.payload);
-                std::cout << "[Move Log] " << log_msg << std::endl;
-            });
+            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {});
 
-            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::GAME_STATUS, [](const pubsub::Event& ev) {
-                auto status = std::any_cast<std::string>(ev.payload);
-                std::cout << "[Game Status] " << status << std::endl;
-            });
+            pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::GAME_STATUS, [](const pubsub::Event& ev) {});
 
             cv::namedWindow("KungFu Chess", cv::WINDOW_AUTOSIZE);
             cv::setMouseCallback("KungFu Chess", input::GuiController::on_mouse, &gui_state);

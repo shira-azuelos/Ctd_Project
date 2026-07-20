@@ -30,6 +30,15 @@ private:
     realtime::RealTimeArbiter arbiter;
 
     std::string assigned_color = "VIEWER";
+    std::string m_username = "Guest";
+    int m_elo = 1200;
+    bool m_logged_in = false;
+    
+    std::string m_white_user = "WHITE";
+    int m_white_elo = 1200;
+    std::string m_black_user = "BLACK";
+    int m_black_elo = 1200;
+
     std::mutex state_mutex;
 
     void on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg);
@@ -53,6 +62,16 @@ public:
     std::vector<realtime::Jump> get_active_jumps();
     realtime::RealTimeArbiter* get_arbiter();
     std::string get_assigned_color();
+    std::string get_username() const;
+    int get_elo() const;
+    bool is_logged_in() const;
+
+    std::string get_white_username() const;
+    int get_white_elo() const;
+    std::string get_black_username() const;
+    int get_black_elo() const;
+    
+    void send_login(const std::string& username, const std::string& password);
 };
 
 }
