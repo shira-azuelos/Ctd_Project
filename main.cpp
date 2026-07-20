@@ -12,10 +12,18 @@
 #include "network/socket_client.h"
 #include "view/img.h"
 
+namespace {
+constexpr int DEFAULT_PORT = 8080;
+constexpr int FRAME_TIME_MS = 30;
+constexpr int CANVAS_WIDTH = 1000;
+constexpr int CANVAS_HEIGHT = 800;
+constexpr int KEY_ESC = 27;
+}
+
 int main(int argc, char* argv[]) {
     std::string mode = "local";
     std::string ip = "127.0.0.1";
-    int port = 8080;
+    int port = DEFAULT_PORT;
 
     if (argc > 1) {
         mode = argv[1];
@@ -71,11 +79,11 @@ int main(int argc, char* argv[]) {
 
             Img canvas;
             while (true) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(30));
-                client->advance_animations(30);
+                std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_TIME_MS));
+                client->advance_animations(FRAME_TIME_MS);
                 gui_state.board = client->get_board();
 
-                canvas.create(1000, 800, cv::Scalar(15, 15, 15));
+                canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
                 renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
                               client->get_active_motions(), client->get_active_jumps(), 
                               client->get_arbiter(), 
@@ -83,8 +91,8 @@ int main(int argc, char* argv[]) {
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
 
-                int key = cv::waitKey(30);
-                if (key == 27) { // ESC key
+                int key = cv::waitKey(FRAME_TIME_MS);
+                if (key == KEY_ESC) {
                     break;
                 }
             }
@@ -131,9 +139,9 @@ int main(int argc, char* argv[]) {
 
             Img canvas;
             while (true) {
-                game_engine->wait(30);
+                game_engine->wait(FRAME_TIME_MS);
 
-                canvas.create(1000, 800, cv::Scalar(15, 15, 15));
+                canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
                 renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, 
                               game_engine->get_active_motions(), game_engine->get_active_jumps(), 
                               &game_engine->get_arbiter(), 
@@ -141,8 +149,8 @@ int main(int argc, char* argv[]) {
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
 
-                int key = cv::waitKey(30);
-                if (key == 27) { // ESC key
+                int key = cv::waitKey(FRAME_TIME_MS);
+                if (key == KEY_ESC) {
                     break;
                 }
             }
