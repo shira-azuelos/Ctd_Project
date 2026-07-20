@@ -30,6 +30,9 @@ private:
     std::shared_ptr<model::Board> m_board;
     std::shared_ptr<engine::GameEngine> m_game_engine;
 
+    std::mutex m_sounds_mutex;
+    std::vector<std::string> m_pending_sounds;
+
     void on_open(websocketpp::connection_hdl hdl);
     void on_close(websocketpp::connection_hdl hdl);
     void on_message(websocketpp::connection_hdl hdl, ws_server_t::message_ptr msg);

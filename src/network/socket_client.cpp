@@ -1,4 +1,5 @@
 #include "network/socket_client.h"
+#include "pubsub/message_bus.h"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -130,6 +131,29 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     bool game_over = extract_bool(json_str, "game_over");
     int white_score = extract_int(json_str, "white_score");
     int black_score = extract_int(json_str, "black_score");
+
+    size_t sounds_start = json_str.find("\"sounds\":[");
+    if (sounds_start != std::string::npos) {
+        size_t sounds_end = json_str.find("],\"pieces\":", sounds_start);
+        if (sounds_end != std::string::npos) {
+            std::string sounds_array = json_str.substr(sounds_start + 10, sounds_end - (sounds_start + 10));
+            size_t pos = 0;
+            while (true) {
+                size_t q1 = sounds_array.find("\"", pos);
+                if (q1 == std::string::npos) break;
+                size_t q2 = sounds_array.find("\"", q1 + 1);
+                if (q2 == std::string::npos) break;
+                std::string s_name = sounds_array.substr(q1 + 1, q2 - q1 - 1);
+                if (!s_name.empty()) {
+                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                        pubsub::EventType::PLAY_SOUND,
+                        pubsub::SoundPayload{s_name}
+                    });
+                }
+                pos = q2 + 1;
+            }
+        }
+    }
 
     auto new_board = std::make_shared<model::Board>(8, 8);
     std::map<std::string, std::shared_ptr<model::Piece>> parsed_pieces;

@@ -1,5 +1,6 @@
 #include "../include/engine/game_engine.h"
 #include "../include/rules/rule_engine.h"
+#include "pubsub/message_bus.h"
 #include <cmath>
 #include <algorithm>
 
@@ -23,10 +24,18 @@ void GameEngine::request_move(const model::Position& src, const model::Position&
     auto board = state->get_board();
     auto piece = board->get_piece_at(src);
     if (!piece || arbiter.is_piece_moving(piece) || arbiter.is_piece_cooling_down(piece)) {
+        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+            pubsub::EventType::PLAY_SOUND,
+            pubsub::SoundPayload{"illegal_move"}
+        });
         return;
     }
 
     if (!rules::RuleEngine::validate_move(*board, src, dest)) {
+        pubsub::MessageBus::get_instance().publish(pubsub::Event{
+            pubsub::EventType::PLAY_SOUND,
+            pubsub::SoundPayload{"illegal_move"}
+        });
         return;
     }
 

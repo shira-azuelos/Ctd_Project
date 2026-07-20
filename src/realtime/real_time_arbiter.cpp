@@ -230,6 +230,10 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                             if ((moving_piece->color == model::PieceColor::WHITE && dest.row == 0) ||
                                 (moving_piece->color == model::PieceColor::BLACK && dest.row == board->get_height() - 1)) {
                                 moving_piece->kind = model::PieceKind::QUEEN;
+                                pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                                    pubsub::EventType::PLAY_SOUND,
+                                    pubsub::SoundPayload{"coronation"}
+                                });
                             }
                         }
                     }

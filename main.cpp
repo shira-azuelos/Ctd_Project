@@ -11,6 +11,7 @@
 #include "network/socket_server.h"
 #include "network/socket_client.h"
 #include "view/img.h"
+#include "io/sound_player.h"
 
 namespace {
 constexpr int DEFAULT_PORT = 8080;
@@ -64,6 +65,7 @@ int main(int argc, char* argv[]) {
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::PLAY_SOUND, [](const pubsub::Event& ev) {
                 auto payload = std::any_cast<pubsub::SoundPayload>(ev.payload);
                 std::cout << "[Sound Engine] Playing sound: " << payload.sound_name << std::endl;
+                io::SoundPlayer::play(payload.sound_name);
             });
 
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {
@@ -119,6 +121,7 @@ int main(int argc, char* argv[]) {
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::PLAY_SOUND, [](const pubsub::Event& ev) {
                 auto payload = std::any_cast<pubsub::SoundPayload>(ev.payload);
                 std::cout << "[Sound Engine] Playing sound: " << payload.sound_name << std::endl;
+                io::SoundPlayer::play(payload.sound_name);
             });
 
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {

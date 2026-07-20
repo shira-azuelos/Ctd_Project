@@ -1,5 +1,6 @@
 #include "network/socket_server.h"
 #include "model/board_factory.h"
+#include "pubsub/message_bus.h"
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -13,6 +14,12 @@ bool SocketServer::is_same_connection(websocketpp::connection_hdl h1, websocketp
 bool SocketServer::start(int port) {
     m_board = model::BoardFactory::create_default_board();
     m_game_engine = std::make_shared<engine::GameEngine>(m_board);
+
+    pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::PLAY_SOUND, [this](const pubsub::Event& ev) {
+        auto payload = std::any_cast<pubsub::SoundPayload>(ev.payload);
+        std::lock_guard<std::mutex> lock(m_sounds_mutex);
+        m_pending_sounds.push_back(payload.sound_name);
+    });
 
     try {
         m_server.init_asio();
@@ -172,6 +179,19 @@ std::string SocketServer::serialize_game_state() {
     ss << "\"game_over\":" << (state->is_game_over() ? "true" : "false") << ",";
     ss << "\"white_score\":" << state->get_white_score() << ",";
     ss << "\"black_score\":" << state->get_black_score() << ",";
+
+    std::vector<std::string> sounds_to_send;
+    {
+        std::lock_guard<std::mutex> lock(m_sounds_mutex);
+        sounds_to_send = m_pending_sounds;
+        m_pending_sounds.clear();
+    }
+    ss << "\"sounds\":[";
+    for (size_t i = 0; i < sounds_to_send.size(); ++i) {
+        if (i > 0) ss << ",";
+        ss << "\"" << sounds_to_send[i] << "\"";
+    }
+    ss << "],";
 
     struct SerializedPiece {
         std::shared_ptr<model::Piece> piece;
