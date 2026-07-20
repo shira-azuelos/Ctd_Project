@@ -84,8 +84,10 @@ void SocketServer::on_open(websocketpp::connection_hdl hdl) {
     std::string color = "VIEWER";
     if (m_clients.size() == 0) {
         color = "WHITE";
+        m_elo_updated_for_game = false;
     } else if (m_clients.size() == 1) {
         color = "BLACK";
+        m_elo_updated_for_game = false;
     }
 
     auto client = std::make_shared<ClientInfo>();
@@ -184,8 +186,8 @@ void SocketServer::game_loop() {
         if (m_game_engine) {
             m_game_engine->wait(30);
             auto state = m_game_engine->get_state();
-            if (state && state->is_game_over() && !g_elo_updated_for_game) {
-                g_elo_updated_for_game = true;
+            if (state && state->is_game_over() && !m_elo_updated_for_game) {
+                m_elo_updated_for_game = true;
                 std::shared_ptr<ClientInfo> white_c, black_c;
                 {
                     std::lock_guard<std::mutex> lock(m_clients_mutex);
@@ -213,10 +215,25 @@ void SocketServer::game_loop() {
 void SocketServer::broadcast_state() {
     std::string state_json = serialize_game_state();
 
+    bool is_over = m_game_engine && m_game_engine->get_state() && m_game_engine->get_state()->is_game_over();
+    bool white_won = is_over ? (m_game_engine->get_state()->get_white_score() >= m_game_engine->get_state()->get_black_score()) : true;
+
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     for (const auto& client : m_clients) {
         websocketpp::lib::error_code ec;
-        m_server.send(client->hdl, state_json, websocketpp::frame::opcode::text, ec);
+        std::string client_json = state_json;
+
+        if (is_over) {
+            bool is_winner = (client->color == "WHITE" && white_won) || (client->color == "BLACK" && !white_won);
+            std::string target_sound = is_winner ? "game_win" : "game_over";
+            
+            size_t pos = client_json.find("\"game_win\"");
+            if (pos != std::string::npos && !is_winner) {
+                client_json.replace(pos, 10, "\"" + target_sound + "\"");
+            }
+        }
+
+        m_server.send(client->hdl, client_json, websocketpp::frame::opcode::text, ec);
     }
 }
 

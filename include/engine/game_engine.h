@@ -12,7 +12,7 @@ private:
     realtime::RealTimeArbiter arbiter;
 
 public:
-    static constexpr int BASE_MOVE_TIME_MS = 1000;
+    static constexpr int BASE_MOVE_TIME_MS = 500;
 
     GameEngine(std::shared_ptr<model::Board> b);
 

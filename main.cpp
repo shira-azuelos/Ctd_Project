@@ -19,6 +19,9 @@ constexpr int FRAME_TIME_MS = 30;
 constexpr int CANVAS_WIDTH = 1000;
 constexpr int CANVAS_HEIGHT = 800;
 constexpr int KEY_ESC = 27;
+constexpr int KEY_SPACE = ' ';
+constexpr int KEY_ENTER_CR = 13;
+constexpr int KEY_ENTER_LF = 10;
 }
 
 int main(int argc, char* argv[]) {
@@ -87,24 +90,34 @@ int main(int argc, char* argv[]) {
             cv::setMouseCallback("KungFu Chess", input::GuiController::on_mouse, &gui_state);
 
             Img canvas;
+            bool in_opening_screen = true;
+
             while (true) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_TIME_MS));
                 client->advance_animations(FRAME_TIME_MS);
                 gui_state.board = client->get_board();
 
                 canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
-                renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
-                              client->get_active_motions(), client->get_active_jumps(), 
-                              client->get_arbiter(), 
-                              view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y},
-                              client->get_white_username(), client->get_white_elo(),
-                              client->get_black_username(), client->get_black_elo());
+
+                if (in_opening_screen) {
+                    renderer.draw_opening(canvas, client->get_username(), client->get_elo(), false);
+                } else {
+                    renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
+                                  client->get_active_motions(), client->get_active_jumps(), 
+                                  client->get_arbiter(), 
+                                  view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y},
+                                  client->get_white_username(), client->get_white_elo(),
+                                  client->get_black_username(), client->get_black_elo());
+                }
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
 
                 int key = cv::waitKey(FRAME_TIME_MS);
                 if (key == KEY_ESC) {
                     break;
+                }
+                if (in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
+                    in_opening_screen = false;
                 }
             }
             client->disconnect();
@@ -140,20 +153,30 @@ int main(int argc, char* argv[]) {
             std::cout << "Press ESC on the game window to exit." << std::endl;
 
             Img canvas;
+            bool in_opening_screen = true;
+
             while (true) {
                 game_engine->wait(FRAME_TIME_MS);
 
                 canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
-                renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, 
-                              game_engine->get_active_motions(), game_engine->get_active_jumps(), 
-                              &game_engine->get_arbiter(), 
-                              view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
+
+                if (in_opening_screen) {
+                    renderer.draw_opening(canvas, "PLAYER", 1200, false);
+                } else {
+                    renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, 
+                                  game_engine->get_active_motions(), game_engine->get_active_jumps(), 
+                                  &game_engine->get_arbiter(), 
+                                  view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y});
+                }
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
 
                 int key = cv::waitKey(FRAME_TIME_MS);
                 if (key == KEY_ESC) {
                     break;
+                }
+                if (in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
+                    in_opening_screen = false;
                 }
             }
             cv::destroyAllWindows();

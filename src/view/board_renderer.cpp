@@ -39,14 +39,25 @@ void BoardRenderer::draw_highlights(Img& canvas,
                 }
             }
 
+            bool is_under_attack_motion = false;
+            if (arbiter && !game_over) {
+                for (const auto& m : arbiter->get_active_motions()) {
+                    if (m.captured_piece && m.dest == cell_pos) {
+                        is_under_attack_motion = true;
+                        break;
+                    }
+                }
+            }
+
             int draw_x = col * 100 + 100;
             int draw_y = row * 100;
 
             if (is_selected) {
                 canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(64, 140, 164), 4);
             }
-            else if (is_valid_attack) {
-                canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(0, 0, 255), 4);
+            else if (is_valid_attack || is_under_attack_motion) {
+                canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(40, 50, 220), -1, 0.70);
+                canvas.draw_rect(draw_x, draw_y, 100, 100, cv::Scalar(0, 0, 255), 2, 0.9);
             }
             else if (is_valid_move) {
                 if ((row + col) % 2 == 0) { 

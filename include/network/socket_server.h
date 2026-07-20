@@ -31,6 +31,7 @@ private:
 
     std::shared_ptr<model::Board> m_board;
     std::shared_ptr<engine::GameEngine> m_game_engine;
+    bool m_elo_updated_for_game = false;
 
     std::mutex m_sounds_mutex;
     std::vector<std::string> m_pending_sounds;

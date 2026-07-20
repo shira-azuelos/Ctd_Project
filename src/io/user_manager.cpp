@@ -7,6 +7,12 @@
 
 namespace io {
 
+namespace {
+constexpr int DEFAULT_ELO = 1200;
+constexpr double K_FACTOR = 32.0;
+constexpr double ELO_SCALE = 400.0;
+}
+
 UserManager::UserManager() {
     load();
 }
@@ -120,10 +126,10 @@ bool UserManager::authenticate_or_register(const std::string& username, const st
             return false;
         }
     } else {
-        User new_user{username, password, 1200, 0, 0};
+        User new_user{username, password, DEFAULT_ELO, 0, 0};
         m_users[username] = new_user;
         out_user = new_user;
-        std::cout << "[UserManager] Registered new user '" << username << "' with default ELO 1200." << std::endl;
+        std::cout << "[UserManager] Registered new user '" << username << "' with default ELO " << DEFAULT_ELO << "." << std::endl;
         
         std::ofstream file(m_filepath);
         if (file.is_open()) {
@@ -152,7 +158,7 @@ User UserManager::get_user(const std::string& username) {
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_users.find(username);
     if (it != m_users.end()) return it->second;
-    return User{username, "", 1200, 0, 0};
+    return User{username, "", DEFAULT_ELO, 0, 0};
 }
 
 void UserManager::update_elo_after_game(const std::string& winner_user, const std::string& loser_user, bool is_draw) {
@@ -169,15 +175,14 @@ void UserManager::update_elo_after_game(const std::string& winner_user, const st
     double ra = u_win.elo;
     double rb = u_lose.elo;
 
-    double ea = 1.0 / (1.0 + std::pow(10.0, (rb - ra) / 400.0));
-    double eb = 1.0 / (1.0 + std::pow(10.0, (ra - rb) / 400.0));
+    double ea = 1.0 / (1.0 + std::pow(10.0, (rb - ra) / ELO_SCALE));
+    double eb = 1.0 / (1.0 + std::pow(10.0, (ra - rb) / ELO_SCALE));
 
-    double k = 32.0;
     double sa = is_draw ? 0.5 : 1.0;
     double sb = is_draw ? 0.5 : 0.0;
 
-    int new_elo_a = std::round(ra + k * (sa - ea));
-    int new_elo_b = std::round(rb + k * (sb - eb));
+    int new_elo_a = std::round(ra + K_FACTOR * (sa - ea));
+    int new_elo_b = std::round(rb + K_FACTOR * (sb - eb));
 
     std::cout << "[ELO Update] " << u_win.username << ": " << u_win.elo << " -> " << new_elo_a;
     std::cout << " | " << u_lose.username << ": " << u_lose.elo << " -> " << new_elo_b << std::endl;

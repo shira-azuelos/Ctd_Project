@@ -17,8 +17,11 @@ void GuiController::on_mouse(int event, int x, int y, int flags, void* userdata)
         game_over = g_state->game_engine->get_state()->is_game_over();
     }
     
-    if (game_over) {
-        g_state->dragged_piece = nullptr;
+    if (event == cv::EVENT_MOUSEMOVE) {
+        if (g_state->dragged_piece) {
+            g_state->drag_x = x;
+            g_state->drag_y = y;
+        }
         return;
     }
 

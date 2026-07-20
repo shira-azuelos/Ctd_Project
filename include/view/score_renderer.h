@@ -2,6 +2,7 @@
 #include "view/img.h"
 #include "model/game_state.h"
 #include <memory>
+#include <string>
 
 namespace view {
 

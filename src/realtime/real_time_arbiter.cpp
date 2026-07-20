@@ -211,6 +211,20 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                             log_msg
                         });
                         
+                        if (piece_at_dest->kind == model::PieceKind::KING) {
+                            if (state) {
+                                state->set_game_over(true);
+                            }
+                            pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                                pubsub::EventType::GAME_STATUS,
+                                std::string("game_over")
+                            });
+                            pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                                pubsub::EventType::PLAY_SOUND,
+                                pubsub::SoundPayload{"game_win"}
+                            });
+                        }
+
                         if (state) {
                             int pts = get_piece_value(piece_at_dest->kind);
                             if (moving_piece->color == model::PieceColor::WHITE) {
@@ -259,7 +273,19 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
     std::vector<Motion> remaining_motions;
     for (size_t i = 0; i < active_motions.size(); ++i) {
         if (!handled_motions[i]) {
+            int old_time = active_motions[i].remaining_ms;
             active_motions[i].remaining_ms -= ms;
+            int new_time = active_motions[i].remaining_ms;
+
+            if (active_motions[i].captured_piece != nullptr && new_time > 0) {
+                if (old_time / 380 != new_time / 380) {
+                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                        pubsub::EventType::PLAY_SOUND,
+                        pubsub::SoundPayload{"capture"}
+                    });
+                }
+            }
+
             remaining_motions.push_back(active_motions[i]);
         }
     }

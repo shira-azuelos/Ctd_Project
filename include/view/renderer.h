@@ -18,6 +18,7 @@ struct Jump;
 
 #include "view/score_renderer.h"
 #include "view/process_renderer.h"
+#include "view/opening_renderer.h"
 
 namespace view {
 
@@ -28,6 +29,7 @@ private:
     OverlayRenderer overlay_renderer;
     ScoreRenderer score_renderer;
     ProcessRenderer process_renderer;
+    OpeningRenderer opening_renderer;
 
 public:
     Renderer();
@@ -40,6 +42,8 @@ public:
               const DragInfo& drag_info = {},
               const std::string& white_user = "WHITE", int white_elo = 1200,
               const std::string& black_user = "BLACK", int black_elo = 1200);
+
+    void draw_opening(Img& canvas, const std::string& username = "", int elo = 1200, bool waiting = false);
 };
 
 }
