@@ -20,6 +20,7 @@ struct GuiState {
     std::shared_ptr<model::Piece> dragged_piece = nullptr;
     int drag_x = 0;
     int drag_y = 0;
+    bool in_opening_screen = true;
 };
 
 class GuiController {

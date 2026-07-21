@@ -11,7 +11,10 @@ private:
 
 public:
     OpeningRenderer();
-    void draw(Img& canvas, const std::string& username = "Player", int elo = 1200, bool waiting_for_opponent = false);
+    void draw(Img& canvas, const std::string& username = "Player", int elo = 1200, 
+              bool searching = false, int elapsed_sec = 0, 
+              bool show_popup = false, const std::string& popup_msg = "");
 };
 
 }
+

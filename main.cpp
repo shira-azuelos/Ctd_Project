@@ -15,7 +15,7 @@
 
 namespace {
 constexpr int DEFAULT_PORT = 8080;
-constexpr int FRAME_TIME_MS = 30;
+constexpr int FRAME_TIME_MS = 16;
 constexpr int CANVAS_WIDTH = 1000;
 constexpr int CANVAS_HEIGHT = 800;
 constexpr int KEY_ESC = 27;
@@ -90,17 +90,37 @@ int main(int argc, char* argv[]) {
             cv::setMouseCallback("KungFu Chess", input::GuiController::on_mouse, &gui_state);
 
             Img canvas;
-            bool in_opening_screen = true;
+            gui_state.in_opening_screen = true;
+            auto search_start = std::chrono::steady_clock::now();
+            network::MatchState last_state = network::MatchState::IDLE;
 
             while (true) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_TIME_MS));
                 client->advance_animations(FRAME_TIME_MS);
                 gui_state.board = client->get_board();
 
+                auto match_st = client->get_match_state();
+                if (match_st == network::MatchState::MATCHED) {
+                    gui_state.in_opening_screen = false;
+                }
+
+                if (match_st == network::MatchState::SEARCHING && last_state != network::MatchState::SEARCHING) {
+                    search_start = std::chrono::steady_clock::now();
+                }
+                last_state = match_st;
+
+                int search_elapsed_sec = 0;
+                if (match_st == network::MatchState::SEARCHING) {
+                    auto now = std::chrono::steady_clock::now();
+                    search_elapsed_sec = static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(now - search_start).count());
+                }
+
                 canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
 
-                if (in_opening_screen) {
-                    renderer.draw_opening(canvas, client->get_username(), client->get_elo(), false);
+                if (gui_state.in_opening_screen) {
+                    renderer.draw_opening(canvas, client->get_username(), client->get_elo(), 
+                                          (match_st == network::MatchState::SEARCHING), search_elapsed_sec, 
+                                          client->show_popup(), client->get_popup_msg());
                 } else {
                     renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
                                   client->get_active_motions(), client->get_active_jumps(), 
@@ -116,8 +136,14 @@ int main(int argc, char* argv[]) {
                 if (key == KEY_ESC) {
                     break;
                 }
-                if (in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
-                    in_opening_screen = false;
+                if (gui_state.in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
+                    if (client->show_popup()) {
+                        client->dismiss_popup();
+                    } else if (match_st == network::MatchState::IDLE || match_st == network::MatchState::TIMEOUT) {
+                        client->send_find_match();
+                    } else if (match_st == network::MatchState::SEARCHING) {
+                        client->send_cancel_match();
+                    }
                 }
             }
             client->disconnect();
@@ -153,14 +179,14 @@ int main(int argc, char* argv[]) {
             std::cout << "Press ESC on the game window to exit." << std::endl;
 
             Img canvas;
-            bool in_opening_screen = true;
+            gui_state.in_opening_screen = true;
 
             while (true) {
                 game_engine->wait(FRAME_TIME_MS);
 
                 canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
 
-                if (in_opening_screen) {
+                if (gui_state.in_opening_screen) {
                     renderer.draw_opening(canvas, "PLAYER", 1200, false);
                 } else {
                     renderer.draw(canvas, game_engine->get_state(), gui_state.selected_cell, 
@@ -175,8 +201,8 @@ int main(int argc, char* argv[]) {
                 if (key == KEY_ESC) {
                     break;
                 }
-                if (in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
-                    in_opening_screen = false;
+                if (gui_state.in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
+                    gui_state.in_opening_screen = false;
                 }
             }
             cv::destroyAllWindows();

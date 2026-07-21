@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <chrono>
 #include "engine/game_engine.h"
 
 namespace network {
@@ -14,9 +15,12 @@ typedef websocketpp::server<websocketpp::config::asio> ws_server_t;
 
 struct ClientInfo {
     websocketpp::connection_hdl hdl;
-    std::string color;
+    std::string color = "VIEWER";
     std::string username = "Guest";
     int elo = 1200;
+    bool is_searching = false;
+    std::chrono::steady_clock::time_point search_start_time;
+    bool in_game = false;
 };
 
 class SocketServer {
@@ -41,6 +45,7 @@ private:
     void on_message(websocketpp::connection_hdl hdl, ws_server_t::message_ptr msg);
     
     void game_loop();
+    void process_matchmaking();
     void broadcast_state();
     std::string serialize_game_state();
 
@@ -55,3 +60,4 @@ public:
 };
 
 }
+

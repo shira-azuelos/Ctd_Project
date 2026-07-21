@@ -9,6 +9,31 @@ namespace input {
 
 void GuiController::on_mouse(int event, int x, int y, int flags, void* userdata) {
     auto* g_state = static_cast<GuiState*>(userdata);
+
+    if (g_state->in_opening_screen) {
+        if (event == cv::EVENT_LBUTTONDOWN) {
+            if (g_state->socket_client) {
+                if (g_state->socket_client->show_popup()) {
+                    g_state->socket_client->dismiss_popup();
+                    return;
+                }
+
+                if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
+                    auto match_st = g_state->socket_client->get_match_state();
+                    if (match_st == network::MatchState::IDLE || match_st == network::MatchState::TIMEOUT) {
+                        g_state->socket_client->send_find_match();
+                    } else if (match_st == network::MatchState::SEARCHING) {
+                        g_state->socket_client->send_cancel_match();
+                    }
+                }
+            } else {
+                if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
+                    g_state->in_opening_screen = false;
+                }
+            }
+        }
+        return;
+    }
     
     bool game_over = false;
     if (g_state->socket_client) {

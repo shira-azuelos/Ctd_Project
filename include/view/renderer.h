@@ -43,7 +43,9 @@ public:
               const std::string& white_user = "WHITE", int white_elo = 1200,
               const std::string& black_user = "BLACK", int black_elo = 1200);
 
-    void draw_opening(Img& canvas, const std::string& username = "", int elo = 1200, bool waiting = false);
+    void draw_opening(Img& canvas, const std::string& username = "", int elo = 1200, 
+                      bool searching = false, int elapsed_sec = 0, 
+                      bool show_popup = false, const std::string& popup_msg = "");
 };
 
 }

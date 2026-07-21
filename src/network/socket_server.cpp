@@ -82,13 +82,6 @@ void SocketServer::on_open(websocketpp::connection_hdl hdl) {
     std::lock_guard<std::mutex> lock(m_clients_mutex);
     
     std::string color = "VIEWER";
-    if (m_clients.size() == 0) {
-        color = "WHITE";
-        m_elo_updated_for_game = false;
-    } else if (m_clients.size() == 1) {
-        color = "BLACK";
-        m_elo_updated_for_game = false;
-    }
 
     auto client = std::make_shared<ClientInfo>();
     client->hdl = hdl;
@@ -99,7 +92,7 @@ void SocketServer::on_open(websocketpp::connection_hdl hdl) {
     websocketpp::lib::error_code ec;
     m_server.send(hdl, init_msg, websocketpp::frame::opcode::text, ec);
 
-    std::cout << "[Server] Client connected as " << color << std::endl;
+    std::cout << "[Server] Client connected." << std::endl;
 }
 
 void SocketServer::on_close(websocketpp::connection_hdl hdl) {
@@ -107,7 +100,7 @@ void SocketServer::on_close(websocketpp::connection_hdl hdl) {
     
     for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
         if (is_same_connection((*it)->hdl, hdl)) {
-            std::cout << "[Server] Client disconnected: " << (*it)->color << std::endl;
+            std::cout << "[Server] Client disconnected: " << (*it)->username << " (" << (*it)->color << ")" << std::endl;
             m_clients.erase(it);
             break;
         }
@@ -154,6 +147,32 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
         websocketpp::lib::error_code ec;
         m_server.send(hdl, reply, websocketpp::frame::opcode::text, ec);
     }
+    else if (cmd == "FIND_MATCH") {
+        std::lock_guard<std::mutex> lock(m_clients_mutex);
+        for (auto& client : m_clients) {
+            if (is_same_connection(client->hdl, hdl)) {
+                client->is_searching = true;
+                client->search_start_time = std::chrono::steady_clock::now();
+                client->in_game = false;
+                std::cout << "[Server] Player " << client->username << " (ELO: " << client->elo << ") is searching for a match..." << std::endl;
+                websocketpp::lib::error_code ec;
+                m_server.send(hdl, "SEARCHING", websocketpp::frame::opcode::text, ec);
+                break;
+            }
+        }
+    }
+    else if (cmd == "CANCEL_MATCH") {
+        std::lock_guard<std::mutex> lock(m_clients_mutex);
+        for (auto& client : m_clients) {
+            if (is_same_connection(client->hdl, hdl)) {
+                client->is_searching = false;
+                std::cout << "[Server] Player " << client->username << " cancelled match search." << std::endl;
+                websocketpp::lib::error_code ec;
+                m_server.send(hdl, "SEARCH_CANCELLED", websocketpp::frame::opcode::text, ec);
+                break;
+            }
+        }
+    }
     else if (cmd == "MOVE") {
         int sr, sc, dr, dc;
         ss >> sr >> sc >> dr >> dc;
@@ -180,9 +199,68 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
     }
 }
 
+void SocketServer::process_matchmaking() {
+    std::lock_guard<std::mutex> lock(m_clients_mutex);
+    auto now = std::chrono::steady_clock::now();
+
+    std::vector<std::shared_ptr<ClientInfo>> searching;
+    for (auto& c : m_clients) {
+        if (c->is_searching) {
+            searching.push_back(c);
+        }
+    }
+
+    for (size_t i = 0; i < searching.size(); ++i) {
+        if (!searching[i]->is_searching) continue;
+        for (size_t j = i + 1; j < searching.size(); ++j) {
+            if (!searching[j]->is_searching) continue;
+
+            int elo_diff = std::abs(searching[i]->elo - searching[j]->elo);
+            if (elo_diff <= 100) {
+                auto c1 = searching[i];
+                auto c2 = searching[j];
+
+                c1->is_searching = false;
+                c2->is_searching = false;
+                c1->in_game = true;
+                c2->in_game = true;
+                c1->color = "WHITE";
+                c2->color = "BLACK";
+
+                m_board = model::BoardFactory::create_default_board();
+                m_game_engine = std::make_shared<engine::GameEngine>(m_board);
+                m_elo_updated_for_game = false;
+
+                std::cout << "[Server] Match found! White: " << c1->username << " (" << c1->elo 
+                          << ") vs Black: " << c2->username << " (" << c2->elo << ") [Diff: " << elo_diff << "]" << std::endl;
+
+                websocketpp::lib::error_code ec;
+                std::string msg1 = "MATCH_FOUND WHITE " + c1->username + " " + std::to_string(c1->elo) + " " + c2->username + " " + std::to_string(c2->elo);
+                std::string msg2 = "MATCH_FOUND BLACK " + c1->username + " " + std::to_string(c1->elo) + " " + c2->username + " " + std::to_string(c2->elo);
+                m_server.send(c1->hdl, msg1, websocketpp::frame::opcode::text, ec);
+                m_server.send(c2->hdl, msg2, websocketpp::frame::opcode::text, ec);
+                break;
+            }
+        }
+    }
+
+    for (auto& c : searching) {
+        if (c->is_searching) {
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - c->search_start_time).count();
+            if (elapsed >= 60) {
+                c->is_searching = false;
+                std::cout << "[Server] Matchmaking timeout (60s) for player " << c->username << " (no player in +-100 ELO range)." << std::endl;
+                websocketpp::lib::error_code ec;
+                m_server.send(c->hdl, "MATCH_TIMEOUT", websocketpp::frame::opcode::text, ec);
+            }
+        }
+    }
+}
+
 void SocketServer::game_loop() {
     while (m_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        process_matchmaking();
         if (m_game_engine) {
             m_game_engine->wait(30);
             auto state = m_game_engine->get_state();

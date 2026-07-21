@@ -14,6 +14,13 @@ namespace network {
 
 typedef websocketpp::client<websocketpp::config::asio_client> ws_client_t;
 
+enum class MatchState {
+    IDLE,
+    SEARCHING,
+    MATCHED,
+    TIMEOUT
+};
+
 class SocketClient {
 private:
     ws_client_t m_client;
@@ -39,7 +46,11 @@ private:
     std::string m_black_user = "BLACK";
     int m_black_elo = 1200;
 
-    std::mutex state_mutex;
+    MatchState m_match_state = MatchState::IDLE;
+    std::string m_popup_msg = "";
+    bool m_show_popup = false;
+
+    mutable std::mutex state_mutex;
 
     void on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg);
     void parse_and_update_state(const std::string& json_str);
@@ -72,6 +83,14 @@ public:
     int get_black_elo() const;
     
     void send_login(const std::string& username, const std::string& password);
+
+    void send_find_match();
+    void send_cancel_match();
+    MatchState get_match_state() const;
+    bool show_popup() const;
+    std::string get_popup_msg() const;
+    void dismiss_popup();
 };
 
 }
+

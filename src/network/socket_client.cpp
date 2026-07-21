@@ -117,6 +117,35 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
         std::lock_guard<std::mutex> lock(state_mutex);
         assigned_color = payload.substr(6);
         std::cout << "[Client] My assigned color is: " << assigned_color << std::endl;
+    } else if (payload == "SEARCHING") {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        m_match_state = MatchState::SEARCHING;
+        std::cout << "[Client] Searching for opponent..." << std::endl;
+    } else if (payload == "SEARCH_CANCELLED") {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        m_match_state = MatchState::IDLE;
+        std::cout << "[Client] Search cancelled." << std::endl;
+    } else if (payload.rfind("MATCH_FOUND ", 0) == 0) {
+        std::stringstream ss(payload.substr(12));
+        std::string col, w_usr, b_usr;
+        int w_e, b_e;
+        ss >> col >> w_usr >> w_e >> b_usr >> b_e;
+        {
+            std::lock_guard<std::mutex> lock(state_mutex);
+            assigned_color = col;
+            m_white_user = w_usr;
+            m_white_elo = w_e;
+            m_black_user = b_usr;
+            m_black_elo = b_e;
+            m_match_state = MatchState::MATCHED;
+        }
+        std::cout << "[Client] MATCH FOUND! Playing as " << col << " (" << w_usr << " vs " << b_usr << ")" << std::endl;
+    } else if (payload == "MATCH_TIMEOUT") {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        m_match_state = MatchState::TIMEOUT;
+        m_popup_msg = "No opponent found within +-100 ELO range.\nPlease try again later.";
+        m_show_popup = true;
+        std::cout << "[Client] Matchmaking timed out after 10 seconds." << std::endl;
     } else {
         parse_and_update_state(payload);
     }
@@ -586,4 +615,41 @@ std::string SocketClient::get_assigned_color() {
     return assigned_color;
 }
 
+void SocketClient::send_find_match() {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    m_match_state = MatchState::SEARCHING;
+    m_show_popup = false;
+    websocketpp::lib::error_code ec;
+    m_client.send(m_hdl, "FIND_MATCH", websocketpp::frame::opcode::text, ec);
 }
+
+void SocketClient::send_cancel_match() {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    m_match_state = MatchState::IDLE;
+    websocketpp::lib::error_code ec;
+    m_client.send(m_hdl, "CANCEL_MATCH", websocketpp::frame::opcode::text, ec);
+}
+
+MatchState SocketClient::get_match_state() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_match_state;
+}
+
+bool SocketClient::show_popup() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_show_popup;
+}
+
+std::string SocketClient::get_popup_msg() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_popup_msg;
+}
+
+void SocketClient::dismiss_popup() {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    m_show_popup = false;
+    m_match_state = MatchState::IDLE;
+}
+
+}
+

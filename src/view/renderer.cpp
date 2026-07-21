@@ -27,8 +27,10 @@ void Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
     process_renderer.draw(canvas, arbiter);
 }
 
-void Renderer::draw_opening(Img& canvas, const std::string& username, int elo, bool waiting) {
-    opening_renderer.draw(canvas, username, elo, waiting);
+void Renderer::draw_opening(Img& canvas, const std::string& username, int elo, 
+                          bool searching, int elapsed_sec, 
+                          bool show_popup, const std::string& popup_msg) {
+    opening_renderer.draw(canvas, username, elo, searching, elapsed_sec, show_popup, popup_msg);
 }
 
 }
