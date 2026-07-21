@@ -114,6 +114,53 @@ bool UserManager::save(const std::string& filepath) {
 }
 
 bool UserManager::authenticate_or_register(const std::string& username, const std::string& password, User& out_user) {
+    {
+        std::ifstream file(m_filepath);
+        if (file.is_open()) {
+            file.close();
+            std::ifstream f(m_filepath);
+            std::stringstream ss;
+            ss << f.rdbuf();
+            std::string json_str = ss.str();
+            f.close();
+
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_users.clear();
+            size_t pos = 0;
+            while (true) {
+                size_t u_pos = json_str.find("\"username\"", pos);
+                if (u_pos == std::string::npos) break;
+                size_t end_obj = json_str.find("}", u_pos);
+                if (end_obj == std::string::npos) break;
+                std::string obj_str = json_str.substr(u_pos, end_obj - u_pos);
+                auto extract_val = [&](const std::string& key) -> std::string {
+                    size_t k_pos = obj_str.find("\"" + key + "\"");
+                    if (k_pos == std::string::npos) return "";
+                    size_t colon = obj_str.find(":", k_pos);
+                    if (colon == std::string::npos) return "";
+                    size_t val_start = colon + 1;
+                    while (val_start < obj_str.length() && (obj_str[val_start] == ' ' || obj_str[val_start] == '"')) val_start++;
+                    size_t val_end = val_start;
+                    while (val_end < obj_str.length() && obj_str[val_end] != '"' && obj_str[val_end] != ',' && obj_str[val_end] != '\n' && obj_str[val_end] != '\r' && obj_str[val_end] != '}') val_end++;
+                    return obj_str.substr(val_start, val_end - val_start);
+                };
+                User user;
+                user.username = extract_val("username");
+                user.password = extract_val("password");
+                std::string elo_str = extract_val("elo");
+                user.elo = elo_str.empty() ? 1200 : std::stoi(elo_str);
+                std::string wins_str = extract_val("wins");
+                user.wins = wins_str.empty() ? 0 : std::stoi(wins_str);
+                std::string losses_str = extract_val("losses");
+                user.losses = losses_str.empty() ? 0 : std::stoi(losses_str);
+                if (!user.username.empty()) {
+                    m_users[user.username] = user;
+                }
+                pos = end_obj + 1;
+            }
+        }
+    }
+
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_users.find(username);
     if (it != m_users.end()) {

@@ -26,9 +26,18 @@ void ScoreRenderer::draw_panel(Img& canvas, const std::string& name, int score, 
 
 void ScoreRenderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
                          const std::string& white_user, int white_elo,
-                         const std::string& black_user, int black_elo) {
+                         const std::string& black_user, int black_elo,
+                         const std::string& room_id, const std::string& room_name, bool is_viewer) {
     draw_panel(canvas, "BLACK", state->get_black_score(), 0, black_user, black_elo);
     draw_panel(canvas, "WHITE", state->get_white_score(), 900, white_user, white_elo);
+
+    if (!room_id.empty()) {
+        canvas.draw_rect(200, 6, 600, 30, cv::Scalar(25, 20, 35), -1, 0.9);
+        canvas.draw_rect(200, 6, 600, 30, cv::Scalar(180, 100, 255), 1, 0.95);
+        std::string room_txt = "ROOM: " + room_id + " (\"" + room_name + "\")";
+        if (is_viewer) room_txt += "  * SPECTATOR (VIEWER MODE)";
+        canvas.put_text(room_txt, 215, 27, 0.5, is_viewer ? cv::Scalar(100, 230, 255) : cv::Scalar(220, 180, 255), 2);
+    }
 }
 
 }

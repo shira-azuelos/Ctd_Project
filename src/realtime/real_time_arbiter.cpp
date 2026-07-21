@@ -2,7 +2,6 @@
 #include "../include/model/game_state.h"
 #include "pubsub/message_bus.h"
 #include <algorithm>
-#include <iostream>
 
 namespace realtime {
 
@@ -146,7 +145,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         board->add_piece(moving_piece);
                         moving_piece->state = model::PieceState::IDLE;
                         active_cooldowns.push_back(Cooldown{moving_piece, 3000, 3000, false});
-                        std::cout << "[Arbiter] Friendly block mid-air. " << moving_piece->id << " stuck at (" << src.row << ", " << src.col << ")" << std::endl;
                         
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{
                             pubsub::EventType::PLAY_SOUND,
@@ -159,7 +157,6 @@ void RealTimeArbiter::advance_time(int ms, std::shared_ptr<model::Board> board, 
                         });
                     } else {
                         moving_piece->state = model::PieceState::CAPTURED;
-                        std::cout << "[Arbiter] Mid-air capture. Jumping " << jumping_piece_at_dest->id << " captured " << moving_piece->id << " at (" << dest.row << ", " << dest.col << ")" << std::endl;
                         
                         pubsub::MessageBus::get_instance().publish(pubsub::Event{
                             pubsub::EventType::PLAY_SOUND,

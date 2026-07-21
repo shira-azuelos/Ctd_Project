@@ -21,6 +21,21 @@ struct ClientInfo {
     bool is_searching = false;
     std::chrono::steady_clock::time_point search_start_time;
     bool in_game = false;
+    std::string room_id = "";
+    bool is_viewer = false;
+    int last_seq = 0;
+};
+
+struct Room {
+    std::string id;
+    std::string name;
+    std::shared_ptr<ClientInfo> white_player = nullptr;
+    std::shared_ptr<ClientInfo> black_player = nullptr;
+    std::vector<std::shared_ptr<ClientInfo>> viewers;
+    std::shared_ptr<model::Board> board;
+    std::shared_ptr<engine::GameEngine> game_engine;
+    bool elo_updated = false;
+    std::vector<std::string> pending_sounds;
 };
 
 class SocketServer {
@@ -32,6 +47,9 @@ private:
 
     std::mutex m_clients_mutex;
     std::vector<std::shared_ptr<ClientInfo>> m_clients;
+
+    std::mutex m_rooms_mutex;
+    std::vector<std::shared_ptr<Room>> m_rooms;
 
     std::shared_ptr<model::Board> m_board;
     std::shared_ptr<engine::GameEngine> m_game_engine;
@@ -48,8 +66,12 @@ private:
     void process_matchmaking();
     void broadcast_state();
     std::string serialize_game_state();
+    std::string serialize_room_state(std::shared_ptr<Room> room);
+    void broadcast_room_state(std::shared_ptr<Room> room);
 
     bool is_same_connection(websocketpp::connection_hdl h1, websocketpp::connection_hdl h2);
+    void log_server_activity(const std::string& msg);
+    std::string generate_room_id();
 
 public:
     SocketServer() = default;
@@ -60,4 +82,5 @@ public:
 };
 
 }
+
 

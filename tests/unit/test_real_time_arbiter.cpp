@@ -15,11 +15,11 @@ TEST_CASE("Piece movement happens over time") {
     
     engine->request_move(model::Position(0, 0), model::Position(0, 1));
     
-    engine->wait(500);
+    engine->update(500);
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(0, 1)).get() == nullptr);
     
-    engine->wait(500);
+    engine->update(500);
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(0, 1)).get() != nullptr);
 }
@@ -53,7 +53,7 @@ TEST_CASE("Piece cooldown after movement") {
     auto engine = std::make_shared<engine::GameEngine>(board);
     
     engine->request_move(model::Position(0, 0), model::Position(0, 1));
-    engine->wait(1000);
+    engine->update(1000);
     
     CHECK(engine->is_piece_cooling_down(piece) == true);
     CHECK(engine->get_piece_cooldown_remaining_ms(piece) == 3000);
@@ -61,14 +61,14 @@ TEST_CASE("Piece cooldown after movement") {
     engine->request_move(model::Position(0, 1), model::Position(0, 2));
     CHECK(engine->is_moving() == false);
     
-    engine->wait(1500);
+    engine->update(1500);
     CHECK(engine->is_piece_cooling_down(piece) == true);
     CHECK(engine->get_piece_cooldown_remaining_ms(piece) == 1500);
     
     engine->request_move(model::Position(0, 1), model::Position(0, 2));
     CHECK(engine->is_moving() == false);
     
-    engine->wait(1500);
+    engine->update(1500);
     CHECK(engine->is_piece_cooling_down(piece) == false);
     CHECK(engine->get_piece_cooldown_remaining_ms(piece) == 0);
     engine->request_move(model::Position(0, 1), model::Position(0, 2));
@@ -89,12 +89,12 @@ TEST_CASE("Concurrent movement of multiple pieces") {
     
     CHECK(engine->get_active_motions().size() == 2);
     
-    engine->wait(500);
+    engine->update(500);
     CHECK(engine->get_active_motions().size() == 2);
     CHECK(board->get_piece_at(model::Position(0, 1)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(7, 6)).get() == nullptr);
     
-    engine->wait(500);
+    engine->update(500);
     CHECK(engine->get_active_motions().size() == 0);
     CHECK(board->get_piece_at(model::Position(0, 1)).get() == p1.get());
     CHECK(board->get_piece_at(model::Position(7, 6)).get() == p2.get());
@@ -112,11 +112,11 @@ TEST_CASE("Collision - Different colors (late arrival captures early)") {
     
     engine->request_move(model::Position(0, 0), model::Position(0, 2));
     
-    engine->wait(500);
+    engine->update(500);
     
     engine->request_move(model::Position(0, 3), model::Position(0, 2));
     
-    engine->wait(1500);
+    engine->update(1500);
     
     CHECK(board->get_piece_at(model::Position(0, 2)).get() == white_rook.get());
     CHECK(board->get_piece_at(model::Position(0, 3)).get() == nullptr);
@@ -135,11 +135,11 @@ TEST_CASE("Collision - Same color (late arrival gets blocked and stuck)") {
     
     engine->request_move(model::Position(0, 0), model::Position(0, 2));
     
-    engine->wait(500);
+    engine->update(500);
     
     engine->request_move(model::Position(0, 3), model::Position(0, 2));
     
-    engine->wait(1500);
+    engine->update(1500);
     
     CHECK(board->get_piece_at(model::Position(0, 2)).get() == rook2.get());
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == rook1.get());
@@ -158,18 +158,18 @@ TEST_CASE("Escaping piece survives and attacker lands on empty cell") {
     
     engine->request_move(model::Position(4, 5), model::Position(6, 4));
     
-    engine->wait(500);
+    engine->update(500);
     
     engine->request_move(model::Position(6, 4), model::Position(7, 4));
     
     engine->request_move(model::Position(6, 4), model::Position(7, 4));
     
-    engine->wait(1000);
+    engine->update(1000);
     
     CHECK(board->get_piece_at(model::Position(7, 4)).get() == black_pawn.get());
     CHECK(board->get_piece_at(model::Position(6, 4)).get() == nullptr);
     
-    engine->wait(500);
+    engine->update(500);
     
     CHECK(board->get_piece_at(model::Position(6, 4)).get() == white_knight.get());
     CHECK(board->get_piece_at(model::Position(7, 4)).get() == black_pawn.get());
@@ -191,9 +191,9 @@ TEST_CASE("Game Over is not triggered prematurely when King is under threat by a
     
     CHECK(engine->get_state()->is_game_over() == false);
     
-    engine->wait(500);
+    engine->update(200);
     CHECK(engine->get_state()->is_game_over() == false);
     
-    engine->wait(500);
+    engine->update(300);
     CHECK(engine->get_state()->is_game_over() == true);
 }

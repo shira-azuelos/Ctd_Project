@@ -52,11 +52,17 @@ int main(int argc, char* argv[]) {
             std::cout << "==========================================" << std::endl;
             std::cout << "   KungFu Chess Client Login (CLI)       " << std::endl;
             std::cout << "==========================================" << std::endl;
-            std::string username, password;
-            std::cout << "Enter Username: ";
-            std::cin >> username;
-            std::cout << "Enter Password: ";
-            std::cin >> password;
+            std::string username = (argc > 3) ? argv[3] : "";
+            std::string password = (argc > 4) ? argv[4] : "";
+            
+            if (username.empty()) {
+                std::cout << "Enter Username: ";
+                std::cin >> username;
+            }
+            if (password.empty()) {
+                std::cout << "Enter Password: ";
+                std::cin >> password;
+            }
 
             auto client = std::make_shared<network::SocketClient>(ip, port);
             if (!client->connect_to_server()) {
@@ -120,14 +126,16 @@ int main(int argc, char* argv[]) {
                 if (gui_state.in_opening_screen) {
                     renderer.draw_opening(canvas, client->get_username(), client->get_elo(), 
                                           (match_st == network::MatchState::SEARCHING), search_elapsed_sec, 
-                                          client->show_popup(), client->get_popup_msg());
+                                          client->show_popup(), client->get_popup_msg(),
+                                          gui_state.show_room_dialog, gui_state.room_input_text);
                 } else {
                     renderer.draw(canvas, client->get_game_state(), gui_state.selected_cell, 
                                   client->get_active_motions(), client->get_active_jumps(), 
                                   client->get_arbiter(), 
                                   view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y},
                                   client->get_white_username(), client->get_white_elo(),
-                                  client->get_black_username(), client->get_black_elo());
+                                  client->get_black_username(), client->get_black_elo(),
+                                  client->get_room_id(), client->get_room_name(), client->is_viewer());
                 }
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
@@ -136,6 +144,13 @@ int main(int argc, char* argv[]) {
                 if (key == KEY_ESC) {
                     break;
                 }
+
+                if (key != -1) {
+                    if (input::GuiController::on_key(key, &gui_state)) {
+                        continue;
+                    }
+                }
+
                 if (gui_state.in_opening_screen && (key == KEY_SPACE || key == KEY_ENTER_CR || key == KEY_ENTER_LF)) {
                     if (client->show_popup()) {
                         client->dismiss_popup();

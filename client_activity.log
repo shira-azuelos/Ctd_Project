@@ -1,0 +1,390 @@
+2026-07-21 16:19:39 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:19:39 [CLIENT:david] Login successful! Color: VIEWER | User: david | ELO: 1165
+2026-07-21 16:19:49 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:19:49 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:20:46 [CLIENT:uria] Sent CREATE_ROOM: the_best_room
+2026-07-21 16:20:46 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: the_best_room Color: WHITE
+2026-07-21 16:21:12 [CLIENT:david] Sent CREATE_ROOM: the_best_room
+2026-07-21 16:21:12 [CLIENT:david] ROOM CREATED successfully! ID: RM-1002 Name: the_best_room Color: WHITE
+2026-07-21 16:21:21 [CLIENT:david] Sent JOIN_ROOM: the_best_room
+2026-07-21 16:21:21 [CLIENT:david] Room Error: Room_Not_Found
+2026-07-21 16:21:39 [CLIENT:uria] Sent JOIN_ROOM: the_best_room
+2026-07-21 16:21:39 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 16:21:53 [CLIENT:uria] Sent CREATE_ROOM: the_best_room
+2026-07-21 16:21:53 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1003 Name: the_best_room Color: WHITE
+2026-07-21 16:21:54 [CLIENT:uria] Searching for opponent...
+2026-07-21 16:22:09 [CLIENT:david] Sent JOIN_ROOM: the_best_room
+2026-07-21 16:22:09 [CLIENT:david] Room Error: Room_Not_Found
+2026-07-21 16:22:54 [CLIENT:uria] Matchmaking timed out after 60 seconds.
+2026-07-21 16:23:11 [CLIENT:david] Sent CREATE_ROOM: aaaa
+2026-07-21 16:23:11 [CLIENT:david] ROOM CREATED successfully! ID: RM-1004 Name: aaaa Color: WHITE
+2026-07-21 16:23:17 [CLIENT:uria] Sent JOIN_ROOM: aaaa
+2026-07-21 16:23:17 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 16:23:24 [CLIENT:uria] Sent JOIN_ROOM: aaaa
+2026-07-21 16:23:24 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 16:26:33 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:26:33 [CLIENT:Shira] Login successful! Color: VIEWER | User: Shira | ELO: 1200
+2026-07-21 16:26:34 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:26:34 [CLIENT:Dan] Login successful! Color: VIEWER | User: Dan | ELO: 1200
+2026-07-21 16:26:35 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:26:35 [CLIENT:Spectator] Login successful! Color: VIEWER | User: Spectator | ELO: 1200
+2026-07-21 16:26:56 [CLIENT:Dan] Sent CREATE_ROOM: best_room
+2026-07-21 16:26:56 [CLIENT:Dan] ROOM CREATED successfully! ID: RM-1001 Name: best_room Color: WHITE
+2026-07-21 16:27:04 [CLIENT:Spectator] Sent JOIN_ROOM: best_room
+2026-07-21 16:27:04 [CLIENT:Spectator] Room Error: Room_Not_Found
+2026-07-21 16:27:07 [CLIENT:Dan] Searching for opponent...
+2026-07-21 16:27:15 [CLIENT:Spectator] Sent JOIN_ROOM: best_room
+2026-07-21 16:27:15 [CLIENT:Spectator] Room Error: Room_Not_Found
+2026-07-21 16:28:59 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:28:59 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:29:00 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:29:00 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:30:01 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:30:01 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:30:02 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:30:02 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:30:03 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:30:03 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:30:49 [CLIENT:shira] Sent CREATE_ROOM: R1
+2026-07-21 16:30:49 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: R1 Color: WHITE
+2026-07-21 16:31:11 [CLIENT:uria] Sent JOIN_ROOM: R1
+2026-07-21 16:31:11 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 16:34:37 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:34:37 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:34:38 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:34:38 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:35:50 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:35:51 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:35:52 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:35:52 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:35:53 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:35:53 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:37:10 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:37:10 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:37:11 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:37:12 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:37:12 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:37:13 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:38:36 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:38:37 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:38:38 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:38:38 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:38:39 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:38:39 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:39:47 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:39:47 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:39:48 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:39:49 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:40:26 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:40:27 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:40:27 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:40:28 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1191
+2026-07-21 16:40:29 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:40:29 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:40:47 [CLIENT:shira] Sent CREATE_ROOM: R2
+2026-07-21 16:40:47 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: R2 Color: WHITE
+2026-07-21 16:40:57 [CLIENT:uria] Sent JOIN_ROOM: R2
+2026-07-21 16:40:57 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 16:41:00 [CLIENT:shira] Searching for opponent...
+2026-07-21 16:41:02 [CLIENT:uria] Searching for opponent...
+2026-07-21 16:49:15 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:49:15 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:49:16 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:49:16 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 16:54:46 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:54:46 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 16:54:47 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:54:47 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 16:54:48 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 16:54:48 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 16:55:11 [CLIENT:uria] Sent CREATE_ROOM: R3
+2026-07-21 16:55:11 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: R3 Color: WHITE
+2026-07-21 16:55:19 [CLIENT:yael] Sent JOIN_ROOM: R3
+2026-07-21 16:55:19 [CLIENT:yael] Room Error: Room_Not_Found
+2026-07-21 16:55:42 [CLIENT:uria] Sent CREATE_ROOM: R4
+2026-07-21 16:55:42 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1002 Name: R4 Color: WHITE
+2026-07-21 16:55:59 [CLIENT:yael] Sent JOIN_ROOM: R4
+2026-07-21 16:55:59 [CLIENT:yael] Room Error: Room_Not_Found
+2026-07-21 17:00:32 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:00:33 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:00:33 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:00:34 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:00:47 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:00:47 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:00:48 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:00:48 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:00:49 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:00:49 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:01:07 [CLIENT:shira] Sent CREATE_ROOM: P
+2026-07-21 17:01:07 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: P Color: WHITE
+2026-07-21 17:01:11 [CLIENT:uria] Sent JOIN_ROOM: P
+2026-07-21 17:01:11 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 17:01:18 [CLIENT:uria] Searching for opponent...
+2026-07-21 17:01:19 [CLIENT:shira] Searching for opponent...
+2026-07-21 17:01:19 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 17:01:19 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 17:02:12 [CLIENT:yael] Sent JOIN_ROOM: P
+2026-07-21 17:02:12 [CLIENT:yael] Room Error: Room_Not_Found
+2026-07-21 17:02:14 [CLIENT:yael] Searching for opponent...
+2026-07-21 17:02:20 [CLIENT:yael] Sent JOIN_ROOM: P
+2026-07-21 17:02:20 [CLIENT:yael] Room Error: Room_Not_Found
+2026-07-21 17:02:31 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:02:31 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:02:32 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:02:33 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:02:33 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:02:34 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:02:49 [CLIENT:uria] Sent CREATE_ROOM: R5
+2026-07-21 17:02:49 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: R5 Color: WHITE
+2026-07-21 17:02:50 [CLIENT:uria] Searching for opponent...
+2026-07-21 17:02:59 [CLIENT:shira] Sent JOIN_ROOM: R5
+2026-07-21 17:02:59 [CLIENT:shira] Room Error: Room_Not_Found
+2026-07-21 17:03:02 [CLIENT:shira] Searching for opponent...
+2026-07-21 17:03:02 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 17:03:02 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 17:10:27 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:10:28 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:10:29 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:10:29 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:11:03 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:11:03 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:11:04 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:11:04 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:11:05 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:11:05 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:11:25 [CLIENT:shira] Sent CREATE_ROOM: W
+2026-07-21 17:11:25 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: W Color: WHITE
+2026-07-21 17:11:37 [CLIENT:uria] Sent JOIN_ROOM: W
+2026-07-21 17:11:37 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 17:11:42 [CLIENT:uria] Sent JOIN_ROOM: W
+2026-07-21 17:11:42 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 17:11:50 [CLIENT:uria] Searching for opponent...
+2026-07-21 17:19:47 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:19:47 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:19:48 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:19:48 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:20:05 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:20:05 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:20:06 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:20:06 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:20:07 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:20:07 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:20:33 [CLIENT:shira] Sent CREATE_ROOM: B
+2026-07-21 17:20:33 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: B Color: WHITE
+2026-07-21 17:20:37 [CLIENT:uria] Sent JOIN_ROOM: B
+2026-07-21 17:20:37 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: B Role: BLACK
+2026-07-21 17:20:37 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 17:20:37 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 17:50:18 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:50:19 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:50:20 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:50:20 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:50:21 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:50:21 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:50:50 [CLIENT:shira] Sent CREATE_ROOM: quin
+2026-07-21 17:50:50 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: quin Color: WHITE
+2026-07-21 17:50:56 [CLIENT:uria] Sent JOIN_ROOM: quin
+2026-07-21 17:50:56 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: quin Role: BLACK
+2026-07-21 17:50:56 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 17:50:56 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 17:58:04 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:58:04 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 17:58:05 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:58:05 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 17:58:06 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 17:58:06 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 17:58:25 [CLIENT:shira] Sent CREATE_ROOM: Y
+2026-07-21 17:58:25 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: Y Color: WHITE
+2026-07-21 17:58:33 [CLIENT:uria] Sent JOIN_ROOM: Y
+2026-07-21 17:58:33 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: Y Role: BLACK
+2026-07-21 17:58:33 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 17:58:33 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 18:03:06 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:03:06 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 18:03:07 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:03:07 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 18:03:08 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:03:09 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:03:22 [CLIENT:yael] Sent CREATE_ROOM: L
+2026-07-21 18:03:22 [CLIENT:yael] ROOM CREATED successfully! ID: RM-1001 Name: L Color: WHITE
+2026-07-21 18:03:27 [CLIENT:uria] Sent JOIN_ROOM: L
+2026-07-21 18:03:27 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: L Role: BLACK
+2026-07-21 18:03:27 [CLIENT:yael] MATCH FOUND! Playing as WHITE (yael vs uria)
+2026-07-21 18:03:27 [CLIENT:uria] MATCH FOUND! Playing as BLACK (yael vs uria)
+2026-07-21 18:04:28 [CLIENT:shira] Sent JOIN_ROOM: L
+2026-07-21 18:04:28 [CLIENT:shira] ROOM JOINED! ID: RM-1001 Name: L Role: VIEWER
+2026-07-21 18:06:18 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:06:18 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 18:06:19 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:06:19 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 18:06:20 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:06:20 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:06:42 [CLIENT:uria] Sent CREATE_ROOM: L
+2026-07-21 18:06:42 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: L Color: WHITE
+2026-07-21 18:06:53 [CLIENT:shira] Sent JOIN_ROOM: L
+2026-07-21 18:06:53 [CLIENT:shira] ROOM JOINED! ID: RM-1001 Name: L Role: BLACK
+2026-07-21 18:06:53 [CLIENT:uria] MATCH FOUND! Playing as WHITE (uria vs shira)
+2026-07-21 18:06:53 [CLIENT:shira] MATCH FOUND! Playing as BLACK (uria vs shira)
+2026-07-21 18:14:02 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:14:03 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1343
+2026-07-21 18:14:04 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:14:04 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1333
+2026-07-21 18:14:05 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:14:05 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:14:31 [CLIENT:shira] Sent CREATE_ROOM: A
+2026-07-21 18:14:31 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: A Color: WHITE
+2026-07-21 18:14:35 [CLIENT:uria] Sent JOIN_ROOM: A
+2026-07-21 18:14:35 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: A Role: BLACK
+
+2026-07-21 18:14:35 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 18:28:26 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:28:26 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1327
+2026-07-21 18:28:27 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:28:28 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1349
+2026-07-21 18:28:28 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:28:29 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:29:01 [CLIENT:shira] Sent CREATE_ROOM: E
+2026-07-21 18:29:01 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: E Color: WHITE
+2026-07-21 18:29:05 [CLIENT:uria] Sent JOIN_ROOM: E
+2026-07-21 18:29:05 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 18:29:05 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 18:34:32 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:34:32 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1312
+2026-07-21 18:34:33 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:34:33 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1364
+2026-07-21 18:34:34 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:34:34 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:34:54 [CLIENT:shira] Sent CREATE_ROOM: T
+2026-07-21 18:34:54 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: T Color: WHITE
+2026-07-21 18:34:58 [CLIENT:uria] Sent JOIN_ROOM: T
+2026-07-21 18:34:58 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: T Role: BLACK
+2026-07-21 18:34:58 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 18:34:58 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 18:50:03 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:50:03 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1330
+2026-07-21 18:50:04 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:50:05 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1346
+2026-07-21 18:50:06 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 18:50:06 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 18:51:57 [CLIENT:uria] Sent CREATE_ROOM: Q
+2026-07-21 18:51:57 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: Q Color: WHITE
+2026-07-21 18:52:06 [CLIENT:shira] Sent JOIN_ROOM: Q
+2026-07-21 18:52:06 [CLIENT:shira] ROOM JOINED! ID: RM-1001 Name: Q Role: BLACK
+2026-07-21 18:52:06 [CLIENT:uria] MATCH FOUND! Playing as WHITE (uria vs shira)
+2026-07-21 18:52:06 [CLIENT:shira] MATCH FOUND! Playing as BLACK (uria vs shira)
+2026-07-21 21:55:44 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:55:44 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1315
+2026-07-21 21:55:46 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:55:46 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1361
+2026-07-21 21:55:47 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:55:47 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 21:56:14 [CLIENT:uria] Sent JOIN_ROOM: y
+2026-07-21 21:56:14 [CLIENT:uria] Room Error: Room_Not_Found
+2026-07-21 21:56:18 [CLIENT:uria] Searching for opponent...
+2026-07-21 21:56:19 [CLIENT:uria] Search cancelled.
+2026-07-21 21:56:24 [CLIENT:uria] Sent CREATE_ROOM: u
+2026-07-21 21:56:24 [CLIENT:uria] ROOM CREATED successfully! ID: RM-1001 Name: u Color: WHITE
+2026-07-21 21:56:28 [CLIENT:shira] Sent JOIN_ROOM: u
+2026-07-21 21:56:28 [CLIENT:shira] ROOM JOINED! ID: RM-1001 Name: u Role: BLACK
+2026-07-21 21:56:28 [CLIENT:uria] MATCH FOUND! Playing as WHITE (uria vs shira)
+2026-07-21 21:56:28 [CLIENT:shira] MATCH FOUND! Playing as BLACK (uria vs shira)
+2026-07-21 21:59:44 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:59:44 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1333
+2026-07-21 21:59:45 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:59:45 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1343
+2026-07-21 21:59:46 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 21:59:46 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 22:00:07 [CLIENT:shira] Sent CREATE_ROOM: u
+2026-07-21 22:00:07 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: u Color: WHITE
+2026-07-21 22:00:14 [CLIENT:uria] Sent JOIN_ROOM: u
+2026-07-21 22:00:14 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: u Role: BLACK
+2026-07-21 22:00:14 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 22:00:14 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 22:21:34 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:21:34 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1317
+2026-07-21 22:21:35 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:21:35 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1359
+2026-07-21 22:22:35 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:22:35 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1317
+2026-07-21 22:22:36 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:22:36 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1359
+2026-07-21 22:22:37 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:22:37 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 22:22:58 [CLIENT:shira] Sent CREATE_ROOM: '
+2026-07-21 22:22:58 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: ' Color: WHITE
+2026-07-21 22:23:02 [CLIENT:uria] Sent JOIN_ROOM: '
+2026-07-21 22:23:02 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: ' Role: BLACK
+2026-07-21 22:23:02 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 22:23:02 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 22:27:24 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:27:24 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1303
+2026-07-21 22:27:25 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:27:25 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1373
+2026-07-21 22:27:26 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:27:26 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 22:28:01 [CLIENT:shira] Sent CREATE_ROOM: E
+2026-07-21 22:28:01 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: E Color: WHITE
+2026-07-21 22:28:05 [CLIENT:uria] Sent JOIN_ROOM: E
+2026-07-21 22:28:05 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: E Role: BLACK
+2026-07-21 22:28:05 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 22:28:05 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 22:56:30 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:56:30 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1290
+2026-07-21 22:56:31 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:56:31 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1386
+2026-07-21 22:56:32 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 22:56:33 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 22:56:54 [CLIENT:shira] Sent CREATE_ROOM: W
+2026-07-21 22:56:54 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: W Color: WHITE
+2026-07-21 22:57:01 [CLIENT:uria] Sent JOIN_ROOM: W
+2026-07-21 22:57:01 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: W Role: BLACK
+2026-07-21 22:57:01 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 22:57:01 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 23:04:59 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:04:59 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1278
+2026-07-21 23:05:00 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:05:01 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1398
+2026-07-21 23:05:01 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:05:02 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 23:05:19 [CLIENT:shira] Sent CREATE_ROOM: Q
+2026-07-21 23:05:19 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: Q Color: WHITE
+2026-07-21 23:05:23 [CLIENT:uria] Sent JOIN_ROOM: Q
+2026-07-21 23:05:23 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 23:05:23 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 23:06:50 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:06:50 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1267
+2026-07-21 23:06:51 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:06:51 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1409
+2026-07-21 23:06:52 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:06:52 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 23:07:26 [CLIENT:shira] Sent CREATE_ROOM: W
+2026-07-21 23:07:26 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: W Color: WHITE
+2026-07-21 23:07:30 [CLIENT:uria] Sent JOIN_ROOM: W
+2026-07-21 23:07:30 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: W Role: BLACK
+2026-07-21 23:07:30 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 23:07:30 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 23:13:49 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:13:49 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1257
+2026-07-21 23:13:50 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:13:50 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1419
+2026-07-21 23:13:51 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:13:51 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 23:16:54 [CLIENT:shira] Sent CREATE_ROOM: W
+2026-07-21 23:16:54 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: W Color: WHITE
+2026-07-21 23:17:05 [CLIENT:uria] Sent JOIN_ROOM: W
+2026-07-21 23:17:05 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 23:17:05 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 23:28:11 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:28:11 [CLIENT:shira] Login successful! Color: VIEWER | User: shira | ELO: 1248
+2026-07-21 23:28:12 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:28:12 [CLIENT:uria] Login successful! Color: VIEWER | User: uria | ELO: 1428
+2026-07-21 23:28:13 [CLIENT:Guest] My assigned color is: VIEWER
+2026-07-21 23:28:14 [CLIENT:yael] Login successful! Color: VIEWER | User: yael | ELO: 1201
+2026-07-21 23:28:49 [CLIENT:shira] Sent CREATE_ROOM: the_best_game
+2026-07-21 23:28:49 [CLIENT:shira] ROOM CREATED successfully! ID: RM-1001 Name: the_best_game Color: WHITE
+2026-07-21 23:28:58 [CLIENT:uria] Sent JOIN_ROOM: the_best_game
+2026-07-21 23:28:58 [CLIENT:uria] ROOM JOINED! ID: RM-1001 Name: the_best_game Role: BLACK
+2026-07-21 23:28:58 [CLIENT:shira] MATCH FOUND! Playing as WHITE (shira vs uria)
+2026-07-21 23:28:58 [CLIENT:uria] MATCH FOUND! Playing as BLACK (shira vs uria)
+2026-07-21 23:29:12 [CLIENT:yael] Sent JOIN_ROOM: the_best_game
+2026-07-21 23:29:12 [CLIENT:yael] ROOM JOINED! ID: RM-1001 Name: the_best_game Role: VIEWER

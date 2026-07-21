@@ -19,7 +19,7 @@ private:
 
 public:
     GameState(std::shared_ptr<Board> b);
-    
+
     std::shared_ptr<Board> get_board() const;
 
     bool is_game_over() const;

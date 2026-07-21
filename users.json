@@ -2,16 +2,23 @@
   {
     "username": "uria",
     "password": "123",
-    "elo": 1191,
-    "wins": 3,
-    "losses": 4
+    "elo": 1436,
+    "wins": 14,
+    "losses": 6
   },
   {
     "username": "shira",
     "password": "123",
-    "elo": 1343,
-    "wins": 4,
-    "losses": 1
+    "elo": 1240,
+    "wins": 6,
+    "losses": 12
+  },
+  {
+    "username": "Shira",
+    "password": "1234",
+    "elo": 1200,
+    "wins": 0,
+    "losses": 0
   },
   {
     "username": "yael",
@@ -26,5 +33,19 @@
     "elo": 1165,
     "wins": 1,
     "losses": 3
+  },
+  {
+    "username": "Dan",
+    "password": "1234",
+    "elo": 1200,
+    "wins": 0,
+    "losses": 0
+  },
+  {
+    "username": "Spectator",
+    "password": "1234",
+    "elo": 1200,
+    "wins": 0,
+    "losses": 0
   }
 ]

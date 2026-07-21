@@ -59,14 +59,20 @@ void OpeningRenderer::draw_play_button(Img& canvas, bool searching, int elapsed_
     }
 }
 
-void OpeningRenderer::draw_rules(Img& canvas) {
-    canvas.draw_rect(100, 630, 800, 110, cv::Scalar(15, 15, 22), -1, 0.85);
-    canvas.draw_rect(100, 630, 800, 110, cv::Scalar(60, 60, 80), 1, 0.8);
+void OpeningRenderer::draw_room_button(Img& canvas) {
+    canvas.draw_rect(220, 555, 560, 60, cv::Scalar(40, 25, 60), -1, 0.9);
+    canvas.draw_rect(220, 555, 560, 60, cv::Scalar(180, 100, 255), 2, 0.95);
+    canvas.put_text("CUSTOM ROOM (CREATE / JOIN)", 285, 595, 0.72, cv::Scalar(220, 180, 255), 2);
+}
 
-    canvas.put_text("STAGE 4 MATCHMAKING RULES:", 120, 660, 0.55, cv::Scalar(215, 170, 60), 2);
-    canvas.put_text("* Click PLAY to search for an opponent with ELO rating +-100 points.", 120, 688, 0.5, cv::Scalar(200, 200, 200), 1);
-    canvas.put_text("* Search times out after 1 minute (60s) if no suitable player is found.", 120, 712, 0.5, cv::Scalar(200, 200, 200), 1);
-    canvas.put_text("* Click/Drag pieces in real-time once paired with your opponent.", 120, 734, 0.5, cv::Scalar(200, 200, 200), 1);
+void OpeningRenderer::draw_rules(Img& canvas) {
+    canvas.draw_rect(100, 635, 800, 110, cv::Scalar(15, 15, 22), -1, 0.85);
+    canvas.draw_rect(100, 635, 800, 110, cv::Scalar(60, 60, 80), 1, 0.8);
+
+    canvas.put_text("STAGE 5 MULTI-ROOM & LOGGING RULES:", 120, 660, 0.55, cv::Scalar(215, 170, 60), 2);
+    canvas.put_text("* Click ROOM to Create or Join a custom room with 3 buttons (Create/Join/Cancel).", 120, 688, 0.5, cv::Scalar(200, 200, 200), 1);
+    canvas.put_text("* 1st joiner = White, 2nd joiner = Black, 3rd+ joiners = Spectator (Viewer Mode).", 120, 712, 0.5, cv::Scalar(200, 200, 200), 1);
+    canvas.put_text("* All events logged to server_activity.log and client_activity.log.", 120, 734, 0.5, cv::Scalar(200, 200, 200), 1);
 }
 
 void OpeningRenderer::draw_popup_modal(Img& canvas, const std::string& popup_msg) {
@@ -86,9 +92,44 @@ void OpeningRenderer::draw_popup_modal(Img& canvas, const std::string& popup_msg
     canvas.put_text("OK", 480, 498, 0.85, cv::Scalar(255, 255, 255), 2);
 }
 
+void OpeningRenderer::draw_room_dialog_modal(Img& canvas, const std::string& input_text) {
+    canvas.draw_rect(0, 0, 1000, 800, cv::Scalar(0, 0, 0), -1, 0.75);
+
+    canvas.draw_rect(220, 220, 560, 320, cv::Scalar(240, 240, 245), -1, 0.98);
+    canvas.draw_rect(220, 220, 560, 320, cv::Scalar(100, 100, 110), 2, 0.95);
+
+    canvas.draw_rect(220, 220, 560, 35, cv::Scalar(210, 215, 225), -1, 0.98);
+    canvas.put_text("Room", 235, 245, 0.65, cv::Scalar(30, 30, 40), 2);
+
+    canvas.put_text("room name / ID:", 250, 290, 0.6, cv::Scalar(40, 40, 50), 2);
+
+    canvas.draw_rect(250, 310, 500, 45, cv::Scalar(255, 255, 255), -1, 1.0);
+    canvas.draw_rect(250, 310, 500, 45, cv::Scalar(120, 150, 200), 2, 1.0);
+
+    static auto blink_start = std::chrono::steady_clock::now();
+    double secs = std::chrono::duration<double>(std::chrono::steady_clock::now() - blink_start).count();
+    bool cursor = (static_cast<int>(secs * 2.0) % 2 == 0);
+
+    std::string display_str = input_text + (cursor ? "|" : "");
+    canvas.put_text(display_str, 265, 342, 0.7, cv::Scalar(20, 20, 20), 2);
+
+    canvas.draw_rect(260, 460, 140, 45, cv::Scalar(220, 220, 225), -1, 1.0);
+    canvas.draw_rect(260, 460, 140, 45, cv::Scalar(100, 100, 110), 1, 1.0);
+    canvas.put_text("Create", 295, 490, 0.6, cv::Scalar(20, 20, 20), 2);
+
+    canvas.draw_rect(430, 460, 140, 45, cv::Scalar(220, 220, 225), -1, 1.0);
+    canvas.draw_rect(430, 460, 140, 45, cv::Scalar(100, 100, 110), 1, 1.0);
+    canvas.put_text("Join", 475, 490, 0.6, cv::Scalar(20, 20, 20), 2);
+
+    canvas.draw_rect(600, 460, 140, 45, cv::Scalar(220, 220, 225), -1, 1.0);
+    canvas.draw_rect(600, 460, 140, 45, cv::Scalar(100, 100, 110), 1, 1.0);
+    canvas.put_text("Cancel", 635, 490, 0.6, cv::Scalar(20, 20, 20), 2);
+}
+
 void OpeningRenderer::draw(Img& canvas, const std::string& username, int elo, 
                       bool searching, int elapsed_sec, 
-                      bool show_popup, const std::string& popup_msg) {
+                      bool show_popup, const std::string& popup_msg,
+                      bool show_room_dialog, const std::string& room_input) {
     if (loaded) {
         bg_img.draw_on(canvas, 0, 0);
     } else {
@@ -100,10 +141,15 @@ void OpeningRenderer::draw(Img& canvas, const std::string& username, int elo,
     draw_header(canvas);
     draw_user_profile(canvas, username, elo);
     draw_play_button(canvas, searching, elapsed_sec);
+    draw_room_button(canvas);
     draw_rules(canvas);
 
     if (show_popup) {
         draw_popup_modal(canvas, popup_msg);
+    }
+
+    if (show_room_dialog) {
+        draw_room_dialog_modal(canvas, room_input);
     }
 }
 

@@ -11,7 +11,39 @@ bool GuiController::handle_opening_click(GuiState* g_state, int event, int x, in
     if (!g_state->in_opening_screen) return false;
 
     if (event == cv::EVENT_LBUTTONDOWN) {
+        if (g_state->show_room_dialog) {
+            if (x >= 260 && x <= 400 && y >= 460 && y <= 505) {
+                if (g_state->socket_client) {
+                    std::string room_name = g_state->room_input_text.empty() ? "Battle Room" : g_state->room_input_text;
+                    g_state->socket_client->send_create_room(room_name);
+                }
+                g_state->show_room_dialog = false;
+                return true;
+            }
+            if (x >= 430 && x <= 570 && y >= 460 && y <= 505) {
+                if (g_state->socket_client && !g_state->room_input_text.empty()) {
+                    g_state->socket_client->send_join_room(g_state->room_input_text);
+                }
+                g_state->show_room_dialog = false;
+                return true;
+            }
+            if (x >= 600 && x <= 740 && y >= 460 && y <= 505) {
+                g_state->show_room_dialog = false;
+                return true;
+            }
+            return true;
+        }
+
         if (g_state->socket_client) {
+            if (x >= 220 && x <= 780 && y >= 555 && y <= 615) {
+                if (g_state->socket_client->show_popup()) {
+                    g_state->socket_client->dismiss_popup();
+                }
+                g_state->show_room_dialog = true;
+                g_state->room_input_text = "";
+                return true;
+            }
+
             if (g_state->socket_client->show_popup()) {
                 g_state->socket_client->dismiss_popup();
                 return true;
@@ -24,6 +56,7 @@ bool GuiController::handle_opening_click(GuiState* g_state, int event, int x, in
                 } else if (match_st == network::MatchState::SEARCHING) {
                     g_state->socket_client->send_cancel_match();
                 }
+                return true;
             }
         } else {
             if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
@@ -32,6 +65,31 @@ bool GuiController::handle_opening_click(GuiState* g_state, int event, int x, in
         }
     }
     return true;
+}
+
+bool GuiController::on_key(int key, GuiState* g_state) {
+    if (!g_state || !g_state->show_room_dialog) return false;
+
+    if (key == KEY_BACKSPACE) {
+        if (!g_state->room_input_text.empty()) {
+            g_state->room_input_text.pop_back();
+        }
+        return true;
+    }
+    else if (key == KEY_ENTER_CR || key == KEY_ENTER_LF) {
+        if (g_state->socket_client && !g_state->room_input_text.empty()) {
+            g_state->socket_client->send_join_room(g_state->room_input_text);
+        }
+        g_state->show_room_dialog = false;
+        return true;
+    }
+    else if (key >= ASCII_PRINTABLE_MIN && key <= ASCII_PRINTABLE_MAX) {
+        if (g_state->room_input_text.length() < MAX_ROOM_INPUT_LENGTH) {
+            g_state->room_input_text += static_cast<char>(key);
+        }
+        return true;
+    }
+    return false;
 }
 
 void GuiController::handle_left_click_down(GuiState* g_state, const model::Position& cell, int x, int y) {

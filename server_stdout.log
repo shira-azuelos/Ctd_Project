@@ -1,0 +1,25 @@
+[Server] WebSocket++ server running on port 8080...
+Server is running. Press Enter to exit.
+[Server] Client connected.
+[UserManager] Loaded 7 users from users.json
+[UserManager] User 'shira' authenticated successfully. ELO: 1248
+[Server] Client connected.
+[UserManager] User 'uria' authenticated successfully. ELO: 1428
+[Server] Client connected.
+[UserManager] User 'yael' authenticated successfully. ELO: 1201
+2026-07-21 23:28:49 [SERVER] Player shira created room RM-1001 ("the_best_game") as WHITE.
+2026-07-21 23:28:58 [SERVER] Player uria joined room RM-1001 as BLACK. Game started!
+2026-07-21 23:29:12 [SERVER] Player yael joined room RM-1001 as VIEWER (Spectator Mode).
+[Server] Client disconnected: yael (VIEWER)
+2026-07-21 23:29:43 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,4) to (4,4).
+2026-07-21 23:29:50 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,3) to (4,3).
+2026-07-21 23:29:54 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (1,4) to (3,4).
+2026-07-21 23:29:56 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (0,5) to (4,1).
+2026-07-21 23:30:12 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (4,3) to (3,4).
+2026-07-21 23:30:28 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (3,4) to (2,4).
+2026-07-21 23:30:33 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (4,1) to (7,4).
+[ELO Update] uria: 1428 -> 1436 | shira: 1248 -> 1240
+2026-07-21 23:30:35 [SERVER] Room RM-1001 game over! Winner: uria
+[Server] Client disconnected: uria (BLACK)
+[Server] Client disconnected: shira (WHITE)
+^C

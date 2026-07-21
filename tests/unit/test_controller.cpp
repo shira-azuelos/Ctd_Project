@@ -19,7 +19,7 @@ TEST_CASE("Controller & Engine: Movement takes correct amount of time") {
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     CHECK(board->get_piece_at(model::Position(1, 0)).get() == nullptr);
 
-    engine->wait(1000);
+    engine->update(1000);
     
     CHECK(board->get_piece_at(model::Position(0, 0)).get() == nullptr);
     auto moved_piece = board->get_piece_at(model::Position(1, 0));

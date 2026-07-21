@@ -30,6 +30,7 @@ private:
 
     std::string m_server_ip;
     int m_server_port;
+    bool m_connected = false;
 
     std::shared_ptr<model::Board> board;
     std::shared_ptr<model::GameState> game_state;
@@ -50,6 +51,13 @@ private:
     std::string m_popup_msg = "";
     bool m_show_popup = false;
 
+    std::string m_room_id = "";
+    std::string m_room_name = "";
+    bool m_is_viewer = false;
+    uint32_t m_seq_counter{0}; 
+    bool m_server_game_over = false;
+    std::vector<std::string> m_delayed_sounds;
+    
     mutable std::mutex state_mutex;
 
     void on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg);
@@ -58,6 +66,7 @@ private:
     void parse_pieces(const std::string& json_str, std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Cooldown>& cds);
     void parse_motions(const std::string& json_str, const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Motion>& parsed_motions);
     void parse_jumps(const std::string& json_str, const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Jump>& parsed_jumps);
+    void log_client_activity(const std::string& msg);
 
 public:
     SocketClient(const std::string& ip = "127.0.0.1", int port = 8080);
@@ -94,6 +103,12 @@ public:
     bool show_popup() const;
     std::string get_popup_msg() const;
     void dismiss_popup();
+
+    void send_create_room(const std::string& room_name);
+    void send_join_room(const std::string& room_id);
+    std::string get_room_id() const;
+    std::string get_room_name() const;
+    bool is_viewer() const;
 };
 
 }

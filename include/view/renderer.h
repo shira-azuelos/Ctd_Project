@@ -41,11 +41,13 @@ public:
               const realtime::RealTimeArbiter* arbiter = nullptr,
               const DragInfo& drag_info = {},
               const std::string& white_user = "WHITE", int white_elo = 1200,
-              const std::string& black_user = "BLACK", int black_elo = 1200);
+              const std::string& black_user = "BLACK", int black_elo = 1200,
+              const std::string& room_id = "", const std::string& room_name = "", bool is_viewer = false);
 
     void draw_opening(Img& canvas, const std::string& username = "", int elo = 1200, 
                       bool searching = false, int elapsed_sec = 0, 
-                      bool show_popup = false, const std::string& popup_msg = "");
+                      bool show_popup = false, const std::string& popup_msg = "",
+                      bool show_room_dialog = false, const std::string& room_input = "");
 };
 
 }

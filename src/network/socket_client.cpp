@@ -4,6 +4,8 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <fstream>
+#include <iomanip>
 
 namespace network {
 
@@ -41,7 +43,7 @@ static bool extract_bool(const std::string& str, const std::string& key, size_t 
 }
 
 SocketClient::SocketClient(const std::string& ip, int port) 
-    : m_server_ip(ip), m_server_port(port) {
+    : m_server_ip(ip), m_server_port(port), m_server_game_over(false) {
     board = std::make_shared<model::Board>(8, 8);
     game_state = std::make_shared<model::GameState>(board);
 }
@@ -53,6 +55,10 @@ SocketClient::~SocketClient() {
 bool SocketClient::connect_to_server() {
     try {
         m_client.init_asio();
+        m_client.set_open_handler([this](websocketpp::connection_hdl hdl) {
+            std::lock_guard<std::mutex> lock(state_mutex);
+            m_connected = true;
+        });
         m_client.set_message_handler(std::bind(&SocketClient::on_message, this, std::placeholders::_1, std::placeholders::_2));
         
         m_client.clear_access_channels(websocketpp::log::alevel::all);
@@ -74,8 +80,12 @@ bool SocketClient::connect_to_server() {
             m_client.run();
         });
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        return true;
+        int wait_count = 0;
+        while (!m_connected && wait_count < 30) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            wait_count++;
+        }
+        return m_connected;
     } catch (const std::exception& e) {
         std::cerr << "[Client] Exception: " << e.what() << std::endl;
         return false;
@@ -95,6 +105,22 @@ void SocketClient::disconnect() {
         m_client_thread.join();
     }
 }
+void SocketClient::log_client_activity(const std::string& msg) {
+    auto now = std::chrono::system_clock::now();
+    auto in_time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M:%S") << " [CLIENT:" << m_username << "] " << msg;
+    std::string line = ss.str();
+
+    std::cout << line << std::endl;
+
+    static std::mutex log_mutex;
+    std::lock_guard<std::mutex> lock(log_mutex);
+    std::ofstream ofs("client_activity.log", std::ios::app);
+    if (ofs.is_open()) {
+        ofs << line << std::endl;
+    }
+}
 
 void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg) {
     std::string payload = msg->get_payload();
@@ -110,21 +136,21 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
             m_elo = elo;
             m_logged_in = true;
         }
-        std::cout << "[Client] Login successful! Color: " << color << " | User: " << uname << " | ELO: " << elo << std::endl;
+        log_client_activity("Login successful! Color: " + color + " | User: " + uname + " | ELO: " + std::to_string(elo));
     } else if (payload.rfind("AUTH_FAIL", 0) == 0) {
-        std::cout << "[Client] Login failed! " << payload << std::endl;
+        log_client_activity("Login failed! " + payload);
     } else if (payload.rfind("COLOR ", 0) == 0) {
         std::lock_guard<std::mutex> lock(state_mutex);
         assigned_color = payload.substr(6);
-        std::cout << "[Client] My assigned color is: " << assigned_color << std::endl;
+        log_client_activity("My assigned color is: " + assigned_color);
     } else if (payload == "SEARCHING") {
         std::lock_guard<std::mutex> lock(state_mutex);
         m_match_state = MatchState::SEARCHING;
-        std::cout << "[Client] Searching for opponent..." << std::endl;
+        log_client_activity("Searching for opponent...");
     } else if (payload == "SEARCH_CANCELLED") {
         std::lock_guard<std::mutex> lock(state_mutex);
         m_match_state = MatchState::IDLE;
-        std::cout << "[Client] Search cancelled." << std::endl;
+        log_client_activity("Search cancelled.");
     } else if (payload.rfind("MATCH_FOUND ", 0) == 0) {
         std::stringstream ss(payload.substr(12));
         std::string col, w_usr, b_usr;
@@ -139,13 +165,46 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
             m_black_elo = b_e;
             m_match_state = MatchState::MATCHED;
         }
-        std::cout << "[Client] MATCH FOUND! Playing as " << col << " (" << w_usr << " vs " << b_usr << ")" << std::endl;
+        log_client_activity("MATCH FOUND! Playing as " + col + " (" + w_usr + " vs " + b_usr + ")");
+    } else if (payload.rfind("ROOM_CREATED ", 0) == 0) {
+        std::stringstream ss(payload.substr(13));
+        std::string r_id, r_name, r_color;
+        ss >> r_id >> r_name >> r_color;
+        {
+            std::lock_guard<std::mutex> lock(state_mutex);
+            m_room_id = r_id;
+            m_room_name = r_name;
+            assigned_color = r_color;
+            m_is_viewer = false;
+            m_match_state = MatchState::MATCHED;
+            m_show_popup = false;
+        }
+        log_client_activity("ROOM CREATED successfully! ID: " + r_id + " Name: " + r_name + " Color: " + r_color);
+    } else if (payload.rfind("ROOM_JOINED ", 0) == 0) {
+        std::stringstream ss(payload.substr(12));
+        std::string r_id, r_name, r_color;
+        ss >> r_id >> r_name >> r_color;
+        {
+            std::lock_guard<std::mutex> lock(state_mutex);
+            m_room_id = r_id;
+            m_room_name = r_name;
+            assigned_color = r_color;
+            m_is_viewer = (r_color == "VIEWER");
+            m_match_state = MatchState::MATCHED;
+            m_show_popup = false;
+        }
+        log_client_activity("ROOM JOINED! ID: " + r_id + " Name: " + r_name + " Role: " + r_color);
+    } else if (payload.rfind("ROOM_ERROR ", 0) == 0) {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        m_show_popup = true;
+        m_popup_msg = "Room Error: " + payload.substr(11);
+        log_client_activity("Room Error: " + payload.substr(11));
     } else if (payload == "MATCH_TIMEOUT") {
         std::lock_guard<std::mutex> lock(state_mutex);
         m_match_state = MatchState::TIMEOUT;
         m_popup_msg = "No opponent found within +-100 ELO range.\nPlease try again later.";
         m_show_popup = true;
-        std::cout << "[Client] Matchmaking timed out after 10 seconds." << std::endl;
+        log_client_activity("Matchmaking timed out after 60 seconds.");
     } else {
         parse_and_update_state(payload);
     }
@@ -156,7 +215,17 @@ void SocketClient::send_login(const std::string& username, const std::string& pa
     std::stringstream ss;
     ss << "LOGIN " << username << " " << password;
     websocketpp::lib::error_code ec;
-    m_client.send(m_hdl, ss.str(), websocketpp::frame::opcode::text, ec);
+    
+    int retries = 0;
+    while (retries < 10) {
+        ec.clear();
+        m_client.send(m_hdl, ss.str(), websocketpp::frame::opcode::text, ec);
+        if (!ec) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        retries++;
+    }
 }
 
 std::string SocketClient::get_username() const {
@@ -189,7 +258,7 @@ int SocketClient::get_black_elo() const {
 
 void SocketClient::send_move(int sr, int sc, int dr, int dc) {
     std::stringstream ss;
-    ss << "MOVE " << sr << " " << sc << " " << dr << " " << dc;
+    ss << "MOVE " << ++m_seq_counter << " " << sr << " " << sc << " " << dr << " " << dc;
     websocketpp::lib::error_code ec;
     m_client.send(m_hdl, ss.str(), websocketpp::frame::opcode::text, ec);
     if (ec) {
@@ -199,7 +268,7 @@ void SocketClient::send_move(int sr, int sc, int dr, int dc) {
 
 void SocketClient::send_jump(int r, int c) {
     std::stringstream ss;
-    ss << "JUMP " << r << " " << c;
+    ss << "JUMP " << ++m_seq_counter << " " << r << " " << c;
     websocketpp::lib::error_code ec;
     m_client.send(m_hdl, ss.str(), websocketpp::frame::opcode::text, ec);
     if (ec) {
@@ -223,10 +292,21 @@ void SocketClient::parse_sounds(const std::string& json_str) {
         if (q2 == std::string::npos) break;
         std::string s_name = sounds_array.substr(q1 + 1, q2 - q1 - 1);
         if (!s_name.empty()) {
-            pubsub::MessageBus::get_instance().publish(pubsub::Event{
-                pubsub::EventType::PLAY_SOUND,
-                pubsub::SoundPayload{s_name}
-            });
+            bool has_active_king_capture = false;
+            for (const auto& m : arbiter.get_active_motions()) {
+                if (m.captured_piece && m.captured_piece->kind == model::PieceKind::KING && m.remaining_ms > 0) {
+                    has_active_king_capture = true;
+                    break;
+                }
+            }
+            if ((s_name == "game_win" || s_name == "game_over") && has_active_king_capture) {
+                m_delayed_sounds.push_back(s_name);
+            } else {
+                pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                    pubsub::EventType::PLAY_SOUND,
+                    pubsub::SoundPayload{s_name}
+                });
+            }
         }
         pos = q2 + 1;
     }
@@ -381,10 +461,15 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     std::string b_user = extract_string(json_str, "black_user");
     int b_elo = extract_int(json_str, "black_elo");
 
+    std::string r_id = extract_string(json_str, "room_id");
+    std::string r_name = extract_string(json_str, "room_name");
+
     if (!w_user.empty()) m_white_user = w_user;
     if (w_elo > 0) m_white_elo = w_elo;
     if (!b_user.empty()) m_black_user = b_user;
     if (b_elo > 0) m_black_elo = b_elo;
+    if (!r_id.empty()) m_room_id = r_id;
+    if (!r_name.empty()) m_room_name = r_name;
 
     parse_sounds(json_str);
 
@@ -422,10 +507,25 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
         }
     }
 
+    m_server_game_over = game_over;
+
+    bool has_active_king_capture = false;
+    for (const auto& m : arbiter.get_active_motions()) {
+        if (m.captured_piece && m.captured_piece->kind == model::PieceKind::KING && m.remaining_ms > 0) {
+            has_active_king_capture = true;
+            break;
+        }
+    }
+
+    bool local_game_over = game_over;
+    if (has_active_king_capture) {
+        local_game_over = false;
+    }
+
     auto new_game_state = std::make_shared<model::GameState>(new_board);
     new_game_state->set_white_score(white_score);
     new_game_state->set_black_score(black_score);
-    new_game_state->set_game_over(game_over);
+    new_game_state->set_game_over(local_game_over);
 
     {
         std::lock_guard<std::mutex> lock(state_mutex);
@@ -436,8 +536,13 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
         for (const auto& pm : parsed_motions) {
             bool found = false;
             for (const auto& am : arbiter.get_active_motions()) {
-                if (am.piece->id == pm.piece->id) {
-                    final_motions.push_back(am);
+                if (am.piece && pm.piece && am.piece->id == pm.piece->id) {
+                    realtime::Motion merged = am;
+                    merged.piece = pm.piece;
+                    merged.dest = pm.dest;
+                    merged.source = pm.source;
+                    merged.total_ms = pm.total_ms;
+                    final_motions.push_back(merged);
                     found = true;
                     break;
                 }
@@ -475,8 +580,12 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
         for (const auto& pj : parsed_jumps) {
             bool found = false;
             for (const auto& aj : arbiter.get_active_jumps()) {
-                if (aj.piece->id == pj.piece->id) {
-                    final_jumps.push_back(aj);
+                if (aj.piece && pj.piece && aj.piece->id == pj.piece->id) {
+                    realtime::Jump merged = aj;
+                    merged.piece = pj.piece;
+                    merged.pos = pj.pos;
+                    merged.total_ms = pj.total_ms;
+                    final_jumps.push_back(merged);
                     found = true;
                     break;
                 }
@@ -603,6 +712,26 @@ void SocketClient::advance_animations(int ms) {
         }
     }
     arbiter.set_active_cooldowns(next_cooldowns);
+
+    if (m_server_game_over && game_state && !game_state->is_game_over()) {
+        bool still_has_active_king_capture = false;
+        for (const auto& m : next_motions) {
+            if (m.captured_piece && m.captured_piece->kind == model::PieceKind::KING && m.remaining_ms > 0) {
+                still_has_active_king_capture = true;
+                break;
+            }
+        }
+        if (!still_has_active_king_capture) {
+            game_state->set_game_over(true);
+            for (const auto& sound : m_delayed_sounds) {
+                pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                    pubsub::EventType::PLAY_SOUND,
+                    pubsub::SoundPayload{sound}
+                });
+            }
+            m_delayed_sounds.clear();
+        }
+    }
 }
 
 std::shared_ptr<model::GameState> SocketClient::get_game_state() {
@@ -670,5 +799,39 @@ void SocketClient::dismiss_popup() {
     m_match_state = MatchState::IDLE;
 }
 
+void SocketClient::send_create_room(const std::string& room_name) {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    m_show_popup = false;
+    websocketpp::lib::error_code ec;
+    std::string msg = "CREATE_ROOM " + room_name;
+    m_client.send(m_hdl, msg, websocketpp::frame::opcode::text, ec);
+    log_client_activity("Sent CREATE_ROOM: " + room_name);
 }
+
+void SocketClient::send_join_room(const std::string& room_id) {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    m_show_popup = false;
+    websocketpp::lib::error_code ec;
+    std::string msg = "JOIN_ROOM " + room_id;
+    m_client.send(m_hdl, msg, websocketpp::frame::opcode::text, ec);
+    log_client_activity("Sent JOIN_ROOM: " + room_id);
+}
+
+std::string SocketClient::get_room_id() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_room_id;
+}
+
+std::string SocketClient::get_room_name() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_room_name;
+}
+
+bool SocketClient::is_viewer() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_is_viewer;
+}
+
+}
+
 

@@ -1,7 +1,7 @@
 #include "../include/model/game_state.h"
 #include "pubsub/message_bus.h"
 #include "realtime/real_time_arbiter.h"
-#include <iostream>
+
 
 namespace model {
 
@@ -35,6 +35,7 @@ void GameState::check_game_status(const realtime::RealTimeArbiter& arbiter) {
     if (game_over_flag) return;
     int w_kings = 0, b_kings = 0;
     int w = board->get_width(), h = board->get_height();
+
     for (int r = 0; r < h; ++r) {
         for (int c = 0; c < w; ++c) {
             auto piece = board->get_piece_at(Position(r, c));
@@ -44,7 +45,7 @@ void GameState::check_game_status(const realtime::RealTimeArbiter& arbiter) {
             }
         }
     }
-    
+
     for (const auto& m : arbiter.get_active_motions()) {
         if (m.piece && m.piece->kind == PieceKind::KING && m.piece->state != PieceState::CAPTURED) {
             if (m.piece->color == PieceColor::WHITE) w_kings++;
@@ -58,16 +59,19 @@ void GameState::check_game_status(const realtime::RealTimeArbiter& arbiter) {
         }
     }
 
+    bool white_lost = (initial_w_kings > 0 && w_kings == 0);
+    bool black_lost = (initial_b_kings > 0 && b_kings == 0);
 
-    if ((initial_w_kings > 0 && w_kings == 0) || (initial_b_kings > 0 && b_kings == 0)) {
+    if (white_lost || black_lost) {
         game_over_flag = true;
+
         pubsub::MessageBus::get_instance().publish(pubsub::Event{
             pubsub::EventType::GAME_STATUS,
             std::string("game_over")
         });
         pubsub::MessageBus::get_instance().publish(pubsub::Event{
             pubsub::EventType::PLAY_SOUND,
-            pubsub::SoundPayload{"game_over"}
+            pubsub::SoundPayload{"game_win"}
         });
     }
 }
