@@ -54,6 +54,10 @@ private:
 
     void on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg);
     void parse_and_update_state(const std::string& json_str);
+    void parse_sounds(const std::string& json_str);
+    void parse_pieces(const std::string& json_str, std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Cooldown>& cds);
+    void parse_motions(const std::string& json_str, const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Motion>& parsed_motions);
+    void parse_jumps(const std::string& json_str, const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, std::vector<realtime::Jump>& parsed_jumps);
 
 public:
     SocketClient(const std::string& ip = "127.0.0.1", int port = 8080);

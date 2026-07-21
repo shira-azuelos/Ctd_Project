@@ -207,6 +207,170 @@ void SocketClient::send_jump(int r, int c) {
     }
 }
 
+void SocketClient::parse_sounds(const std::string& json_str) {
+    size_t sounds_start = json_str.find("\"sounds\":[");
+    if (sounds_start == std::string::npos) return;
+    
+    size_t sounds_end = json_str.find("],\"pieces\":", sounds_start);
+    if (sounds_end == std::string::npos) return;
+
+    std::string sounds_array = json_str.substr(sounds_start + 10, sounds_end - (sounds_start + 10));
+    size_t pos = 0;
+    while (true) {
+        size_t q1 = sounds_array.find("\"", pos);
+        if (q1 == std::string::npos) break;
+        size_t q2 = sounds_array.find("\"", q1 + 1);
+        if (q2 == std::string::npos) break;
+        std::string s_name = sounds_array.substr(q1 + 1, q2 - q1 - 1);
+        if (!s_name.empty()) {
+            pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                pubsub::EventType::PLAY_SOUND,
+                pubsub::SoundPayload{s_name}
+            });
+        }
+        pos = q2 + 1;
+    }
+}
+
+void SocketClient::parse_pieces(const std::string& json_str, 
+                                std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, 
+                                std::vector<realtime::Cooldown>& cds) {
+    size_t pieces_start = json_str.find("\"pieces\":[");
+    if (pieces_start == std::string::npos) return;
+
+    size_t pieces_end = json_str.find("],\"motions\":", pieces_start);
+    if (pieces_end == std::string::npos) return;
+
+    std::string pieces_array = json_str.substr(pieces_start + 10, pieces_end - (pieces_start + 10));
+    size_t obj_pos = 0;
+    while (true) {
+        size_t start_obj = pieces_array.find("{", obj_pos);
+        if (start_obj == std::string::npos) break;
+        size_t end_obj = pieces_array.find("}", start_obj);
+        if (end_obj == std::string::npos) break;
+        
+        std::string obj_str = pieces_array.substr(start_obj, end_obj - start_obj + 1);
+        
+        std::string id = extract_string(obj_str, "id");
+        int kind = extract_int(obj_str, "kind");
+        int color = extract_int(obj_str, "color");
+        int row = extract_int(obj_str, "row");
+        int col = extract_int(obj_str, "col");
+        int state = extract_int(obj_str, "state");
+        
+        auto piece = std::make_shared<model::Piece>(
+            id, 
+            static_cast<model::PieceColor>(color), 
+            static_cast<model::PieceKind>(kind), 
+            model::Position(row, col)
+        );
+        piece->state = static_cast<model::PieceState>(state);
+        parsed_pieces[id] = piece;
+        
+        bool on_cooldown = extract_bool(obj_str, "on_cooldown");
+        if (on_cooldown) {
+            int remaining = extract_int(obj_str, "cooldown_remaining");
+            int total = extract_int(obj_str, "cooldown_total");
+            bool is_long_rest = extract_bool(obj_str, "is_long_rest");
+            cds.push_back(realtime::Cooldown{piece, remaining, total, is_long_rest});
+        }
+
+        obj_pos = end_obj + 1;
+    }
+}
+
+void SocketClient::parse_motions(const std::string& json_str, 
+                                 const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, 
+                                 std::vector<realtime::Motion>& parsed_motions) {
+    size_t motions_start = json_str.find("\"motions\":[");
+    if (motions_start == std::string::npos) return;
+
+    size_t motions_end = json_str.find("],\"jumps\":", motions_start);
+    if (motions_end == std::string::npos) return;
+
+    std::string motions_array = json_str.substr(motions_start + 11, motions_end - (motions_start + 11));
+    size_t obj_pos = 0;
+    while (true) {
+        size_t start_obj = motions_array.find("{", obj_pos);
+        if (start_obj == std::string::npos) break;
+        size_t end_obj = motions_array.find("}", start_obj);
+        if (end_obj == std::string::npos) break;
+        
+        std::string obj_str = motions_array.substr(start_obj, end_obj - start_obj + 1);
+        std::string piece_id = extract_string(obj_str, "piece_id");
+        int src_row = extract_int(obj_str, "src_row");
+        int src_col = extract_int(obj_str, "src_col");
+        int dest_row = extract_int(obj_str, "dest_row");
+        int dest_col = extract_int(obj_str, "dest_col");
+        int total_ms = extract_int(obj_str, "total_ms");
+        int remaining_ms = extract_int(obj_str, "remaining_ms");
+        
+        std::string victim_id = extract_string(obj_str, "victim_id");
+        std::shared_ptr<model::Piece> attacker = nullptr;
+        if (parsed_pieces.count(piece_id)) {
+            attacker = parsed_pieces.at(piece_id);
+        }
+        
+        std::shared_ptr<model::Piece> victim = nullptr;
+        if (!victim_id.empty() && parsed_pieces.count(victim_id)) {
+            victim = parsed_pieces.at(victim_id);
+        }
+        
+        if (attacker) {
+            parsed_motions.push_back(realtime::Motion{
+                attacker,
+                model::Position(src_row, src_col),
+                model::Position(dest_row, dest_col),
+                remaining_ms,
+                total_ms,
+                victim
+            });
+        }
+        obj_pos = end_obj + 1;
+    }
+}
+
+void SocketClient::parse_jumps(const std::string& json_str, 
+                               const std::map<std::string, std::shared_ptr<model::Piece>>& parsed_pieces, 
+                               std::vector<realtime::Jump>& parsed_jumps) {
+    size_t jumps_start = json_str.find("\"jumps\":[");
+    if (jumps_start == std::string::npos) return;
+
+    size_t jumps_end = json_str.find("]", jumps_start);
+    if (jumps_end == std::string::npos) return;
+
+    std::string jumps_array = json_str.substr(jumps_start + 9, jumps_end - (jumps_start + 9));
+    size_t obj_pos = 0;
+    while (true) {
+        size_t start_obj = jumps_array.find("{", obj_pos);
+        if (start_obj == std::string::npos) break;
+        size_t end_obj = jumps_array.find("}", start_obj);
+        if (end_obj == std::string::npos) break;
+        
+        std::string obj_str = jumps_array.substr(start_obj, end_obj - start_obj + 1);
+        std::string piece_id = extract_string(obj_str, "piece_id");
+        int row = extract_int(obj_str, "row");
+        int col = extract_int(obj_str, "col");
+        int total_ms = extract_int(obj_str, "total_ms");
+        int remaining_ms = extract_int(obj_str, "remaining_ms");
+        
+        std::shared_ptr<model::Piece> piece = nullptr;
+        if (parsed_pieces.count(piece_id)) {
+            piece = parsed_pieces.at(piece_id);
+        }
+        
+        if (piece) {
+            parsed_jumps.push_back(realtime::Jump{
+                piece,
+                model::Position(row, col),
+                total_ms,
+                remaining_ms
+            });
+        }
+        obj_pos = end_obj + 1;
+    }
+}
+
 void SocketClient::parse_and_update_state(const std::string& json_str) {
     bool game_over = extract_bool(json_str, "game_over");
     int white_score = extract_int(json_str, "white_score");
@@ -222,164 +386,19 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     if (!b_user.empty()) m_black_user = b_user;
     if (b_elo > 0) m_black_elo = b_elo;
 
-    size_t sounds_start = json_str.find("\"sounds\":[");
-    if (sounds_start != std::string::npos) {
-        size_t sounds_end = json_str.find("],\"pieces\":", sounds_start);
-        if (sounds_end != std::string::npos) {
-            std::string sounds_array = json_str.substr(sounds_start + 10, sounds_end - (sounds_start + 10));
-            size_t pos = 0;
-            while (true) {
-                size_t q1 = sounds_array.find("\"", pos);
-                if (q1 == std::string::npos) break;
-                size_t q2 = sounds_array.find("\"", q1 + 1);
-                if (q2 == std::string::npos) break;
-                std::string s_name = sounds_array.substr(q1 + 1, q2 - q1 - 1);
-                if (!s_name.empty()) {
-                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
-                        pubsub::EventType::PLAY_SOUND,
-                        pubsub::SoundPayload{s_name}
-                    });
-                }
-                pos = q2 + 1;
-            }
-        }
-    }
+    parse_sounds(json_str);
 
     auto new_board = std::make_shared<model::Board>(8, 8);
     std::map<std::string, std::shared_ptr<model::Piece>> parsed_pieces;
     std::vector<realtime::Cooldown> cds;
 
-    size_t pieces_start = json_str.find("\"pieces\":[");
-    if (pieces_start != std::string::npos) {
-        size_t pieces_end = json_str.find("],\"motions\":", pieces_start);
-        if (pieces_end != std::string::npos) {
-            std::string pieces_array = json_str.substr(pieces_start + 10, pieces_end - (pieces_start + 10));
-            
-            size_t obj_pos = 0;
-            while (true) {
-                size_t start_obj = pieces_array.find("{", obj_pos);
-                if (start_obj == std::string::npos) break;
-                size_t end_obj = pieces_array.find("}", start_obj);
-                if (end_obj == std::string::npos) break;
-                
-                std::string obj_str = pieces_array.substr(start_obj, end_obj - start_obj + 1);
-                
-                std::string id = extract_string(obj_str, "id");
-                int kind = extract_int(obj_str, "kind");
-                int color = extract_int(obj_str, "color");
-                int row = extract_int(obj_str, "row");
-                int col = extract_int(obj_str, "col");
-                int state = extract_int(obj_str, "state");
-                
-                auto piece = std::make_shared<model::Piece>(
-                    id, 
-                    static_cast<model::PieceColor>(color), 
-                    static_cast<model::PieceKind>(kind), 
-                    model::Position(row, col)
-                );
-                piece->state = static_cast<model::PieceState>(state);
-                parsed_pieces[id] = piece;
-                
-                bool on_cooldown = extract_bool(obj_str, "on_cooldown");
-                if (on_cooldown) {
-                    int remaining = extract_int(obj_str, "cooldown_remaining");
-                    int total = extract_int(obj_str, "cooldown_total");
-                    bool is_long_rest = extract_bool(obj_str, "is_long_rest");
-                    cds.push_back(realtime::Cooldown{piece, remaining, total, is_long_rest});
-                }
-
-                obj_pos = end_obj + 1;
-            }
-        }
-    }
+    parse_pieces(json_str, parsed_pieces, cds);
 
     std::vector<realtime::Motion> parsed_motions;
-    size_t motions_start = json_str.find("\"motions\":[");
-    if (motions_start != std::string::npos) {
-        size_t motions_end = json_str.find("],\"jumps\":", motions_start);
-        if (motions_end != std::string::npos) {
-            std::string motions_array = json_str.substr(motions_start + 11, motions_end - (motions_start + 11));
-            
-            size_t obj_pos = 0;
-            while (true) {
-                size_t start_obj = motions_array.find("{", obj_pos);
-                if (start_obj == std::string::npos) break;
-                size_t end_obj = motions_array.find("}", start_obj);
-                if (end_obj == std::string::npos) break;
-                
-                std::string obj_str = motions_array.substr(start_obj, end_obj - start_obj + 1);
-                std::string piece_id = extract_string(obj_str, "piece_id");
-                int src_row = extract_int(obj_str, "src_row");
-                int src_col = extract_int(obj_str, "src_col");
-                int dest_row = extract_int(obj_str, "dest_row");
-                int dest_col = extract_int(obj_str, "dest_col");
-                int total_ms = extract_int(obj_str, "total_ms");
-                int remaining_ms = extract_int(obj_str, "remaining_ms");
-                
-                std::string victim_id = extract_string(obj_str, "victim_id");
-                std::shared_ptr<model::Piece> attacker = nullptr;
-                if (parsed_pieces.count(piece_id)) {
-                    attacker = parsed_pieces[piece_id];
-                }
-                
-                std::shared_ptr<model::Piece> victim = nullptr;
-                if (!victim_id.empty() && parsed_pieces.count(victim_id)) {
-                    victim = parsed_pieces[victim_id];
-                }
-                
-                if (attacker) {
-                    parsed_motions.push_back(realtime::Motion{
-                        attacker,
-                        model::Position(src_row, src_col),
-                        model::Position(dest_row, dest_col),
-                        remaining_ms,
-                        total_ms,
-                        victim
-                    });
-                }
-                obj_pos = end_obj + 1;
-            }
-        }
-    }
+    parse_motions(json_str, parsed_pieces, parsed_motions);
 
     std::vector<realtime::Jump> parsed_jumps;
-    size_t jumps_start = json_str.find("\"jumps\":[");
-    if (jumps_start != std::string::npos) {
-        size_t jumps_end = json_str.find("]", jumps_start);
-        if (jumps_end != std::string::npos) {
-            std::string jumps_array = json_str.substr(jumps_start + 9, jumps_end - (jumps_start + 9));
-            
-            size_t obj_pos = 0;
-            while (true) {
-                size_t start_obj = jumps_array.find("{", obj_pos);
-                if (start_obj == std::string::npos) break;
-                size_t end_obj = jumps_array.find("}", start_obj);
-                if (end_obj == std::string::npos) break;
-                
-                std::string obj_str = jumps_array.substr(start_obj, end_obj - start_obj + 1);
-                std::string piece_id = extract_string(obj_str, "piece_id");
-                int row = extract_int(obj_str, "row");
-                int col = extract_int(obj_str, "col");
-                int total_ms = extract_int(obj_str, "total_ms");
-                int remaining_ms = extract_int(obj_str, "remaining_ms");
-                
-                std::shared_ptr<model::Piece> piece = nullptr;
-                if (parsed_pieces.count(piece_id)) {
-                    piece = parsed_pieces[piece_id];
-                }
-                
-                if (piece) {
-                    parsed_jumps.push_back(realtime::Jump{
-                        piece,
-                        model::Position(row, col),
-                        total_ms,
-                        remaining_ms
-                    });
-                }
-                obj_pos = end_obj + 1;
-            }
-        }
-    }
+    parse_jumps(json_str, parsed_pieces, parsed_jumps);
 
     for (const auto& pair : parsed_pieces) {
         auto piece = pair.second;

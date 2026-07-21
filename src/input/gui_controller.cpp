@@ -7,39 +7,135 @@
 
 namespace input {
 
+bool GuiController::handle_opening_click(GuiState* g_state, int event, int x, int y) {
+    if (!g_state->in_opening_screen) return false;
+
+    if (event == cv::EVENT_LBUTTONDOWN) {
+        if (g_state->socket_client) {
+            if (g_state->socket_client->show_popup()) {
+                g_state->socket_client->dismiss_popup();
+                return true;
+            }
+
+            if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
+                auto match_st = g_state->socket_client->get_match_state();
+                if (match_st == network::MatchState::IDLE || match_st == network::MatchState::TIMEOUT) {
+                    g_state->socket_client->send_find_match();
+                } else if (match_st == network::MatchState::SEARCHING) {
+                    g_state->socket_client->send_cancel_match();
+                }
+            }
+        } else {
+            if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
+                g_state->in_opening_screen = false;
+            }
+        }
+    }
+    return true;
+}
+
+void GuiController::handle_left_click_down(GuiState* g_state, const model::Position& cell, int x, int y) {
+    auto clicked_piece = g_state->board->get_piece_at(cell);
+    auto selected_piece = g_state->selected_cell ? g_state->board->get_piece_at(*g_state->selected_cell) : nullptr;
+
+    if (clicked_piece && (!selected_piece || clicked_piece->color == selected_piece->color)) {
+        bool allow_interaction = true;
+        bool on_cooldown = false;
+        
+        if (g_state->socket_client) {
+            std::string my_color = g_state->socket_client->get_assigned_color();
+            std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
+            if (my_color != piece_color) {
+                allow_interaction = false;
+            }
+            on_cooldown = g_state->socket_client->get_arbiter()->is_piece_cooling_down(clicked_piece);
+        } else if (g_state->game_engine) {
+            on_cooldown = g_state->game_engine->is_piece_cooling_down(clicked_piece);
+        }
+
+        if (allow_interaction && !on_cooldown) {
+            g_state->selected_cell = cell;
+            g_state->dragged_piece = clicked_piece;
+            g_state->drag_x = x;
+            g_state->drag_y = y;
+
+            bool threatens_enemy = false;
+            for (int r = 0; r < g_state->board->get_height(); ++r) {
+                for (int c = 0; c < g_state->board->get_width(); ++c) {
+                    model::Position target_pos(r, c);
+                    if (target_pos != cell && rules::RuleEngine::validate_move(*g_state->board, cell, target_pos)) {
+                        auto piece_at_target = g_state->board->get_piece_at(target_pos);
+                        if (piece_at_target && piece_at_target->color != clicked_piece->color) {
+                            threatens_enemy = true;
+                            break;
+                        }
+                    }
+                }
+                if (threatens_enemy) break;
+            }
+
+            if (threatens_enemy) {
+                pubsub::MessageBus::get_instance().publish(pubsub::Event{
+                    pubsub::EventType::PLAY_SOUND,
+                    pubsub::SoundPayload{"capture"}
+                });
+            }
+        }
+    } else if (g_state->selected_cell) {
+        if (g_state->socket_client) {
+            g_state->socket_client->send_move(g_state->selected_cell->row, g_state->selected_cell->col, cell.row, cell.col);
+        } else if (g_state->game_engine) {
+            g_state->game_engine->request_move(*g_state->selected_cell, cell);
+        }
+        g_state->selected_cell.reset();
+        g_state->dragged_piece = nullptr;
+    }
+}
+
+void GuiController::handle_left_click_up(GuiState* g_state, const model::Position& cell) {
+    if (g_state->dragged_piece) {
+        auto source_cell = g_state->dragged_piece->cell;
+        if (source_cell != cell) {
+            if (g_state->socket_client) {
+                g_state->socket_client->send_move(source_cell.row, source_cell.col, cell.row, cell.col);
+            } else if (g_state->game_engine) {
+                g_state->game_engine->request_move(source_cell, cell);
+            }
+            g_state->selected_cell.reset();
+        }
+        g_state->dragged_piece = nullptr;
+    }
+}
+
+void GuiController::handle_right_click_down(GuiState* g_state, const model::Position& cell) {
+    auto clicked_piece = g_state->board->get_piece_at(cell);
+    if (clicked_piece) {
+        bool allow_interaction = true;
+        if (g_state->socket_client) {
+            std::string my_color = g_state->socket_client->get_assigned_color();
+            std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
+            if (my_color != piece_color) {
+                allow_interaction = false;
+            }
+        }
+
+        if (allow_interaction) {
+            if (g_state->socket_client) {
+                g_state->socket_client->send_jump(cell.row, cell.col);
+            } else if (g_state->game_engine) {
+                g_state->game_engine->request_jump(cell);
+            }
+            g_state->selected_cell.reset();
+            g_state->dragged_piece = nullptr;
+        }
+    }
+}
+
 void GuiController::on_mouse(int event, int x, int y, int flags, void* userdata) {
     auto* g_state = static_cast<GuiState*>(userdata);
 
-    if (g_state->in_opening_screen) {
-        if (event == cv::EVENT_LBUTTONDOWN) {
-            if (g_state->socket_client) {
-                if (g_state->socket_client->show_popup()) {
-                    g_state->socket_client->dismiss_popup();
-                    return;
-                }
-
-                if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
-                    auto match_st = g_state->socket_client->get_match_state();
-                    if (match_st == network::MatchState::IDLE || match_st == network::MatchState::TIMEOUT) {
-                        g_state->socket_client->send_find_match();
-                    } else if (match_st == network::MatchState::SEARCHING) {
-                        g_state->socket_client->send_cancel_match();
-                    }
-                }
-            } else {
-                if (x >= 220 && x <= 780 && y >= 470 && y <= 545) {
-                    g_state->in_opening_screen = false;
-                }
-            }
-        }
+    if (handle_opening_click(g_state, event, x, y)) {
         return;
-    }
-    
-    bool game_over = false;
-    if (g_state->socket_client) {
-        game_over = g_state->socket_client->get_game_state()->is_game_over();
-    } else if (g_state->game_engine) {
-        game_over = g_state->game_engine->get_state()->is_game_over();
     }
     
     if (event == cv::EVENT_MOUSEMOVE) {
@@ -51,7 +147,6 @@ void GuiController::on_mouse(int event, int x, int y, int flags, void* userdata)
     }
 
     int board_x = x - 100;
-
     if (board_x < 0 || board_x >= 800 || y < 0 || y >= 800) {
         if (event == cv::EVENT_LBUTTONDOWN) {
             g_state->selected_cell.reset();
@@ -72,99 +167,15 @@ void GuiController::on_mouse(int event, int x, int y, int flags, void* userdata)
     model::Position cell = *cell_opt;
 
     if (event == cv::EVENT_LBUTTONDOWN) {
-        auto clicked_piece = g_state->board->get_piece_at(cell);
-        auto selected_piece = g_state->selected_cell ? g_state->board->get_piece_at(*g_state->selected_cell) : nullptr;
-
-        if (clicked_piece && (!selected_piece || clicked_piece->color == selected_piece->color)) {
-            bool allow_interaction = true;
-            bool on_cooldown = false;
-            
-            if (g_state->socket_client) {
-                std::string my_color = g_state->socket_client->get_assigned_color();
-                std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
-                if (my_color != piece_color) {
-                    allow_interaction = false;
-                }
-                on_cooldown = g_state->socket_client->get_arbiter()->is_piece_cooling_down(clicked_piece);
-            } else if (g_state->game_engine) {
-                on_cooldown = g_state->game_engine->is_piece_cooling_down(clicked_piece);
-            }
-
-            if (allow_interaction && !on_cooldown) {
-                g_state->selected_cell = cell;
-                g_state->dragged_piece = clicked_piece;
-                g_state->drag_x = x;
-                g_state->drag_y = y;
-
-                bool threatens_enemy = false;
-                for (int r = 0; r < g_state->board->get_height(); ++r) {
-                    for (int c = 0; c < g_state->board->get_width(); ++c) {
-                        model::Position target_pos(r, c);
-                        if (target_pos != cell && rules::RuleEngine::validate_move(*g_state->board, cell, target_pos)) {
-                            auto piece_at_target = g_state->board->get_piece_at(target_pos);
-                            if (piece_at_target && piece_at_target->color != clicked_piece->color) {
-                                threatens_enemy = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (threatens_enemy) break;
-                }
-
-                if (threatens_enemy) {
-                    pubsub::MessageBus::get_instance().publish(pubsub::Event{
-                        pubsub::EventType::PLAY_SOUND,
-                        pubsub::SoundPayload{"capture"}
-                    });
-                }
-            }
-        } else if (g_state->selected_cell) {
-            if (g_state->socket_client) {
-                g_state->socket_client->send_move(g_state->selected_cell->row, g_state->selected_cell->col, cell.row, cell.col);
-            } else if (g_state->game_engine) {
-                g_state->game_engine->request_move(*g_state->selected_cell, cell);
-            }
-            g_state->selected_cell.reset();
-            g_state->dragged_piece = nullptr;
-        }
+        handle_left_click_down(g_state, cell, x, y);
     }
     else if (event == cv::EVENT_LBUTTONUP) {
-        if (g_state->dragged_piece) {
-            auto source_cell = g_state->dragged_piece->cell;
-            if (source_cell != cell) {
-                if (g_state->socket_client) {
-                    g_state->socket_client->send_move(source_cell.row, source_cell.col, cell.row, cell.col);
-                } else if (g_state->game_engine) {
-                    g_state->game_engine->request_move(source_cell, cell);
-                }
-                g_state->selected_cell.reset();
-            }
-            g_state->dragged_piece = nullptr;
-        }
+        handle_left_click_up(g_state, cell);
     }
     else if (event == cv::EVENT_RBUTTONDOWN) {
-        auto clicked_piece = g_state->board->get_piece_at(cell);
-        if (clicked_piece) {
-            bool allow_interaction = true;
-            if (g_state->socket_client) {
-                std::string my_color = g_state->socket_client->get_assigned_color();
-                std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
-                if (my_color != piece_color) {
-                    allow_interaction = false;
-                }
-            }
-
-            if (allow_interaction) {
-                if (g_state->socket_client) {
-                    g_state->socket_client->send_jump(cell.row, cell.col);
-                } else if (g_state->game_engine) {
-                    g_state->game_engine->request_jump(cell);
-                }
-                g_state->selected_cell.reset();
-                g_state->dragged_piece = nullptr;
-            }
-        }
+        handle_right_click_down(g_state, cell);
     }
 }
 
 }
+

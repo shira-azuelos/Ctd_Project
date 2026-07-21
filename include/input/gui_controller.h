@@ -24,6 +24,12 @@ struct GuiState {
 };
 
 class GuiController {
+private:
+    static bool handle_opening_click(GuiState* g_state, int event, int x, int y);
+    static void handle_left_click_down(GuiState* g_state, const model::Position& cell, int x, int y);
+    static void handle_left_click_up(GuiState* g_state, const model::Position& cell);
+    static void handle_right_click_down(GuiState* g_state, const model::Position& cell);
+
 public:
     static void on_mouse(int event, int x, int y, int flags, void* userdata);
 };
