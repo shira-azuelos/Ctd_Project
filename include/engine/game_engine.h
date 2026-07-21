@@ -38,7 +38,7 @@ public:
 
     void request_jump(const model::Position& pos);
     
-    void wait(int ms);
+    void update(int ms);
 };
 
 }

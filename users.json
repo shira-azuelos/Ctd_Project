@@ -1,17 +1,17 @@
 [
   {
+    "username": "uria",
+    "password": "123",
+    "elo": 1191,
+    "wins": 3,
+    "losses": 4
+  },
+  {
     "username": "shira",
     "password": "123",
     "elo": 1343,
     "wins": 4,
     "losses": 1
-  },
-  {
-    "username": "uria",
-    "password": "123",
-    "elo": 1175,
-    "wins": 2,
-    "losses": 4
   },
   {
     "username": "yael",
@@ -23,8 +23,8 @@
   {
     "username": "david",
     "password": "123",
-    "elo": 1181,
+    "elo": 1165,
     "wins": 1,
-    "losses": 2
+    "losses": 3
   }
 ]

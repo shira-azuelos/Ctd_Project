@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
             gui_state.in_opening_screen = true;
 
             while (true) {
-                game_engine->wait(FRAME_TIME_MS);
+                game_engine->update(FRAME_TIME_MS);
 
                 canvas.create(CANVAS_WIDTH, CANVAS_HEIGHT, cv::Scalar(15, 15, 15));
 

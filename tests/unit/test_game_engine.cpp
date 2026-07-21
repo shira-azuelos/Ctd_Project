@@ -23,12 +23,12 @@ TEST_CASE("Movement blocking and immediate re-move") {
     engine->request_move(model::Position(0, 0), model::Position(0, 2));
     CHECK(board->get_piece_at(model::Position(0, 2)).get() == nullptr);
 
-    engine->wait(1000);
+    engine->update(1000);
     
-    engine->wait(3000);
+    engine->update(3000);
     
     engine->request_move(model::Position(0, 1), model::Position(0, 2));
-    engine->wait(1000);
+    engine->update(1000);
 
     CHECK(board->get_piece_at(model::Position(0, 2)).get() != nullptr);
 }
@@ -39,7 +39,7 @@ TEST_CASE("Advanced Interaction Cases") {
 
     engine->request_move(model::Position(0, 0), model::Position(0, 1));
     
-    engine->wait(1000); 
+    engine->update(1000); 
     
     CHECK_FALSE(engine->is_moving());
 }
@@ -60,12 +60,12 @@ TEST_CASE("Game-over behavior: Capturing King ends game and ignores moves") {
     CHECK_FALSE(engine->get_state()->is_game_over());
 
     engine->request_move(model::Position(0, 0), model::Position(0, 2));
-    engine->wait(2000);
+    engine->update(2000);
 
     CHECK(engine->get_state()->is_game_over());
 
     engine->request_move(model::Position(7, 7), model::Position(7, 6));
-    engine->wait(1000);
+    engine->update(1000);
     
     CHECK(board->get_piece_at(model::Position(7, 7)).get() != nullptr);
     CHECK(board->get_piece_at(model::Position(7, 6)).get() == nullptr);
@@ -93,7 +93,7 @@ TEST_CASE("Pawn special rules: Double move, path blocking, and promotion") {
         board->remove_piece(model::Position(5, 0));
         
         engine->request_move(model::Position(6, 0), model::Position(4, 0));
-        engine->wait(2000);
+        engine->update(2000);
         
         CHECK(board->get_piece_at(model::Position(4, 0)).get() == pawn.get());
     }
@@ -102,7 +102,7 @@ TEST_CASE("Pawn special rules: Double move, path blocking, and promotion") {
         board->move_piece(model::Position(6, 0), model::Position(1, 0));
         
         engine->request_move(model::Position(1, 0), model::Position(0, 0));
-        engine->wait(1000);
+        engine->update(1000);
 
         auto piece_at_end = board->get_piece_at(model::Position(0, 0));
         REQUIRE(piece_at_end.get() != nullptr);

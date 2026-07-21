@@ -262,7 +262,7 @@ void SocketServer::game_loop() {
         std::this_thread::sleep_for(std::chrono::milliseconds(30));
         process_matchmaking();
         if (m_game_engine) {
-            m_game_engine->wait(30);
+            m_game_engine->update(30);
             auto state = m_game_engine->get_state();
             if (state && state->is_game_over() && !m_elo_updated_for_game) {
                 m_elo_updated_for_game = true;
