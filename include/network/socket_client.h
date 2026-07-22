@@ -57,6 +57,8 @@ private:
     uint32_t m_seq_counter{0}; 
     bool m_server_game_over = false;
     std::vector<std::string> m_delayed_sounds;
+    std::string m_disconnect_user = "";
+    int m_disconnect_countdown = 0;
     
     mutable std::mutex state_mutex;
 
@@ -109,6 +111,8 @@ public:
     std::string get_room_id() const;
     std::string get_room_name() const;
     bool is_viewer() const;
+    std::string get_disconnect_user() const;
+    int get_disconnect_countdown() const;
 };
 
 }

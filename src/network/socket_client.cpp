@@ -456,6 +456,9 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     int white_score = extract_int(json_str, "white_score");
     int black_score = extract_int(json_str, "black_score");
 
+    std::string disc_user = extract_string(json_str, "disconnect_user");
+    int disc_cd = extract_int(json_str, "disconnect_countdown");
+
     std::string w_user = extract_string(json_str, "white_user");
     int w_elo = extract_int(json_str, "white_elo");
     std::string b_user = extract_string(json_str, "black_user");
@@ -531,6 +534,8 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
         std::lock_guard<std::mutex> lock(state_mutex);
         board = new_board;
         game_state = new_game_state;
+        m_disconnect_user = disc_user;
+        m_disconnect_countdown = disc_cd;
 
         std::vector<realtime::Motion> final_motions;
         for (const auto& pm : parsed_motions) {
@@ -830,6 +835,16 @@ std::string SocketClient::get_room_name() const {
 bool SocketClient::is_viewer() const {
     std::lock_guard<std::mutex> lock(state_mutex);
     return m_is_viewer;
+}
+
+std::string SocketClient::get_disconnect_user() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_disconnect_user;
+}
+
+int SocketClient::get_disconnect_countdown() const {
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_disconnect_countdown;
 }
 
 }

@@ -17,13 +17,14 @@ void Renderer::draw(Img& canvas, const std::shared_ptr<model::GameState>& state,
                     const DragInfo& drag_info,
                     const std::string& white_user, int white_elo,
                     const std::string& black_user, int black_elo,
-                    const std::string& room_id, const std::string& room_name, bool is_viewer) {
+                    const std::string& room_id, const std::string& room_name, bool is_viewer,
+                    const std::string& disconnect_user, int disconnect_countdown) {
     if (!state) return;
     
     board_renderer.draw_background(canvas);
     board_renderer.draw_highlights(canvas, state, selected_cell, arbiter);
     piece_renderer.draw_pieces(canvas, state, active_motions, active_jumps, arbiter, drag_info);
-    overlay_renderer.draw_overlays(canvas, state);
+    overlay_renderer.draw_overlays(canvas, state, disconnect_user, disconnect_countdown);
     score_renderer.draw(canvas, state, white_user, white_elo, black_user, black_elo, room_id, room_name, is_viewer);
     process_renderer.draw(canvas, arbiter);
 }

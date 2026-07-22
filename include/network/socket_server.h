@@ -36,6 +36,10 @@ struct Room {
     std::shared_ptr<engine::GameEngine> game_engine;
     bool elo_updated = false;
     std::vector<std::string> pending_sounds;
+
+    bool is_disconnected = false;
+    std::string disconnected_username = "";
+    std::chrono::steady_clock::time_point disconnect_start_time;
 };
 
 class SocketServer {
@@ -66,7 +70,7 @@ private:
     void process_matchmaking();
     void broadcast_state();
     std::string serialize_game_state();
-    std::string serialize_room_state(std::shared_ptr<Room> room);
+    std::string serialize_room_state(std::shared_ptr<Room> room, const std::vector<std::string>& sounds_override = {});
     void broadcast_room_state(std::shared_ptr<Room> room);
 
     bool is_same_connection(websocketpp::connection_hdl h1, websocketpp::connection_hdl h2);

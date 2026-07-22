@@ -42,7 +42,8 @@ public:
               const DragInfo& drag_info = {},
               const std::string& white_user = "WHITE", int white_elo = 1200,
               const std::string& black_user = "BLACK", int black_elo = 1200,
-              const std::string& room_id = "", const std::string& room_name = "", bool is_viewer = false);
+              const std::string& room_id = "", const std::string& room_name = "", bool is_viewer = false,
+              const std::string& disconnect_user = "", int disconnect_countdown = 0);
 
     void draw_opening(Img& canvas, const std::string& username = "", int elo = 1200, 
                       bool searching = false, int elapsed_sec = 0, 

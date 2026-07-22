@@ -135,6 +135,22 @@ void SocketServer::on_close(websocketpp::connection_hdl hdl) {
     for (auto it = m_clients.begin(); it != m_clients.end(); ++it) {
         if (is_same_connection((*it)->hdl, hdl)) {
             std::cout << "[Server] Client disconnected: " << (*it)->username << " (" << (*it)->color << ")" << std::endl;
+            if (!(*it)->room_id.empty()) {
+                std::lock_guard<std::mutex> r_lock(m_rooms_mutex);
+                for (auto& r : m_rooms) {
+                    if (r->id == (*it)->room_id) {
+                        bool is_player = (r->white_player && is_same_connection(r->white_player->hdl, hdl)) ||
+                                         (r->black_player && is_same_connection(r->black_player->hdl, hdl));
+                        if (is_player && r->game_engine && r->game_engine->get_state() && !r->game_engine->get_state()->is_game_over()) {
+                            r->is_disconnected = true;
+                            r->disconnected_username = (*it)->username;
+                            r->disconnect_start_time = std::chrono::steady_clock::now();
+                            log_server_activity("Player " + (*it)->username + " disconnected from room " + r->id + ". 20s countdown started.");
+                        }
+                        break;
+                    }
+                }
+            }
             m_clients.erase(it);
             break;
         }
@@ -166,15 +182,50 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
         
         std::string reply;
         if (ok) {
-            std::lock_guard<std::mutex> lock(m_clients_mutex);
-            for (auto& client : m_clients) {
-                if (is_same_connection(client->hdl, hdl)) {
-                    client->username = authenticated_user.username;
-                    client->elo = authenticated_user.elo;
-                    reply = "AUTH_OK " + client->color + " " + client->username + " " + std::to_string(client->elo);
-                    break;
+            std::shared_ptr<ClientInfo> client_ptr = nullptr;
+            {
+                std::lock_guard<std::mutex> lock(m_clients_mutex);
+                for (auto& client : m_clients) {
+                    if (is_same_connection(client->hdl, hdl)) {
+                        client->username = authenticated_user.username;
+                        client->elo = authenticated_user.elo;
+                        client_ptr = client;
+                        break;
+                    }
                 }
             }
+
+            if (client_ptr) {
+                std::lock_guard<std::mutex> r_lock(m_rooms_mutex);
+                for (auto& r : m_rooms) {
+                    if (r->is_disconnected && r->disconnected_username == authenticated_user.username) {
+                        if (r->game_engine && r->game_engine->get_state() && !r->game_engine->get_state()->is_game_over()) {
+                            if (r->white_player && r->white_player->username == authenticated_user.username) {
+                                r->white_player = client_ptr;
+                                client_ptr->color = "WHITE";
+                            } else if (r->black_player && r->black_player->username == authenticated_user.username) {
+                                r->black_player = client_ptr;
+                                client_ptr->color = "BLACK";
+                            }
+                            client_ptr->room_id = r->id;
+                            client_ptr->in_game = true;
+
+                            r->is_disconnected = false;
+                            std::string old_user = r->disconnected_username;
+                            r->disconnected_username = "";
+                            log_server_activity("Player " + old_user + " reconnected to room " + r->id + "!");
+
+                            websocketpp::lib::error_code ec;
+                            std::string auth_reply = "AUTH_OK " + client_ptr->color + " " + client_ptr->username + " " + std::to_string(client_ptr->elo);
+                            m_server.send(hdl, auth_reply, websocketpp::frame::opcode::text, ec);
+                            m_server.send(hdl, "ROOM_JOINED " + r->id + " " + r->name + " " + client_ptr->color, websocketpp::frame::opcode::text, ec);
+                            return;
+                        }
+                        break;
+                    }
+                }
+            }
+            reply = "AUTH_OK " + (client_ptr ? client_ptr->color : "VIEWER") + " " + authenticated_user.username + " " + std::to_string(authenticated_user.elo);
         } else {
             reply = "AUTH_FAIL Incorrect_Password";
         }
@@ -348,6 +399,10 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                 std::lock_guard<std::mutex> lock(m_rooms_mutex);
                 for (auto& r : m_rooms) {
                     if (r->id == client_sender->room_id) {
+                        if (r->is_disconnected) {
+                            tls_current_room_id = "";
+                            return;
+                        }
                         target_engine = r->game_engine;
                         target_board = r->board;
                         break;
@@ -398,6 +453,10 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                 std::lock_guard<std::mutex> lock(m_rooms_mutex);
                 for (auto& rm : m_rooms) {
                     if (rm->id == client_sender->room_id) {
+                        if (rm->is_disconnected) {
+                            tls_current_room_id = "";
+                            return;
+                        }
                         target_engine = rm->game_engine;
                         target_board = rm->board;
                         break;
@@ -523,10 +582,23 @@ void SocketServer::game_loop() {
                 room->game_engine->update(30);
                 tls_current_room_id = "";
                 auto state = room->game_engine->get_state();
+                if (state && !state->is_game_over() && room->is_disconnected) {
+                    auto now = std::chrono::steady_clock::now();
+                    auto elapsed_sec = std::chrono::duration_cast<std::chrono::seconds>(now - room->disconnect_start_time).count();
+                    if (elapsed_sec >= 20) {
+                        state->set_game_over(true);
+                        room->pending_sounds.push_back("game_win");
+                        log_server_activity("Room " + room->id + " forfeit! Player " + room->disconnected_username + " failed to reconnect in 20s.");
+                    }
+                }
                 if (state && state->is_game_over() && !room->elo_updated) {
                     room->elo_updated = true;
                     if (room->white_player && room->black_player) {
                         bool white_won = (state->get_white_score() >= state->get_black_score());
+                        if (room->is_disconnected) {
+                            bool white_disconnected = (room->disconnected_username == room->white_player->username);
+                            white_won = !white_disconnected;
+                        }
                         if (white_won) {
                             io::UserManager::get_instance().update_elo_after_game(room->white_player->username, room->black_player->username, false);
                         } else {
@@ -562,42 +634,21 @@ void SocketServer::broadcast_room_state(std::shared_ptr<Room> room) {
         if (is_over) {
             bool is_winner = (client->color == "WHITE" && white_won) || (client->color == "BLACK" && !white_won);
             std::string end_sound = is_winner ? "game_win" : "game_over";
-            bool has_end_sound = false;
             for (auto& s : client_sounds) {
                 if (s == "game_win" || s == "game_over") {
                     s = end_sound;
-                    has_end_sound = true;
                 }
             }
-            if (!has_end_sound) {
-                client_sounds.push_back(end_sound);
-            }
         }
 
-        std::stringstream sounds_ss;
-        sounds_ss << "[";
-        for (size_t i = 0; i < client_sounds.size(); ++i) {
-            if (i > 0) sounds_ss << ",";
-            sounds_ss << "\"" << client_sounds[i] << "\"";
-        }
-        sounds_ss << "]";
-
-        std::string client_json = serialize_room_state(room);
-        size_t sounds_pos = client_json.find("\"sounds\":[");
-        if (sounds_pos != std::string::npos) {
-            size_t sounds_end = client_json.find("],", sounds_pos);
-            if (sounds_end != std::string::npos) {
-                client_json.replace(sounds_pos + 9, sounds_end - sounds_pos - 9 + 1, sounds_ss.str() + ",");
-            }
-        }
-
+        std::string client_json = serialize_room_state(room, client_sounds);
         m_server.send(client->hdl, client_json, websocketpp::frame::opcode::text, ec);
     }
 
     room->pending_sounds.clear();
 }
 
-std::string SocketServer::serialize_room_state(std::shared_ptr<Room> room) {
+std::string SocketServer::serialize_room_state(std::shared_ptr<Room> room, const std::vector<std::string>& sounds_override) {
     if (!room || !room->game_engine) return "{}";
     std::stringstream ss;
     auto state = room->game_engine->get_state();
@@ -618,10 +669,23 @@ std::string SocketServer::serialize_room_state(std::shared_ptr<Room> room) {
     ss << "\"room_id\":\"" << room->id << "\",";
     ss << "\"room_name\":\"" << room->name << "\",";
 
+    std::string disconnect_user = "";
+    int disconnect_countdown = 0;
+    if (room->is_disconnected) {
+        auto now = std::chrono::steady_clock::now();
+        auto elapsed_sec = std::chrono::duration_cast<std::chrono::seconds>(now - room->disconnect_start_time).count();
+        int rem = 20 - static_cast<int>(elapsed_sec);
+        disconnect_countdown = (rem > 0) ? rem : 0;
+        disconnect_user = room->disconnected_username;
+    }
+    ss << "\"disconnect_user\":\"" << disconnect_user << "\",";
+    ss << "\"disconnect_countdown\":" << disconnect_countdown << ",";
+
+    const auto& sounds_to_use = sounds_override.empty() ? room->pending_sounds : sounds_override;
     ss << "\"sounds\":[";
-    for (size_t i = 0; i < room->pending_sounds.size(); ++i) {
-        ss << "\"" << room->pending_sounds[i] << "\"";
-        if (i + 1 < room->pending_sounds.size()) ss << ",";
+    for (size_t i = 0; i < sounds_to_use.size(); ++i) {
+        ss << "\"" << sounds_to_use[i] << "\"";
+        if (i + 1 < sounds_to_use.size()) ss << ",";
     }
     ss << "],";
 

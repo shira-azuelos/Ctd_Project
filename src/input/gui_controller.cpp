@@ -101,6 +101,9 @@ void GuiController::handle_left_click_down(GuiState* g_state, const model::Posit
         bool on_cooldown = false;
         
         if (g_state->socket_client) {
+            if (!g_state->socket_client->get_disconnect_user().empty() && g_state->socket_client->get_disconnect_countdown() > 0) {
+                return;
+            }
             std::string my_color = g_state->socket_client->get_assigned_color();
             std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
             if (my_color != piece_color) {
@@ -141,7 +144,9 @@ void GuiController::handle_left_click_down(GuiState* g_state, const model::Posit
         }
     } else if (g_state->selected_cell) {
         if (g_state->socket_client) {
-            g_state->socket_client->send_move(g_state->selected_cell->row, g_state->selected_cell->col, cell.row, cell.col);
+            if (g_state->socket_client->get_disconnect_user().empty() || g_state->socket_client->get_disconnect_countdown() <= 0) {
+                g_state->socket_client->send_move(g_state->selected_cell->row, g_state->selected_cell->col, cell.row, cell.col);
+            }
         } else if (g_state->game_engine) {
             g_state->game_engine->request_move(*g_state->selected_cell, cell);
         }
@@ -170,6 +175,9 @@ void GuiController::handle_right_click_down(GuiState* g_state, const model::Posi
     if (clicked_piece) {
         bool allow_interaction = true;
         if (g_state->socket_client) {
+            if (!g_state->socket_client->get_disconnect_user().empty() && g_state->socket_client->get_disconnect_countdown() > 0) {
+                return;
+            }
             std::string my_color = g_state->socket_client->get_assigned_color();
             std::string piece_color = (clicked_piece->color == model::PieceColor::WHITE) ? "WHITE" : "BLACK";
             if (my_color != piece_color) {

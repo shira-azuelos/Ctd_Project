@@ -135,7 +135,8 @@ int main(int argc, char* argv[]) {
                                   view::DragInfo{gui_state.dragged_piece, gui_state.drag_x, gui_state.drag_y},
                                   client->get_white_username(), client->get_white_elo(),
                                   client->get_black_username(), client->get_black_elo(),
-                                  client->get_room_id(), client->get_room_name(), client->is_viewer());
+                                  client->get_room_id(), client->get_room_name(), client->is_viewer(),
+                                  client->get_disconnect_user(), client->get_disconnect_countdown());
                 }
 
                 cv::imshow("KungFu Chess", canvas.get_mat());
