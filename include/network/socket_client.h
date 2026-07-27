@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include "model/board.h"
 #include "model/game_state.h"
 #include "realtime/real_time_arbiter.h"
@@ -61,6 +62,8 @@ private:
     int m_disconnect_countdown = 0;
     
     mutable std::mutex state_mutex;
+    mutable std::condition_variable m_state_cv;
+    bool m_state_updated = false;
 
     void on_message(websocketpp::connection_hdl hdl, ws_client_t::message_ptr msg);
     void parse_and_update_state(const std::string& json_str);
@@ -113,6 +116,7 @@ public:
     bool is_viewer() const;
     std::string get_disconnect_user() const;
     int get_disconnect_countdown() const;
+    bool wait_for_update(int max_ms);
 };
 
 }

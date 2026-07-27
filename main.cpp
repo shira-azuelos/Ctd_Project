@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
             network::MatchState last_state = network::MatchState::IDLE;
 
             while (true) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_TIME_MS));
+                client->wait_for_update(FRAME_TIME_MS);
                 client->advance_animations(FRAME_TIME_MS);
                 gui_state.board = client->get_board();
 

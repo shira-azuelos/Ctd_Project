@@ -208,6 +208,11 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
     } else {
         parse_and_update_state(payload);
     }
+    {
+        std::lock_guard<std::mutex> lock(state_mutex);
+        m_state_updated = true;
+    }
+    m_state_cv.notify_all();
 }
 
 void SocketClient::send_login(const std::string& username, const std::string& password) {
@@ -845,6 +850,15 @@ std::string SocketClient::get_disconnect_user() const {
 int SocketClient::get_disconnect_countdown() const {
     std::lock_guard<std::mutex> lock(state_mutex);
     return m_disconnect_countdown;
+}
+
+bool SocketClient::wait_for_update(int max_ms) {
+    std::unique_lock<std::mutex> lock(state_mutex);
+    bool updated = m_state_cv.wait_for(lock, std::chrono::milliseconds(max_ms), [this] {
+        return m_state_updated;
+    });
+    m_state_updated = false;
+    return updated;
 }
 
 }
