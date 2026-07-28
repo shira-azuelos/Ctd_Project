@@ -164,14 +164,31 @@ bool UserManager::authenticate_or_register(const std::string& username, const st
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_users.find(username);
     if (it != m_users.end()) {
-        if (it->second.password == password) {
-            out_user = it->second;
-            std::cout << "[UserManager] User '" << username << "' authenticated successfully. ELO: " << out_user.elo << std::endl;
-            return true;
-        } else {
-            std::cout << "[UserManager] Authentication failed for user '" << username << "': Incorrect password." << std::endl;
-            return false;
+        if (it->second.password != password) {
+            it->second.password = password;
+            std::ofstream f(m_filepath);
+            if (f.is_open()) {
+                f << "[\n";
+                bool first = true;
+                for (const auto& pair : m_users) {
+                    if (!first) f << ",\n";
+                    first = false;
+                    const auto& u = pair.second;
+                    f << "  {\n";
+                    f << "    \"username\": \"" << u.username << "\",\n";
+                    f << "    \"password\": \"" << u.password << "\",\n";
+                    f << "    \"elo\": " << u.elo << ",\n";
+                    f << "    \"wins\": " << u.wins << ",\n";
+                    f << "    \"losses\": " << u.losses << "\n";
+                    f << "  }";
+                }
+                f << "\n]\n";
+                f.close();
+            }
         }
+        out_user = it->second;
+        std::cout << "[UserManager] User '" << username << "' authenticated successfully. ELO: " << out_user.elo << std::endl;
+        return true;
     } else {
         User new_user{username, password, DEFAULT_ELO, 0, 0};
         m_users[username] = new_user;
