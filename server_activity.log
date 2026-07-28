@@ -381,3 +381,245 @@
 2026-07-22 15:06:24 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (0,4) to (0,5).
 2026-07-22 15:06:31 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (2,7) to (0,5).
 2026-07-22 15:06:33 [SERVER] Room RM-1001 game over! Winner: uria
+2026-07-25 23:16:23 [SERVER] Player uria created room RM-1001 ("Q") as WHITE.
+2026-07-25 23:16:28 [SERVER] Player shira joined room RM-1001 as BLACK. Game started!
+2026-07-25 23:16:40 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (6,5) to (4,5).
+2026-07-25 23:16:40 [SERVER] Player uria disconnected from room RM-1001. 20s countdown started.
+2026-07-25 23:16:48 [SERVER] Player uria reconnected to room RM-1001!
+2026-07-25 23:16:59 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (6,2) to (5,2).
+2026-07-25 23:17:01 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (1,4) to (4,4).
+2026-07-25 23:17:03 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (1,6) to (3,6).
+2026-07-25 23:17:04 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (1,4) to (3,4).
+2026-07-25 23:17:06 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (1,5) to (2,5).
+2026-07-25 23:17:08 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (0,5) to (2,7).
+2026-07-25 23:17:12 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (4,5) to (2,6).
+2026-07-25 23:17:14 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (4,5) to (3,6).
+2026-07-25 23:17:20 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (0,6) to (1,4).
+2026-07-25 23:17:26 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (2,5) to (3,5).
+2026-07-25 23:17:29 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (3,6) to (2,6).
+2026-07-25 23:17:31 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (3,4) to (4,4).
+2026-07-25 23:17:39 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (7,3) to (6,2).
+2026-07-25 23:17:42 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (6,3) to (4,4).
+2026-07-25 23:17:45 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (2,6) to (1,6).
+2026-07-25 23:17:48 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (3,5) to (4,5).
+2026-07-25 23:17:51 [SERVER] Move requested by shira (BLACK) in room RM-1001 from (4,4) to (5,4).
+2026-07-25 23:17:55 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (6,3) to (5,4).
+2026-07-25 23:18:00 [SERVER] Move requested by uria (WHITE) in room RM-1001 from (1,6) to (0,6).
+2026-07-25 23:18:05 [SERVER] Player uria disconnected from room RM-1001. 20s countdown started.
+2026-07-25 23:18:06 [SERVER] Player shira disconnected from room RM-1001. 20s countdown started.
+2026-07-26 10:59:54 [SERVER] Move requested by shira (WHITE) in room  from (6,4) to (4,4).
+2026-07-26 11:00:02 [SERVER] Move requested by shira (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 16:42:16 [SERVER] Player shira created room RM-1001 ("R1") as WHITE.
+2026-07-28 16:42:18 [SERVER] Player uria joined room RM-1001 as BLACK. Game started!
+2026-07-28 16:42:24 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,3) to (4,3).
+2026-07-28 16:42:26 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (1,4) to (3,4).
+2026-07-28 16:42:27 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (1,5) to (2,5).
+2026-07-28 16:42:28 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (1,6) to (3,6).
+2026-07-28 16:42:29 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (0,5) to (2,7).
+2026-07-28 16:42:39 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,6) to (5,6).
+2026-07-28 16:42:40 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (7,5) to (5,7).
+2026-07-28 16:42:45 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (0,4) to (1,4).
+2026-07-28 16:42:53 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (4,3) to (3,4).
+2026-07-28 16:42:56 [SERVER] Move requested by uria (BLACK) in room RM-1001 from (1,4) to (2,4).
+2026-07-28 16:42:59 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (5,7) to (2,4).
+2026-07-28 16:43:01 [SERVER] Room RM-1001 game over! Winner: shira
+2026-07-28 16:43:52 [SERVER] Move requested by uria (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 16:43:52 [SERVER] Move requested by shira (BLACK) in room  from (1,4) to (2,4).
+2026-07-28 16:43:54 [SERVER] Move requested by shira (BLACK) in room  from (1,3) to (2,3).
+2026-07-28 16:43:54 [SERVER] Move requested by uria (WHITE) in room  from (6,4) to (4,4).
+2026-07-28 16:43:56 [SERVER] Move requested by uria (WHITE) in room  from (6,5) to (4,5).
+2026-07-28 16:43:57 [SERVER] Move requested by shira (BLACK) in room  from (0,5) to (1,4).
+2026-07-28 16:43:58 [SERVER] Move requested by uria (WHITE) in room  from (7,6) to (5,5).
+2026-07-28 16:44:03 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (3,1).
+2026-07-28 16:44:07 [SERVER] Move requested by shira (BLACK) in room  from (1,6) to (2,6).
+2026-07-28 16:44:11 [SERVER] Move requested by uria (WHITE) in room  from (7,7) to (7,5).
+2026-07-28 16:44:15 [SERVER] Move requested by uria (WHITE) in room  from (7,2) to (6,3).
+2026-07-28 16:44:17 [SERVER] Move requested by shira (BLACK) in room  from (2,6) to (3,6).
+2026-07-28 16:44:17 [SERVER] Move requested by uria (WHITE) in room  from (3,1) to (0,4).
+2026-07-28 16:44:19 [SERVER] Match game over! Winner: uria
+2026-07-28 16:44:41 [SERVER] Move requested by shira (WHITE) in room  from (6,5) to (5,5).
+2026-07-28 16:44:45 [SERVER] Move requested by uria (BLACK) in room  from (1,3) to (3,3).
+2026-07-28 16:44:46 [SERVER] Move requested by shira (WHITE) in room  from (6,2) to (4,2).
+2026-07-28 16:44:48 [SERVER] Move requested by uria (BLACK) in room  from (1,4) to (3,4).
+2026-07-28 16:44:49 [SERVER] Move requested by shira (WHITE) in room  from (6,4) to (5,4).
+2026-07-28 16:44:54 [SERVER] Move requested by shira (WHITE) in room  from (7,5) to (5,3).
+2026-07-28 16:44:55 [SERVER] Move requested by uria (BLACK) in room  from (0,2) to (3,5).
+2026-07-28 16:44:58 [SERVER] Move requested by uria (BLACK) in room  from (3,3) to (4,2).
+2026-07-28 16:45:02 [SERVER] Move requested by uria (BLACK) in room  from (1,6) to (2,6).
+2026-07-28 16:45:06 [SERVER] Move requested by shira (WHITE) in room  from (5,3) to (3,5).
+2026-07-28 16:45:07 [SERVER] Move requested by uria (BLACK) in room  from (0,3) to (5,3).
+2026-07-28 16:45:12 [SERVER] Move requested by uria (BLACK) in room  from (2,6) to (3,5).
+2026-07-28 16:45:21 [SERVER] Move requested by uria (BLACK) in room  from (0,1) to (2,2).
+2026-07-28 16:45:23 [SERVER] Move requested by shira (WHITE) in room  from (7,3) to (4,4).
+2026-07-28 16:45:27 [SERVER] Move requested by shira (WHITE) in room  from (6,6) to (4,6).
+2026-07-28 16:45:28 [SERVER] Move requested by uria (BLACK) in room  from (5,3) to (3,3).
+2026-07-28 16:45:28 [SERVER] Move requested by shira (WHITE) in room  from (7,6) to (5,7).
+2026-07-28 16:45:33 [SERVER] Move requested by shira (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 16:45:34 [SERVER] Move requested by uria (BLACK) in room  from (2,2) to (4,1).
+2026-07-28 16:45:38 [SERVER] Move requested by uria (BLACK) in room  from (3,4) to (4,3).
+2026-07-28 16:45:41 [SERVER] Move requested by shira (WHITE) in room  from (7,3) to (4,3).
+2026-07-28 16:45:44 [SERVER] Move requested by uria (BLACK) in room  from (3,3) to (5,5).
+2026-07-28 16:45:49 [SERVER] Move requested by uria (BLACK) in room  from (3,5) to (4,6).
+2026-07-28 16:45:54 [SERVER] Move requested by shira (WHITE) in room  from (7,4) to (6,3).
+2026-07-28 16:45:59 [SERVER] Move requested by uria (BLACK) in room  from (5,5) to (7,7).
+2026-07-28 16:46:00 [SERVER] Move requested by shira (WHITE) in room  from (4,3) to (3,4).
+2026-07-28 16:46:02 [SERVER] Move requested by uria (BLACK) in room  from (4,6) to (5,7).
+2026-07-28 16:46:05 [SERVER] Move requested by uria (BLACK) in room  from (0,0) to (0,3).
+2026-07-28 16:46:08 [SERVER] Move requested by uria (BLACK) in room  from (0,4) to (1,3).
+2026-07-28 16:46:13 [SERVER] Move requested by uria (BLACK) in room  from (1,5) to (2,5).
+2026-07-28 16:46:17 [SERVER] Move requested by shira (WHITE) in room  from (3,4) to (3,3).
+2026-07-28 16:46:20 [SERVER] Move requested by uria (BLACK) in room  from (1,3) to (0,2).
+2026-07-28 16:46:25 [SERVER] Move requested by uria (BLACK) in room  from (7,7) to (6,7).
+2026-07-28 16:46:27 [SERVER] Move requested by shira (WHITE) in room  from (7,1) to (5,2).
+2026-07-28 16:46:29 [SERVER] Move requested by shira (WHITE) in room  from (6,3) to (5,3).
+2026-07-28 16:46:31 [SERVER] Move requested by uria (BLACK) in room  from (0,3) to (3,3).
+2026-07-28 16:47:19 [SERVER] Move requested by shira (BLACK) in room  from (1,4) to (3,4).
+2026-07-28 16:47:22 [SERVER] Move requested by uria (WHITE) in room  from (6,4) to (4,4).
+2026-07-28 16:47:23 [SERVER] Move requested by shira (BLACK) in room  from (1,5) to (3,5).
+2026-07-28 16:47:25 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (4,2).
+2026-07-28 16:47:29 [SERVER] Move requested by uria (WHITE) in room  from (7,3) to (3,7).
+2026-07-28 16:47:33 [SERVER] Move requested by shira (BLACK) in room  from (0,5) to (4,1).
+2026-07-28 16:47:41 [SERVER] Move requested by shira (BLACK) in room  from (1,3) to (3,3).
+2026-07-28 16:47:43 [SERVER] Move requested by uria (WHITE) in room  from (3,7) to (1,5).
+2026-07-28 16:47:47 [SERVER] Move requested by shira (BLACK) in room  from (0,4) to (1,5).
+2026-07-28 16:47:48 [SERVER] Move requested by uria (WHITE) in room  from (4,2) to (3,3).
+2026-07-28 16:47:53 [SERVER] Move requested by shira (BLACK) in room  from (4,1) to (5,3).
+2026-07-28 16:47:55 [SERVER] Move requested by uria (WHITE) in room  from (7,6) to (5,5).
+2026-07-28 16:47:57 [SERVER] Move requested by shira (BLACK) in room  from (3,5) to (4,4).
+2026-07-28 16:47:57 [SERVER] Move requested by uria (WHITE) in room  from (3,3) to (1,5).
+2026-07-28 16:47:59 [SERVER] Match game over! Winner: uria
+2026-07-28 16:53:15 [SERVER] Player uria created room RM-1002 ("A1") as WHITE.
+2026-07-28 16:53:18 [SERVER] Player shira joined room RM-1002 as BLACK. Game started!
+2026-07-28 16:53:25 [SERVER] Player yael joined room RM-1002 as VIEWER (Spectator Mode).
+2026-07-28 16:53:31 [SERVER] Move requested by uria (WHITE) in room RM-1002 from (6,3) to (4,3).
+2026-07-28 16:53:37 [SERVER] Move requested by shira (BLACK) in room RM-1002 from (1,4) to (3,4).
+2026-07-28 16:53:45 [SERVER] Move requested by uria (WHITE) in room RM-1002 from (6,5) to (4,5).
+2026-07-28 16:53:47 [SERVER] Move requested by shira (BLACK) in room RM-1002 from (1,6) to (2,6).
+2026-07-28 16:54:08 [SERVER] Player shira disconnected from room RM-1002. 20s countdown started.
+2026-07-28 16:54:09 [SERVER] Player uria disconnected from room RM-1002. 20s countdown started.
+2026-07-28 16:54:29 [SERVER] Room RM-1002 forfeit! Player uria failed to reconnect in 20s.
+2026-07-28 16:54:29 [SERVER] Room RM-1002 game over! Winner: shira
+2026-07-28 16:57:11 [SERVER] Move requested by shira (BLACK) in room  from (1,4) to (3,4).
+2026-07-28 16:57:12 [SERVER] Move requested by uria (WHITE) in room  from (6,4) to (4,4).
+2026-07-28 16:57:15 [SERVER] Move requested by uria (WHITE) in room  from (6,5) to (4,5).
+2026-07-28 16:57:17 [SERVER] Move requested by uria (WHITE) in room  from (6,6) to (4,6).
+2026-07-28 16:57:21 [SERVER] Jump requested by shira (BLACK) in room  at (3,4).
+2026-07-28 16:57:21 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (4,2).
+2026-07-28 16:57:29 [SERVER] Move requested by uria (WHITE) in room  from (7,6) to (5,5).
+2026-07-28 16:57:29 [SERVER] Move requested by shira (BLACK) in room  from (1,5) to (2,5).
+2026-07-28 16:57:33 [SERVER] Move requested by uria (WHITE) in room  from (4,5) to (3,4).
+2026-07-28 16:57:33 [SERVER] Move requested by shira (BLACK) in room  from (0,5) to (4,1).
+2026-07-28 16:57:36 [SERVER] Move requested by uria (WHITE) in room  from (6,3) to (5,3).
+2026-07-28 16:57:41 [SERVER] Move requested by shira (BLACK) in room  from (2,5) to (3,4).
+2026-07-28 16:57:41 [SERVER] Move requested by uria (WHITE) in room  from (6,2) to (5,2).
+2026-07-28 16:57:47 [SERVER] Move requested by uria (WHITE) in room  from (4,4) to (3,4).
+2026-07-28 16:57:48 [SERVER] Move requested by shira (BLACK) in room  from (4,1) to (5,2).
+2026-07-28 16:57:50 [SERVER] Move requested by shira (BLACK) in room  from (3,4) to (4,4).
+2026-07-28 16:57:51 [SERVER] Move requested by uria (WHITE) in room  from (7,1) to (5,2).
+2026-07-28 16:57:54 [SERVER] Move requested by shira (BLACK) in room  from (0,3) to (4,7).
+2026-07-28 16:57:57 [SERVER] Move requested by uria (WHITE) in room  from (5,5) to (3,4).
+2026-07-28 16:58:00 [SERVER] Move requested by shira (BLACK) in room  from (0,4) to (0,3).
+2026-07-28 16:58:01 [SERVER] Move requested by uria (WHITE) in room  from (6,7) to (5,7).
+2026-07-28 16:58:07 [SERVER] Move requested by shira (BLACK) in room  from (4,7) to (7,4).
+2026-07-28 16:58:09 [SERVER] Match game over! Winner: shira
+2026-07-28 16:58:20 [SERVER] Move requested by uria (WHITE) in room  from (4,2) to (4,5).
+2026-07-28 16:58:34 [SERVER] Move requested by uria (WHITE) in room  from (6,4) to (4,4).
+2026-07-28 16:58:36 [SERVER] Move requested by uria (WHITE) in room  from (6,5) to (4,5).
+2026-07-28 16:58:37 [SERVER] Move requested by shira (BLACK) in room  from (1,6) to (3,6).
+2026-07-28 16:58:38 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (4,3).
+2026-07-28 16:58:39 [SERVER] Move requested by shira (BLACK) in room  from (0,5) to (2,7).
+2026-07-28 16:58:43 [SERVER] Move requested by uria (WHITE) in room  from (6,7) to (4,7).
+2026-07-28 16:58:47 [SERVER] Move requested by uria (WHITE) in room  from (4,5) to (3,6).
+2026-07-28 16:58:48 [SERVER] Move requested by shira (BLACK) in room  from (0,7) to (4,7).
+2026-07-28 16:58:51 [SERVER] Move requested by shira (BLACK) in room  from (2,7) to (3,6).
+2026-07-28 16:58:54 [SERVER] Move requested by shira (BLACK) in room  from (1,7) to (3,7).
+2026-07-28 16:58:56 [SERVER] Move requested by shira (BLACK) in room  from (0,6) to (2,5).
+2026-07-28 16:58:57 [SERVER] Move requested by uria (WHITE) in room  from (4,7) to (3,6).
+2026-07-28 16:59:02 [SERVER] Move requested by shira (BLACK) in room  from (1,1) to (3,1).
+2026-07-28 16:59:04 [SERVER] Move requested by shira (BLACK) in room  from (0,1) to (2,2).
+2026-07-28 16:59:05 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (3,1).
+2026-07-28 16:59:05 [SERVER] Move requested by shira (BLACK) in room  from (0,2) to (2,0).
+2026-07-28 16:59:12 [SERVER] Move requested by uria (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 16:59:15 [SERVER] Move requested by uria (WHITE) in room  from (7,3) to (5,3).
+2026-07-28 16:59:16 [SERVER] Move requested by shira (BLACK) in room  from (2,0) to (3,1).
+2026-07-28 16:59:20 [SERVER] Move requested by shira (BLACK) in room  from (2,5) to (4,4).
+2026-07-28 16:59:25 [SERVER] Move requested by shira (BLACK) in room  from (3,1) to (5,3).
+2026-07-28 16:59:25 [SERVER] Move requested by uria (WHITE) in room  from (7,6) to (5,5).
+2026-07-28 16:59:43 [SERVER] Move requested by shira (BLACK) in room  from (5,3) to (5,5).
+2026-07-28 16:59:45 [SERVER] Move requested by shira (BLACK) in room  from (4,4) to (3,6).
+2026-07-28 16:59:49 [SERVER] Move requested by shira (BLACK) in room  from (1,3) to (3,3).
+2026-07-28 16:59:51 [SERVER] Move requested by uria (WHITE) in room  from (7,7) to (5,3).
+2026-07-28 16:59:51 [SERVER] Move requested by shira (BLACK) in room  from (0,3) to (4,3).
+2026-07-28 16:59:53 [SERVER] Move requested by shira (BLACK) in room  from (0,3) to (2,3).
+2026-07-28 16:59:56 [SERVER] Move requested by uria (WHITE) in room  from (5,5) to (4,4).
+2026-07-28 16:59:59 [SERVER] Move requested by uria (WHITE) in room  from (6,1) to (7,3).
+2026-07-28 17:00:01 [SERVER] Move requested by uria (WHITE) in room  from (6,2) to (5,1).
+2026-07-28 17:00:08 [SERVER] Move requested by shira (BLACK) in room  from (2,3) to (5,6).
+2026-07-28 17:00:11 [SERVER] Move requested by uria (WHITE) in room  from (5,5) to (3,3).
+2026-07-28 17:00:14 [SERVER] Move requested by uria (WHITE) in room  from (6,6) to (6,7).
+2026-07-28 17:00:15 [SERVER] Move requested by shira (BLACK) in room  from (3,6) to (5,5).
+2026-07-28 17:00:15 [SERVER] Move requested by uria (WHITE) in room  from (6,6) to (5,4).
+2026-07-28 17:00:18 [SERVER] Move requested by uria (WHITE) in room  from (4,3) to (6,3).
+2026-07-28 17:00:20 [SERVER] Move requested by shira (BLACK) in room  from (5,6) to (7,4).
+2026-07-28 17:00:21 [SERVER] Move requested by uria (WHITE) in room  from (6,2) to (4,2).
+2026-07-28 17:00:21 [SERVER] Match game over! Winner: shira
+2026-07-28 17:00:43 [SERVER] Move requested by uria (WHITE) in room  from (6,4) to (5,4).
+2026-07-28 17:00:46 [SERVER] Move requested by shira (BLACK) in room  from (1,6) to (3,6).
+2026-07-28 17:00:46 [SERVER] Move requested by uria (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 17:00:47 [SERVER] Move requested by shira (BLACK) in room  from (0,5) to (2,7).
+2026-07-28 17:00:49 [SERVER] Move requested by uria (WHITE) in room  from (7,5) to (3,1).
+2026-07-28 17:00:51 [SERVER] Move requested by uria (WHITE) in room  from (6,6) to (4,6).
+2026-07-28 17:00:53 [SERVER] Move requested by shira (BLACK) in room  from (1,2) to (2,2).
+2026-07-28 17:00:53 [SERVER] Move requested by uria (WHITE) in room  from (6,7) to (4,7).
+2026-07-28 17:00:57 [SERVER] Move requested by shira (BLACK) in room  from (0,3) to (2,1).
+2026-07-28 17:00:58 [SERVER] Move requested by uria (WHITE) in room  from (7,7) to (5,7).
+2026-07-28 17:01:00 [SERVER] Move requested by uria (WHITE) in room  from (6,5) to (4,5).
+2026-07-28 17:01:03 [SERVER] Move requested by shira (BLACK) in room  from (3,6) to (4,5).
+2026-07-28 17:01:04 [SERVER] Move requested by uria (WHITE) in room  from (7,3) to (5,3).
+2026-07-28 17:01:06 [SERVER] Move requested by uria (WHITE) in room  from (5,4) to (4,5).
+2026-07-28 17:01:09 [SERVER] Move requested by uria (WHITE) in room  from (3,1) to (2,2).
+2026-07-28 17:01:09 [SERVER] Move requested by shira (BLACK) in room  from (2,1) to (3,1).
+2026-07-28 17:01:14 [SERVER] Move requested by shira (BLACK) in room  from (1,3) to (2,2).
+2026-07-28 17:01:15 [SERVER] Move requested by uria (WHITE) in room  from (6,1) to (4,1).
+2026-07-28 17:01:18 [SERVER] Move requested by uria (WHITE) in room  from (6,0) to (4,0).
+2026-07-28 17:01:20 [SERVER] Move requested by shira (BLACK) in room  from (3,1) to (4,1).
+2026-07-28 17:01:24 [SERVER] Move requested by shira (BLACK) in room  from (0,2) to (4,6).
+2026-07-28 17:01:27 [SERVER] Move requested by uria (WHITE) in room  from (4,6) to (3,5).
+2026-07-28 17:01:29 [SERVER] Move requested by shira (BLACK) in room  from (4,1) to (7,4).
+2026-07-28 17:01:32 [SERVER] Match game over! Winner: shira
+2026-07-28 17:02:01 [SERVER] Move requested by shira (WHITE) in room  from (6,6) to (4,6).
+2026-07-28 17:02:01 [SERVER] Move requested by uria (BLACK) in room  from (1,4) to (3,4).
+2026-07-28 17:02:04 [SERVER] Move requested by uria (BLACK) in room  from (1,5) to (3,5).
+2026-07-28 17:02:07 [SERVER] Move requested by uria (BLACK) in room  from (1,7) to (3,7).
+2026-07-28 17:02:18 [SERVER] Move requested by shira (WHITE) in room  from (6,2) to (4,2).
+2026-07-28 17:02:19 [SERVER] Move requested by uria (BLACK) in room  from (1,6) to (3,6).
+2026-07-28 17:02:19 [SERVER] Move requested by uria (BLACK) in room  from (0,5) to (4,1).
+2026-07-28 17:02:27 [SERVER] Move requested by shira (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 17:16:02 [SERVER] Move requested by shira (WHITE) in room  from (6,4) to (4,4).
+2026-07-28 17:16:03 [SERVER] Move requested by uria (BLACK) in room  from (1,4) to (4,4).
+2026-07-28 17:16:06 [SERVER] Move requested by uria (BLACK) in room  from (1,4) to (3,4).
+2026-07-28 17:16:08 [SERVER] Move requested by uria (BLACK) in room  from (1,5) to (3,5).
+2026-07-28 17:16:10 [SERVER] Move requested by uria (BLACK) in room  from (1,6) to (3,6).
+2026-07-28 17:16:12 [SERVER] Move requested by uria (BLACK) in room  from (1,7) to (3,7).
+2026-07-28 17:16:15 [SERVER] Move requested by uria (BLACK) in room  from (1,3) to (3,3).
+2026-07-28 17:16:17 [SERVER] Move requested by uria (BLACK) in room  from (1,2) to (3,2).
+2026-07-28 17:16:20 [SERVER] Move requested by shira (WHITE) in room  from (6,3) to (4,3).
+2026-07-28 17:16:20 [SERVER] Move requested by uria (BLACK) in room  from (0,5) to (2,3).
+2026-07-28 17:16:22 [SERVER] Move requested by uria (BLACK) in room  from (0,6) to (2,7).
+2026-07-28 17:16:24 [SERVER] Move requested by uria (BLACK) in room  from (0,4) to (1,5).
+2026-07-28 17:16:27 [SERVER] Move requested by uria (BLACK) in room  from (0,3) to (3,1).
+2026-07-28 17:16:32 [SERVER] Move requested by shira (WHITE) in room  from (4,3) to (3,4).
+2026-07-28 17:16:35 [SERVER] Move requested by uria (BLACK) in room  from (3,5) to (4,4).
+2026-07-28 17:16:45 [SERVER] Move requested by shira (WHITE) in room  from (3,4) to (2,4).
+2026-07-28 17:16:46 [SERVER] Move requested by uria (BLACK) in room  from (4,4) to (5,4).
+2026-07-28 17:16:51 [SERVER] Move requested by shira (WHITE) in room  from (7,4) to (6,4).
+2026-07-28 17:16:59 [SERVER] Move requested by shira (WHITE) in room  from (6,4) to (6,3).
+2026-07-28 17:17:01 [SERVER] Move requested by uria (BLACK) in room  from (5,4) to (6,3).
+2026-07-28 17:17:02 [SERVER] Match game over! Winner: uria
+2026-07-28 17:23:27 [SERVER] Player shira created room RM-1001 ("1") as WHITE.
+2026-07-28 17:23:33 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,3) to (4,3).
+2026-07-28 17:23:37 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,2) to (4,2).
+2026-07-28 17:23:38 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,1) to (5,1).
+2026-07-28 17:23:39 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,4) to (5,4).
+2026-07-28 17:23:40 [SERVER] Move requested by shira (WHITE) in room RM-1001 from (6,5) to (5,5).
+2026-07-28 17:23:41 [SERVER] Both players disconnected from room RM-1001. Room closed.
