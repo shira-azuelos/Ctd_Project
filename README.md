@@ -115,12 +115,12 @@ docker-compose up --build
 **Server Host (Computer 1):**
 ```cmd
 compile_app.bat
-app.exe client 10.47.99.8 8080 shira 1234
+app.exe client <SERVER_IP> 8080 <username_1> <password>
 ```
 
 **Client Host (Computer 2):**
 ```cmd
-app.exe client 10.47.99.8 8080 uria 1234
+app.exe client <SERVER_IP> 8080 <username_2> <password>
 ```
 
 ---
