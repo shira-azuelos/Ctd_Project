@@ -29,12 +29,9 @@ int main(int argc, char* argv[]) {
     std::string ip = "127.0.0.1";
     int port = DEFAULT_PORT;
 
-    if (argc > 1) {
-        mode = argv[1];
-    }
-    if (argc > 2) {
-        ip = argv[2];
-    }
+    if (argc > 1) mode = argv[1];
+    if (argc > 2) ip = argv[2];
+    if (argc > 3) port = std::stoi(argv[3]);
 
     if (mode == "server") {
         network::SocketServer server;
@@ -42,8 +39,10 @@ int main(int argc, char* argv[]) {
             std::cerr << "Failed to start server on port " << port << std::endl;
             return 1;
         }
-        std::cout << "Server is running. Press Enter to exit." << std::endl;
-        std::cin.get();
+        std::cout << "Server is running on port " << port << "..." << std::endl;
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::hours(24));
+        }
         server.stop();
         return 0;
     }
@@ -52,8 +51,8 @@ int main(int argc, char* argv[]) {
             std::cout << "==========================================" << std::endl;
             std::cout << "   KungFu Chess Client Login (CLI)       " << std::endl;
             std::cout << "==========================================" << std::endl;
-            std::string username = (argc > 3) ? argv[3] : "";
-            std::string password = (argc > 4) ? argv[4] : "";
+            std::string username = (argc > 4) ? argv[4] : "";
+            std::string password = (argc > 5) ? argv[5] : "";
             
             if (username.empty()) {
                 std::cout << "Enter Username: ";
@@ -92,7 +91,8 @@ int main(int argc, char* argv[]) {
 
             pubsub::MessageBus::get_instance().subscribe(pubsub::EventType::MOVE_LOGGED, [](const pubsub::Event& ev) {});
 
-            cv::namedWindow("KungFu Chess", cv::WINDOW_AUTOSIZE);
+            cv::namedWindow("KungFu Chess", cv::WINDOW_NORMAL);
+            cv::setWindowProperty("KungFu Chess", cv::WND_PROP_FULLSCREEN, cv::WINDOW_FULLSCREEN);
             cv::setMouseCallback("KungFu Chess", input::GuiController::on_mouse, &gui_state);
 
             Img canvas;

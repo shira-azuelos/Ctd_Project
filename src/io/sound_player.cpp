@@ -1,14 +1,18 @@
 #include "io/sound_player.h"
 #include <unordered_map>
-#include <windows.h>
-#include <mmeapi.h>
 #include <iostream>
 #include <thread>
 #include <atomic>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <mmeapi.h>
+#endif
+
 namespace io {
 
 void SoundPlayer::play(const std::string& sound_name) {
+#ifdef _WIN32
     static std::unordered_map<std::string, std::string> sound_map = {
         {"move", "assets/sounds/move.wav"},
         {"jump", "assets/sounds/jump.mp3"},
@@ -59,6 +63,8 @@ void SoundPlayer::play(const std::string& sound_name) {
             mciSendStringA(cmd_close.c_str(), NULL, 0, NULL);
         }
     }).detach();
+#endif
 }
 
 }
+
