@@ -67,7 +67,7 @@ bool SocketServer::start(int port) {
         m_server.clear_access_channels(websocketpp::log::alevel::all);
         m_server.clear_error_channels(websocketpp::log::elevel::all);
 
-        m_server.listen(port);
+        m_server.listen(websocketpp::lib::asio::ip::tcp::v4(), port);
         m_server.start_accept();
 
         m_running = true;
@@ -139,9 +139,21 @@ void SocketServer::on_close(websocketpp::connection_hdl hdl) {
                 std::lock_guard<std::mutex> r_lock(m_rooms_mutex);
                 for (auto& r : m_rooms) {
                     if (r->id == (*it)->room_id) {
-                        bool is_player = (r->white_player && is_same_connection(r->white_player->hdl, hdl)) ||
-                                         (r->black_player && is_same_connection(r->black_player->hdl, hdl));
-                        if (is_player && r->game_engine && r->game_engine->get_state() && !r->game_engine->get_state()->is_game_over()) {
+                        bool is_white = r->white_player && is_same_connection(r->white_player->hdl, hdl);
+                        bool is_black = r->black_player && is_same_connection(r->black_player->hdl, hdl);
+                        
+                        if (is_white) r->white_player = nullptr;
+                        if (is_black) r->black_player = nullptr;
+
+                        bool both_disconnected = (r->white_player == nullptr && r->black_player == nullptr);
+
+                        if (both_disconnected) {
+                            if (r->game_engine && r->game_engine->get_state()) {
+                                r->game_engine->get_state()->set_game_over(true);
+                            }
+                            r->is_disconnected = false;
+                            log_server_activity("Both players disconnected from room " + r->id + ". Room closed.");
+                        } else if ((is_white || is_black) && r->game_engine && r->game_engine->get_state() && !r->game_engine->get_state()->is_game_over()) {
                             r->is_disconnected = true;
                             r->disconnected_username = (*it)->username;
                             r->disconnect_start_time = std::chrono::steady_clock::now();
@@ -275,6 +287,13 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
         }
 
         if (client_sender) {
+            {
+                std::lock_guard<std::mutex> lock(m_rooms_mutex);
+                m_rooms.erase(std::remove_if(m_rooms.begin(), m_rooms.end(), [&](const std::shared_ptr<Room>& r) {
+                    return (r->name == room_name || r->id == room_name);
+                }), m_rooms.end());
+            }
+
             auto room = std::make_shared<Room>();
             room->id = generate_room_id();
             room->name = room_name;
@@ -319,7 +338,8 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
             std::shared_ptr<Room> target_room = nullptr;
             {
                 std::lock_guard<std::mutex> lock(m_rooms_mutex);
-                for (auto& r : m_rooms) {
+                for (auto it = m_rooms.rbegin(); it != m_rooms.rend(); ++it) {
+                    auto& r = *it;
                     if (r->id == req_room_id || r->name == req_room_id) {
                         target_room = r;
                         break;
@@ -399,7 +419,7 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                 std::lock_guard<std::mutex> lock(m_rooms_mutex);
                 for (auto& r : m_rooms) {
                     if (r->id == client_sender->room_id) {
-                        if (r->is_disconnected) {
+                        if (r->is_disconnected || !r->white_player || !r->black_player) {
                             tls_current_room_id = "";
                             return;
                         }
@@ -417,6 +437,15 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                     if (client_sender->color == expected_color) {
                         target_engine->request_move(model::Position(sr, sc), model::Position(dr, dc));
                         log_server_activity("Move requested by " + client_sender->username + " (" + client_sender->color + ") in room " + client_sender->room_id + " from (" + std::to_string(sr) + "," + std::to_string(sc) + ") to (" + std::to_string(dr) + "," + std::to_string(dc) + ").");
+                        if (!client_sender->room_id.empty()) {
+                            std::lock_guard<std::mutex> lock(m_rooms_mutex);
+                            for (auto& rm : m_rooms) {
+                                if (rm->id == client_sender->room_id) {
+                                    broadcast_room_state(rm);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -453,7 +482,7 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                 std::lock_guard<std::mutex> lock(m_rooms_mutex);
                 for (auto& rm : m_rooms) {
                     if (rm->id == client_sender->room_id) {
-                        if (rm->is_disconnected) {
+                        if (rm->is_disconnected || !rm->white_player || !rm->black_player) {
                             tls_current_room_id = "";
                             return;
                         }

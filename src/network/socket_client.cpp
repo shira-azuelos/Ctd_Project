@@ -159,11 +159,13 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
         {
             std::lock_guard<std::mutex> lock(state_mutex);
             assigned_color = col;
-            m_white_user = w_usr;
+            if (!w_usr.empty() && w_usr != "WHITE") m_white_user = w_usr;
             m_white_elo = w_e;
-            m_black_user = b_usr;
+            if (!b_usr.empty() && b_usr != "BLACK") m_black_user = b_usr;
             m_black_elo = b_e;
             m_match_state = MatchState::MATCHED;
+            m_server_game_over = false;
+            if (game_state) game_state->set_game_over(false);
         }
         log_client_activity("MATCH FOUND! Playing as " + col + " (" + w_usr + " vs " + b_usr + ")");
     } else if (payload.rfind("ROOM_CREATED ", 0) == 0) {
@@ -178,6 +180,13 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
             m_is_viewer = false;
             m_match_state = MatchState::MATCHED;
             m_show_popup = false;
+            m_server_game_over = false;
+            if (game_state) game_state->set_game_over(false);
+            if (r_color == "WHITE") {
+                m_white_user = m_username;
+                m_white_elo = m_elo;
+                m_black_user = "BLACK";
+            }
         }
         log_client_activity("ROOM CREATED successfully! ID: " + r_id + " Name: " + r_name + " Color: " + r_color);
     } else if (payload.rfind("ROOM_JOINED ", 0) == 0) {
@@ -192,9 +201,16 @@ void SocketClient::on_message(websocketpp::connection_hdl hdl, ws_client_t::mess
             m_is_viewer = (r_color == "VIEWER");
             m_match_state = MatchState::MATCHED;
             m_show_popup = false;
+            m_server_game_over = false;
+            if (game_state) game_state->set_game_over(false);
+            if (r_color == "BLACK") {
+                m_black_user = m_username;
+                m_black_elo = m_elo;
+            }
         }
         log_client_activity("ROOM JOINED! ID: " + r_id + " Name: " + r_name + " Role: " + r_color);
-    } else if (payload.rfind("ROOM_ERROR ", 0) == 0) {
+    }
+ else if (payload.rfind("ROOM_ERROR ", 0) == 0) {
         std::lock_guard<std::mutex> lock(state_mutex);
         m_show_popup = true;
         m_popup_msg = "Room Error: " + payload.substr(11);
@@ -246,19 +262,29 @@ bool SocketClient::is_logged_in() const {
 }
 
 std::string SocketClient::get_white_username() const {
-    return m_white_user;
+    std::lock_guard<std::mutex> lock(state_mutex);
+    if ((m_white_user.empty() || m_white_user == "White" || m_white_user == "Guest") && assigned_color == "WHITE" && !m_username.empty()) {
+        return m_username;
+    }
+    return m_white_user.empty() ? "White" : m_white_user;
 }
 
 int SocketClient::get_white_elo() const {
-    return m_white_elo;
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_white_elo > 0 ? m_white_elo : 1200;
 }
 
 std::string SocketClient::get_black_username() const {
-    return m_black_user;
+    std::lock_guard<std::mutex> lock(state_mutex);
+    if ((m_black_user.empty() || m_black_user == "Black" || m_black_user == "Guest") && assigned_color == "BLACK" && !m_username.empty()) {
+        return m_username;
+    }
+    return m_black_user.empty() ? "Black" : m_black_user;
 }
 
 int SocketClient::get_black_elo() const {
-    return m_black_elo;
+    std::lock_guard<std::mutex> lock(state_mutex);
+    return m_black_elo > 0 ? m_black_elo : 1200;
 }
 
 void SocketClient::send_move(int sr, int sc, int dr, int dc) {
@@ -472,9 +498,9 @@ void SocketClient::parse_and_update_state(const std::string& json_str) {
     std::string r_id = extract_string(json_str, "room_id");
     std::string r_name = extract_string(json_str, "room_name");
 
-    if (!w_user.empty()) m_white_user = w_user;
+    if (!w_user.empty() && w_user != "White") m_white_user = w_user;
     if (w_elo > 0) m_white_elo = w_elo;
-    if (!b_user.empty()) m_black_user = b_user;
+    if (!b_user.empty() && b_user != "Black") m_black_user = b_user;
     if (b_elo > 0) m_black_elo = b_elo;
     if (!r_id.empty()) m_room_id = r_id;
     if (!r_name.empty()) m_room_name = r_name;
