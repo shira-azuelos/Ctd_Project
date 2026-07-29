@@ -65,7 +65,7 @@ graph TD
 | **3. Matchmaker** | ELO-based matchmaking queue (+-100 ELO tolerance) | `SocketServer::process_matchmaking` |
 | **4. Game Allocator** | Room assignment and server shard routing | `SocketServer::m_rooms` |
 | **5. Game Server Shards** | Authoritative C++ GameEngine (Single Source of Truth) | `src/engine/game_engine.cpp` |
-| **6. Observability** | Native C++ load testing, activity logging, and system metrics | `load_tester.cpp`, `server_activity.log` |
+| **6. Observability** | Native C++ load testing, activity logging, and system metrics | `tests/load/load_tester.cpp` |
 
 ---
 
