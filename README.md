@@ -1,5 +1,12 @@
 # KungFu Chess — Distributed Authoritative Real-Time System
 
+![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED.svg)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-K3s-326CE5.svg)
+![Redis](https://img.shields.io/badge/Redis-7.0-DC382D.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1.svg)
+![WebSocket](https://img.shields.io/badge/WebSocket-Async--IO-010101.svg)
+
 High-performance, multi-computer real-time chess engine where both players execute moves simultaneously without turn constraints. The system features airborne piece trajectories, mid-air collisions, authoritative C++ engine validation, responsive rendering, Docker orchestration, and persistent PostgreSQL and Redis integration.
 
 ---
