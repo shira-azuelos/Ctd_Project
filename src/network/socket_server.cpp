@@ -11,6 +11,9 @@
 
 namespace network {
 
+constexpr int DEFAULT_SESSION_TTL_SEC = 20;
+constexpr int CLEAR_SESSION_TTL_SEC = 1;
+
 static thread_local std::string tls_current_room_id;
 
 void SocketServer::log_server_activity(const std::string& msg) {
@@ -377,9 +380,9 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
                     std::string match_msg_black = "MATCH_FOUND BLACK " + (target_room->white_player ? target_room->white_player->username : "WHITE") + " " + std::to_string(target_room->white_player ? target_room->white_player->elo : 1200) + " " + client_sender->username + " " + std::to_string(client_sender->elo);
                     m_server.send(hdl, match_msg_black, websocketpp::frame::opcode::text, ec);
 
-                    io::RedisSessionStore::set_session(client_sender->username, target_room->id, 20);
+                    io::RedisSessionStore::set_session(client_sender->username, target_room->id, DEFAULT_SESSION_TTL_SEC);
                     if (target_room->white_player)
-                        io::RedisSessionStore::set_session(target_room->white_player->username, target_room->id, 20);
+                        io::RedisSessionStore::set_session(target_room->white_player->username, target_room->id, DEFAULT_SESSION_TTL_SEC);
                 } else {
                     client_sender->room_id = target_room->id;
                     client_sender->color = "VIEWER";
@@ -646,8 +649,8 @@ void SocketServer::game_loop() {
                         std::string winner_name = white_won ? room->white_player->username : room->black_player->username;
                         io::GameHistoryLogger::save(
                             room->id, room->white_player->username, room->black_player->username, winner_name);
-                        io::RedisSessionStore::set_session(room->white_player->username, "", 1);
-                        io::RedisSessionStore::set_session(room->black_player->username, "", 1);
+                        io::RedisSessionStore::set_session(room->white_player->username, "", CLEAR_SESSION_TTL_SEC);
+                        io::RedisSessionStore::set_session(room->black_player->username, "", CLEAR_SESSION_TTL_SEC);
                         log_server_activity("Room " + room->id + " game over! Winner: " + winner_name);
                     }
                 }
