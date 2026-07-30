@@ -33,4 +33,4 @@ public:
     void update_elo_after_game(const std::string& winner_user, const std::string& loser_user, bool is_draw = false);
 };
 
-}
+} 

@@ -76,6 +76,17 @@ graph TD
 
 ---
 
+## SOLID Design & Micro-Services Architecture
+
+The project adheres to **SOLID software design principles**:
+- **Single Responsibility Principle (SRP)**: Separated persistence responsibilities into dedicated classes:
+  - `GameHistoryLogger`: Writes PostgreSQL-compatible match audit records (`src/io/game_history_logger.cpp`).
+  - `RedisSessionStore`: Manages async non-blocking RESP TCP session key storage and TTLs in Redis (`src/io/redis_session_store.cpp`).
+  - `UserManager`: Handles user authentication and ELO rating math exclusively (`src/io/user_manager.cpp`).
+- **Non-Blocking Network Architecture**: Asynchronous detached worker threads handle Redis state synchronization and DB audit logs without impeding the 60 FPS primary rendering loop.
+
+---
+
 ## Scale and Traffic Estimates (10M CCU Scale)
 
 - **Concurrent Active Games**: 5,000,000 active room instances.
@@ -91,8 +102,8 @@ graph TD
 - **Zero-Latency Event Dispatching**: State updates are broadcast immediately upon validating player input.
 - **Responsive Full-Screen Display**: Responsive OpenCV windowing configured for native monitor resolution without aspect distortion.
 - **Multi-Computer LAN & Wi-Fi Operations**: Supports remote socket connections across network interfaces (0.0.0.0 binding).
-- **Session Reconnection and Graceful Handling**: 20-second reconnection window for temporary network interruptions; automatic termination upon dual disconnect.
-- **Persistence Layer Integration**: Real-time room caching backed by Redis in-memory data store alongside PostgreSQL relational storage.
+- **Session Reconnection and Graceful Handling**: 20-second reconnection window backed by Redis session TTLs (`session:<username>`).
+- **PostgreSQL Game Audit Trail**: Completed match details are logged via `GameHistoryLogger` to `game_history.log` for database ingestion.
 
 ---
 
@@ -103,7 +114,7 @@ graph TD
 - Windows 10/11 (x64) or Linux environment
 - MSVC C++17 Compiler / Visual Studio 2022
 - OpenCV 4.x C++ SDK
-- Docker and Docker Compose
+- Docker & Docker Compose or Kubernetes (k8s/k3s)
 
 ---
 
@@ -117,7 +128,15 @@ To compile and launch the full service stack (C++ Game Server, Redis, PostgreSQL
 docker-compose up --build
 ```
 
-### 2. Multi-Computer LAN Configuration
+### 2. Kubernetes (K3s / Minikube) Deployment
+
+To deploy to a managed Kubernetes cluster with HPA autoscaling (up to 400 replicas):
+
+```cmd
+kubectl apply -f k8s/deployment.yaml
+```
+
+### 3. Multi-Computer LAN Configuration
 
 **Server Host (Computer 1):**
 ```cmd
@@ -144,9 +163,9 @@ docker exec -it kungfu_postgres psql -U shira -d kungfu_chess -c "SELECT * FROM 
 docker exec -it kungfu_postgres psql -U shira -d kungfu_chess -c "SELECT * FROM games;"
 ```
 
-### Inspect Active Redis Keys
+### Inspect Active Redis Session Keys
 ```cmd
-docker exec -it kungfu_redis redis-cli KEYS "*"
+docker exec -it kungfu_redis redis-cli KEYS "session:*"
 ```
 
 ---

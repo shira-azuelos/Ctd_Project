@@ -2,6 +2,8 @@
 #include "model/board_factory.h"
 #include "pubsub/message_bus.h"
 #include "io/user_manager.h"
+#include "io/game_history_logger.h"
+#include "io/redis_session_store.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -374,6 +376,10 @@ void SocketServer::on_message(websocketpp::connection_hdl hdl, ws_server_t::mess
 
                     std::string match_msg_black = "MATCH_FOUND BLACK " + (target_room->white_player ? target_room->white_player->username : "WHITE") + " " + std::to_string(target_room->white_player ? target_room->white_player->elo : 1200) + " " + client_sender->username + " " + std::to_string(client_sender->elo);
                     m_server.send(hdl, match_msg_black, websocketpp::frame::opcode::text, ec);
+
+                    io::RedisSessionStore::set_session(client_sender->username, target_room->id, 20);
+                    if (target_room->white_player)
+                        io::RedisSessionStore::set_session(target_room->white_player->username, target_room->id, 20);
                 } else {
                     client_sender->room_id = target_room->id;
                     client_sender->color = "VIEWER";
@@ -593,7 +599,9 @@ void SocketServer::game_loop() {
                     }
                     white_c->elo = io::UserManager::get_instance().get_user(white_c->username).elo;
                     black_c->elo = io::UserManager::get_instance().get_user(black_c->username).elo;
-                    log_server_activity("Match game over! Winner: " + std::string(white_won ? white_c->username : black_c->username));
+                    std::string winner_name = white_won ? white_c->username : black_c->username;
+                    io::GameHistoryLogger::save("MATCH", white_c->username, black_c->username, winner_name);
+                    log_server_activity("Match game over! Winner: " + winner_name);
                 }
             }
             broadcast_state();
@@ -635,7 +643,12 @@ void SocketServer::game_loop() {
                         }
                         room->white_player->elo = io::UserManager::get_instance().get_user(room->white_player->username).elo;
                         room->black_player->elo = io::UserManager::get_instance().get_user(room->black_player->username).elo;
-                        log_server_activity("Room " + room->id + " game over! Winner: " + std::string(white_won ? room->white_player->username : room->black_player->username));
+                        std::string winner_name = white_won ? room->white_player->username : room->black_player->username;
+                        io::GameHistoryLogger::save(
+                            room->id, room->white_player->username, room->black_player->username, winner_name);
+                        io::RedisSessionStore::set_session(room->white_player->username, "", 1);
+                        io::RedisSessionStore::set_session(room->black_player->username, "", 1);
+                        log_server_activity("Room " + room->id + " game over! Winner: " + winner_name);
                     }
                 }
                 broadcast_room_state(room);

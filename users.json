@@ -1,24 +1,31 @@
 [
   {
-    "username": "uria",
-    "password": "1234",
-    "elo": 1322,
-    "wins": 20,
-    "losses": 17
-  },
-  {
     "username": "shira",
     "password": "1234",
-    "elo": 1354,
-    "wins": 17,
+    "elo": 1353,
+    "wins": 18,
+    "losses": 19
+  },
+  {
+    "username": "uria",
+    "password": "123",
+    "elo": 1323,
+    "wins": 21,
     "losses": 18
   },
   {
-    "username": "yael",
+    "username": "rachel",
     "password": "1234",
-    "elo": 1201,
-    "wins": 1,
-    "losses": 1
+    "elo": 1182,
+    "wins": 2,
+    "losses": 3
+  },
+  {
+    "username": "yael",
+    "password": "123",
+    "elo": 1219,
+    "wins": 4,
+    "losses": 3
   },
   {
     "username": "david",

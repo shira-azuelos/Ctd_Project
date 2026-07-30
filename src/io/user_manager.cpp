@@ -4,6 +4,9 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <iomanip>
+#include <cstdlib>
+
 
 namespace io {
 
@@ -278,6 +281,8 @@ void UserManager::update_elo_after_game(const std::string& winner_user, const st
         file << "\n]\n";
         file.close();
     }
-}
+
+} 
 
 }
+
